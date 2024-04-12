@@ -1,19 +1,44 @@
 package View;
 
+import Controller.Formatting;
+import Controller.SalesController;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Period;
+import Model.Sales;
+import Model.Vendedor;
+import Services.SaleService;
 import java.awt.event.KeyEvent;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 
-public class VendasAtual2 extends javax.swing.JFrame {
+public class VendasAtual extends javax.swing.JFrame {
 
 
-    public VendasAtual2() {
+   private String cpf;
+   private String cliente;
+   private String observation;
+   private String trSell;
+   private String contacts;
+       private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+   private DateTimeFormatter dtfComplete = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+   private Origin originSell;
+   private Period periodInstalation;
+   private Packages packgeSelected;
+   private LocalDateTime ldTSaleMarked;
+   private LocalDateTime ldTSaleMade;
+   
+   
+  public VendasAtual() {
         initComponents();
         setExtendedState(MAXIMIZED_BOTH);
         jPanel1.setSize(getMaximumSize());
@@ -21,18 +46,12 @@ public class VendasAtual2 extends javax.swing.JFrame {
         cbPacote.setModel(new DefaultComboBoxModel(Packages.values()));
         cbPeriodo.setModel(new DefaultComboBoxModel(Period.values()));
         cbOrigem.setModel(new  DefaultComboBoxModel(Origin.values()));
-        
-        
-    }
-    
-    public void fillInGoal(){//preenchaMeta
-      Map<Packages, Map<Integer, BigDecimal>> goals = new HashMap<>();
-      Map<Integer, BigDecimal> innerMap = new HashMap<>();
-       
-      innerMap.put(Integer.valueOf(txtInstaladasMaior1.getText()), BigDecimal.valueOf(Double.parseDouble(txtComissaoBatido1.getText())));
-goals.put(Packages.I_1GB, innerMap);
+       txtDataInstalacao.setText(format.dateFormaterField(LocalDate.now().plusDays(1)));
+  txtTrVendida.setText("TR799118 Higo");
+  txaObs.setText("Sem Ligação");
+  }
 
-    }
+    Formatting format = new Formatting();
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -40,19 +59,6 @@ goals.put(Packages.I_1GB, innerMap);
 
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-        txtInstaladasMaior1 = new javax.swing.JTextField();
-        txtInstaladasMaior2 = new javax.swing.JTextField();
-        txtInstaladasMaior3 = new javax.swing.JTextField();
-        txtInstaladasMaior4 = new javax.swing.JTextField();
-        txtComissaoBatido1 = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
-        txtComissaoBatido2 = new javax.swing.JTextField();
-        jLabel6 = new javax.swing.JLabel();
-        txtComissaoBatido3 = new javax.swing.JTextField();
-        jLabel7 = new javax.swing.JLabel();
-        txtComissaoBatido4 = new javax.swing.JTextField();
-        jLabel8 = new javax.swing.JLabel();
         jPanel11 = new javax.swing.JPanel();
         lblAprovisionamentoTot = new javax.swing.JLabel();
         jPanel12 = new javax.swing.JPanel();
@@ -73,7 +79,7 @@ goals.put(Packages.I_1GB, innerMap);
         cbPacote = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         txaObs = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
+        btnSale = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jPanel10 = new javax.swing.JPanel();
         jPanel15 = new javax.swing.JPanel();
@@ -92,6 +98,7 @@ goals.put(Packages.I_1GB, innerMap);
         jScrollPane2 = new javax.swing.JScrollPane();
         tblVendasRes = new javax.swing.JTable();
         lblValuePlan = new javax.swing.JLabel();
+        txtTest = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -101,56 +108,6 @@ goals.put(Packages.I_1GB, innerMap);
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Comissão", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Microsoft YaHei", 1, 14), new java.awt.Color(255, 0, 0))); // NOI18N
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Regras", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
-        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        txtInstaladasMaior1.setBackground(new java.awt.Color(255, 255, 255));
-        txtInstaladasMaior1.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Instaladas > que:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtInstaladasMaior1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, 110, 40));
-
-        txtInstaladasMaior2.setBackground(new java.awt.Color(255, 255, 255));
-        txtInstaladasMaior2.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Instaladas > que:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtInstaladasMaior2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 20, 110, 40));
-
-        txtInstaladasMaior3.setBackground(new java.awt.Color(255, 255, 255));
-        txtInstaladasMaior3.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Instaladas > que:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtInstaladasMaior3, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 20, 110, 40));
-
-        txtInstaladasMaior4.setBackground(new java.awt.Color(255, 255, 255));
-        txtInstaladasMaior4.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Instaladas > que:", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtInstaladasMaior4, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 20, 110, 40));
-
-        txtComissaoBatido1.setBackground(new java.awt.Color(255, 255, 255));
-        txtComissaoBatido1.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Valor por Venda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtComissaoBatido1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, 110, 40));
-
-        jLabel5.setText("Comissão");
-        jPanel4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 70, -1, -1));
-
-        txtComissaoBatido2.setBackground(new java.awt.Color(255, 255, 255));
-        txtComissaoBatido2.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Valor por Venda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtComissaoBatido2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 70, 110, 40));
-
-        jLabel6.setText("Comissão");
-        jPanel4.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 70, -1, -1));
-
-        txtComissaoBatido3.setBackground(new java.awt.Color(255, 255, 255));
-        txtComissaoBatido3.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Valor por Venda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtComissaoBatido3, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 70, 110, 40));
-
-        jLabel7.setText("Comissão");
-        jPanel4.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 70, -1, -1));
-
-        txtComissaoBatido4.setBackground(new java.awt.Color(255, 255, 255));
-        txtComissaoBatido4.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Valor por Venda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        jPanel4.add(txtComissaoBatido4, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 70, 110, 40));
-
-        jLabel8.setText("Comissão");
-        jPanel4.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 70, -1, -1));
-
-        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 30, 520, 120));
 
         jPanel11.setBackground(new java.awt.Color(255, 255, 255));
         jPanel11.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Aprovisionamento", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(255, 153, 0))); // NOI18N
@@ -178,7 +135,7 @@ goals.put(Packages.I_1GB, innerMap);
                     .addContainerGap(20, Short.MAX_VALUE)))
         );
 
-        jPanel2.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, 170, 80));
+        jPanel2.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 170, 80));
 
         jPanel12.setBackground(new java.awt.Color(255, 255, 255));
         jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Total Instaladas", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 204, 0))); // NOI18N
@@ -241,7 +198,7 @@ goals.put(Packages.I_1GB, innerMap);
                     .addContainerGap(20, Short.MAX_VALUE)))
         );
 
-        jPanel2.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 150, 180, 80));
+        jPanel2.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 20, 180, 80));
 
         jPanel14.setBackground(new java.awt.Color(255, 255, 255));
         jPanel14.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Instaladas", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 204, 0))); // NOI18N
@@ -269,7 +226,7 @@ goals.put(Packages.I_1GB, innerMap);
                     .addContainerGap(20, Short.MAX_VALUE)))
         );
 
-        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 150, 160, 80));
+        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 20, 160, 80));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 10, 740, 250));
 
@@ -359,12 +316,27 @@ goals.put(Packages.I_1GB, innerMap);
         txaObs.setForeground(new java.awt.Color(255, 0, 0));
         txaObs.setRows(5);
         txaObs.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Observação", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        txaObs.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txaObsKeyPressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(txaObs);
 
         jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 1100, 60));
 
-        jButton1.setText("Cadastrar venda");
-        jPanel6.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 90, 120, 40));
+        btnSale.setText("Cadastrar venda");
+        btnSale.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaleActionPerformed(evt);
+            }
+        });
+        btnSale.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                btnSaleKeyPressed(evt);
+            }
+        });
+        jPanel6.add(btnSale, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 90, 120, 40));
 
         jButton2.setText("Limpar Campos");
         jPanel6.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 40, 120, 40));
@@ -512,6 +484,15 @@ goals.put(Packages.I_1GB, innerMap);
         lblValuePlan.setText("jLabel1");
         jPanel1.add(lblValuePlan, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 280, 130, -1));
 
+        txtTest.setBackground(new java.awt.Color(255, 255, 255));
+        txtTest.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "CPF/CNPJ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        txtTest.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtTestKeyPressed(evt);
+            }
+        });
+        jPanel1.add(txtTest, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 270, 140, 30));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -530,39 +511,90 @@ goals.put(Packages.I_1GB, innerMap);
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+//( seller,  sellDateHour,  cpf,  customers,  contact,  packages,  installationMarked,  period,  origin,  observation) {
+    
+     private void Saling() {
+         ldTSaleMade = LocalDateTime.now();
+            SalesController sc = new SalesController();
+            sc.saveSales(new Sales(new Vendedor(1), ldTSaleMade, cpf, cliente, contacts, packgeSelected.toString(), ldTSaleMarked, periodInstalation, originSell, observation));
+            ldTSaleMade = null;
+     }
+    
     private void txtCPFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCPFKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            if (txtCPF.getText().length() < 11) {
+             JOptionPane.showMessageDialog(null, "O cpf/cnpj que digitou esta incorreto\n TAmanhaho: "+txtCPF.getText().length()+" caractes"  , "Aviso", JOptionPane.ERROR_MESSAGE);
+}else{
+            cpf = txtCPF.getText();
             txtCliente.requestFocus();
+        }
         }
     }//GEN-LAST:event_txtCPFKeyPressed
 
     private void txtClienteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClienteKeyPressed
           if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            txtContato.requestFocus();
+             cliente = txtCliente.getText();
+              txtContato.requestFocus();
         }
     }//GEN-LAST:event_txtClienteKeyPressed
 
     private void txtContatoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtContatoKeyPressed
           if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            cbPacote.requestFocus();
+            if (txtCPF.getText().length() < 11) {
+             JOptionPane.showMessageDialog(null, "O cpf/cnpj que digitou esta incorreto\n TAmanhaho: "+txtCPF.getText().length()+" caractes"  , "Aviso", JOptionPane.ERROR_MESSAGE);
+}else{
+//              String[] contacts = txtContato.getText().replace(" ", "").split("/");
+//                   JOptionPane.showMessageDialog(null, contacts  , "Aviso", JOptionPane.ERROR_MESSAGE);
+//                for (String contact : contacts) {
+//                  contatos.add(contact);
+//              }
+            contacts = txtCPF.getText();
+                
+               cbPacote.requestFocus();
+        }
         }
     }//GEN-LAST:event_txtContatoKeyPressed
 
     private void cbPacoteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPacoteKeyPressed
           if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            txtDataInstalacao.requestFocus();
+              if (cbPacote.getSelectedItem() == Packages.SELECT) {
+                               JOptionPane.showMessageDialog(null,"Selecione um Pacote!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+
+              }else{
+                  packgeSelected = (Packages) cbPacote.getSelectedItem();
+                                                //JOptionPane.showMessageDialog(null,"Pacote escolhido: "+packgeSelected,"Aviso",JOptionPane.INFORMATION_MESSAGE);
+              }
         }
     }//GEN-LAST:event_cbPacoteKeyPressed
 
     private void txtDataInstalacaoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDataInstalacaoKeyPressed
          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            cbPeriodo.requestFocus();
+          // ld = format.dateFormaterBank(txtDataInstalacao.getText());
+             cbPeriodo.requestFocus();
         }
     }//GEN-LAST:event_txtDataInstalacaoKeyPressed
 
     private void cbPeriodoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPeriodoKeyPressed
           if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            txtTrVendida.requestFocus();
+              if (cbPeriodo.getSelectedItem() == periodInstalation.SELECT) {
+                               JOptionPane.showMessageDialog(null,"Selecione um Periodo de Instalação!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+
+              }else{
+                  periodInstalation =  (Period) cbPeriodo.getSelectedItem();
+                  if (periodInstalation == Period.MORNING) {
+                      ldTSaleMarked = format.dateTimeFormaterBank(txtDataInstalacao.getText() + " 08:00");
+                      JOptionPane.showMessageDialog(null,"Data:  "+ldTSaleMarked,"Aviso",JOptionPane.INFORMATION_MESSAGE);
+
+                  }
+                  if (periodInstalation == Period.AFTERNOON) {
+                        ldTSaleMarked = format.dateTimeFormaterBank(txtDataInstalacao.getText() + " 13:00");
+                      JOptionPane.showMessageDialog(null,"Data:  "+ldTSaleMarked,"Aviso",JOptionPane.INFORMATION_MESSAGE);
+
+                  }
+     
+                  txtTrVendida.requestFocus();
+              }
+            
         }
     }//GEN-LAST:event_cbPeriodoKeyPressed
 
@@ -574,36 +606,64 @@ goals.put(Packages.I_1GB, innerMap);
 
     private void cbOrigemKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbOrigemKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            txaObs.requestFocus();
+            if (cbOrigem.getSelectedItem() == Origin.SELECT) {
+                               JOptionPane.showMessageDialog(null,"Selecione em qual lugar tu vedeu!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+
+              }else{
+                  originSell =  (Origin) cbOrigem.getSelectedItem();
+                      txaObs.requestFocus();
+              }
+            
         }
     }//GEN-LAST:event_cbOrigemKeyPressed
 
     private void cbPacoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPacoteActionPerformed
-       boolean y = cbPacote.getSelectedItem() == Packages.I_400MB;
-        String vaç = cbPacote.getSelectedItem() + " = "+ Packages.I_400MB.toString() +" ? "+ y;
-        JOptionPane.showMessageDialog(null, vaç  , "Aviso", JOptionPane.ERROR_MESSAGE);
+        if (cbPacote.getSelectedItem() == Packages.SELECT) {
+                               JOptionPane.showMessageDialog(null,"Selecione um Pacote!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+
+              }else{
+                  packgeSelected = (Packages) cbPacote.getSelectedItem();
+                                                //JOptionPane.showMessageDialog(null,"Pacote escolhido: "+packgeSelected,"Aviso",JOptionPane.INFORMATION_MESSAGE);
+              }
     }//GEN-LAST:event_cbPacoteActionPerformed
+
+    private void txtTestKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTestKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) 
+            JOptionPane.showMessageDialog(null,"Valor do pacote é: "+SaleService.ValuePerSale(Integer.parseInt(txtTest.getText()), Packages.I_1GB),"Aviso",JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_txtTestKeyPressed
+
+    private void btnSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaleActionPerformed
+        Saling();
+    }//GEN-LAST:event_btnSaleActionPerformed
+
+    private void txaObsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txaObsKeyPressed
+         if (evt.getKeyCode() == KeyEvent.VK_ENTER){ 
+            observation = txaObs.getText();
+            btnSale.requestFocus();
+         }
+    }//GEN-LAST:event_txaObsKeyPressed
+
+    private void btnSaleKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnSaleKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) 
+            Saling();
+    }//GEN-LAST:event_btnSaleKeyPressed
 
     public static void main(String args[]) {
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new VendasAtual2().setVisible(true);
+                new VendasAtual().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnSale;
     private javax.swing.JComboBox<String> cbOrigem;
     private javax.swing.JComboBox<String> cbPacote;
     private javax.swing.JComboBox<String> cbPeriodo;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
@@ -615,7 +675,6 @@ goals.put(Packages.I_1GB, innerMap);
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -637,16 +696,11 @@ goals.put(Packages.I_1GB, innerMap);
     private javax.swing.JTextArea txaObs;
     private javax.swing.JTextField txtCPF;
     private javax.swing.JTextField txtCliente;
-    private javax.swing.JTextField txtComissaoBatido1;
-    private javax.swing.JTextField txtComissaoBatido2;
-    private javax.swing.JTextField txtComissaoBatido3;
-    private javax.swing.JTextField txtComissaoBatido4;
     private javax.swing.JTextField txtContato;
     private javax.swing.JTextField txtDataInstalacao;
-    private javax.swing.JTextField txtInstaladasMaior1;
-    private javax.swing.JTextField txtInstaladasMaior2;
-    private javax.swing.JTextField txtInstaladasMaior3;
-    private javax.swing.JTextField txtInstaladasMaior4;
+    private javax.swing.JTextField txtTest;
     private javax.swing.JTextField txtTrVendida;
     // End of variables declaration//GEN-END:variables
+
+   
 }

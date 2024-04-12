@@ -18,6 +18,10 @@ public class Vendedor {
         this.tr = tr;
     }
     
+    public Vendedor(int  identificador){
+         this.identificador = identificador;
+    }
+    
     
     
 
