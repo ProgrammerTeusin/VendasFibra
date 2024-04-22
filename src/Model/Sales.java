@@ -2,6 +2,7 @@ package Model;
 
 import Model.Enums.Origin;
 import Model.Enums.Period;
+import Model.Enums.Situation;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 
 public class Sales {
     
+    private int id;
     private Vendedor seller;
     private LocalDateTime sellDateHour;
         private String customers; //cliente 
@@ -18,9 +20,11 @@ public class Sales {
     private LocalDateTime installationMarked; //instalacao marcada
     private Period period;
     private Origin origin;
+    private Situation situation;
     private String observation;
+    private float valuePackage;
 
-    public Sales(Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, LocalDateTime installationMarked, Period period, Origin origin, String observation) {
+     public Sales(Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage,LocalDateTime installationMarked, Period period, Origin origin, Situation situation,String observation) {
         this.seller = seller;
         this.sellDateHour = sellDateHour;
         this.customers = customers;
@@ -31,8 +35,36 @@ public class Sales {
         this.origin = origin;
         this.observation = observation;
         this.cpf = cpf;
-        
+        this.valuePackage = valuePackage;
+        this.situation = situation;
     }
+    
+     public Sales(int id, Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage,LocalDateTime installationMarked, Period period, Origin origin, Situation situation,String observation) {
+        this.seller = seller;
+        this.sellDateHour = sellDateHour;
+        this.customers = customers;
+        this.contact = contact;
+        this.packages = packages;
+        this.installationMarked = installationMarked;
+        this.period = period;
+        this.origin = origin;
+        this.observation = observation;
+        this.cpf = cpf;
+        this.valuePackage = valuePackage;
+        this.situation = situation;
+        this.id = id;
+       
+    }
+   
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+    
 
     public Vendedor getSeller() {
         return seller;
@@ -106,6 +138,31 @@ public class Sales {
         this.observation = observation;
     }
 
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
+
+    public float getValuePackage() {
+        return valuePackage;
+    }
+
+    public void setValuePackage(float valuePackage) {
+        this.valuePackage = valuePackage;
+    }
+
+    public Situation getSituation() {
+        return situation;
+    }
+
+    public void setSituation(Situation situation) {
+        this.situation = situation;
+    }
+
+    
     
     
     

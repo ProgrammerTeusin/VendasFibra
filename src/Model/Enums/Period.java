@@ -14,4 +14,12 @@ public enum Period {
      return value;
  }    
   
+  public static Period fromString(String value) {
+        for (Period period : Period.values()) {
+            if (period.toString().equals(value)) {
+                return period;
+            }
+        }
+        return null;
+    }
 }

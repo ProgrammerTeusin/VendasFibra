@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Services;
 
 import Model.Enums.Packages;
@@ -9,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.JOptionPane;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SaleService {
 public static float ValuePerSale(int qtdInstalled, Packages packages) {
@@ -36,7 +34,7 @@ public static float ValuePerSale(int qtdInstalled, Packages packages) {
             for (Map.Entry<Integer, Float> entry : p400MB.descendingMap().entrySet()) {
                 if (qtdInstalled > entry.getKey()) {
                     value = entry.getValue();
-                    break;
+                    break;      
                 }
             }
         } else {
@@ -53,6 +51,11 @@ public static float ValuePerSale(int qtdInstalled, Packages packages) {
 
     return value;
 }
+
+public static void searchSellsPlanilhaService() {
+           Workbook work =   new XSSFWorkbook(excelFile);
+                   
+    }
 
    
 }

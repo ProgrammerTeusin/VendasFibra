@@ -3,10 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Model/Enums/Origin.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Controller/Formatting.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/View/VendasAtual.java</file>
-            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Model/Vendedor.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Model/Enums/Packages.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Services/SaleService.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Dao/ConnectionFactory.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Controller/SalesController.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Model/Enums/Period.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Dao/SalesDAO.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/VendasFibra/src/Model/Sales.java</file>
         </group>
     </open-files>

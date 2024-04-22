@@ -22,6 +22,14 @@ public enum Origin {
         return type;
     }
     
-    
+     public static Origin fromString(String value) {
+        for (Origin origin : Origin.values()) {
+            if (origin.toString().equals(value)) {
+                System.out.println("Passsoui aqu oooo" + origin);
+                return origin;
+            }
+        }
+        return null;
+    }
     
 }

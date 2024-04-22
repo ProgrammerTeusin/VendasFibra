@@ -2,13 +2,23 @@ package View;
 
 import Controller.Formatting;
 import Controller.SalesController;
+import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Period;
+import Model.Enums.Situation;
+import static Model.Enums.Situation.CANCELED;
+import static Model.Enums.Situation.INSTALLED;
+import static Model.Enums.Situation.PROVISIONING;
 import Model.Sales;
 import Model.Vendedor;
 import Services.SaleService;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,39 +29,106 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 public class VendasAtual extends javax.swing.JFrame {
 
+    private String cpf;
+    private String cliente;
+    private String observation;
+    private String trSell;
+    private String contacts;
+    private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private DateTimeFormatter dtfComplete = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private Origin originSell;
+    private Period periodInstalation;
+    private Packages packgeSelected;
+    private Situation situation;
+    private LocalDateTime ldTSaleMarked;
+    private LocalDateTime ldTSaleMade;
+    private float valuePackage;
+    private TypeBank type;
+    int idSelection = 0;
+    int id = 0;
 
-   private String cpf;
-   private String cliente;
-   private String observation;
-   private String trSell;
-   private String contacts;
-       private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-   private DateTimeFormatter dtfComplete = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-   private Origin originSell;
-   private Period periodInstalation;
-   private Packages packgeSelected;
-   private LocalDateTime ldTSaleMarked;
-   private LocalDateTime ldTSaleMade;
-   
-   
-  public VendasAtual() {
+    private void fillData() {
+
+        String fielsWithout = fielWithoutFielling();
+        if (fielsWithout == "" || fielsWithout == null || fielsWithout.length() == 0) {
+            if (cliente == null) {
+                cliente = txtCliente.getText();
+            }
+
+            if (cpf == null) {
+                cpf = txtCPF.getText();
+            }
+
+            if (contacts == null) {
+                contacts = txtContato.getText();
+            }
+            if (observation == null) {
+                observation = txaObs.getText();
+            }
+
+            if (ldTSaleMarked.equals("") || ldTSaleMarked == null) {
+                InsertPeriod();
+            }
+
+            if (packgeSelected == null) {
+                fillingPackage();
+            }
+
+            if (originSell == null) {
+                originSell = Origin.valueOf(cbOrigem.getSelectedItem() + "");
+            }
+            if (situation == null) {
+                situation = (Situation) cbSituatiom.getSelectedItem();
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Favor preencher os seguintes campos\n " + fielsWithout, "Aviso", JOptionPane.ERROR_MESSAGE);
+
+        }
+
+    }
+
+    private enum TypeBank {
+        UPDATE,
+        INSERT;
+    }
+
+    public VendasAtual() {
         initComponents();
         setExtendedState(MAXIMIZED_BOTH);
         jPanel1.setSize(getMaximumSize());
+        sc.returnData();
         txtCPF.requestFocus();
         cbPacote.setModel(new DefaultComboBoxModel(Packages.values()));
         cbPeriodo.setModel(new DefaultComboBoxModel(Period.values()));
-        cbOrigem.setModel(new  DefaultComboBoxModel(Origin.values()));
-       txtDataInstalacao.setText(format.dateFormaterField(LocalDate.now().plusDays(1)));
-  txtTrVendida.setText("TR799118 Higo");
-  txaObs.setText("Sem Ligação");
-  }
+        cbOrigem.setModel(new DefaultComboBoxModel(Origin.values()));
+        cbSituatiom.setModel(new DefaultComboBoxModel(Situation.values()));
+        txtDataInstalacao.setText(format.dateFormaterField(LocalDate.now().plusDays(1)));
+        txtTrVendida.setText("TR799118 Higo");
+        txaObs.setText("Sem Ligação");
+        tableFormatColors();
+        tblVendasRes.setShowGrid(false);
+        sc.fillingsPacksges();
+        actionMouseRight();
+        triggerToChage(false);
+        type = TypeBank.INSERT;
+        lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
+        //returnPositionTable();
+        fillingsValuesPacksges();
+    }
 
     Formatting format = new Formatting();
+    SalesController sc = new SalesController();
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -61,13 +138,13 @@ public class VendasAtual extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
         lblAprovisionamentoTot = new javax.swing.JLabel();
-        jPanel12 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
+        lblAprovisionamentoTot1 = new javax.swing.JLabel();
         jPanel13 = new javax.swing.JPanel();
         lblCanceladaTot = new javax.swing.JLabel();
+        lblCanceladaTot1 = new javax.swing.JLabel();
         jPanel14 = new javax.swing.JPanel();
         lblInstaladaTot = new javax.swing.JLabel();
+        lblInstaladaTot1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
         txtCliente = new javax.swing.JTextField();
         txtCPF = new javax.swing.JTextField();
@@ -80,7 +157,8 @@ public class VendasAtual extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txaObs = new javax.swing.JTextArea();
         btnSale = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnCancell = new javax.swing.JButton();
+        cbSituatiom = new javax.swing.JComboBox<>();
         jPanel10 = new javax.swing.JPanel();
         jPanel15 = new javax.swing.JPanel();
         lblCancelada700 = new javax.swing.JLabel();
@@ -98,7 +176,8 @@ public class VendasAtual extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblVendasRes = new javax.swing.JTable();
         lblValuePlan = new javax.swing.JLabel();
-        txtTest = new javax.swing.JTextField();
+        lblQtSellsTable = new javax.swing.JLabel();
+        btnReadSells = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -114,121 +193,91 @@ public class VendasAtual extends javax.swing.JFrame {
 
         lblAprovisionamentoTot.setText("Aprovisionamento");
 
+        lblAprovisionamentoTot1.setText("Aprovisionamento");
+
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 156, Short.MAX_VALUE)
-            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel11Layout.createSequentialGroup()
-                    .addGap(29, 29, 29)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblAprovisionamentoTot)
-                    .addContainerGap(29, Short.MAX_VALUE)))
+                    .addComponent(lblAprovisionamentoTot1))
+                .addContainerGap(122, Short.MAX_VALUE))
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 55, Short.MAX_VALUE)
-            .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel11Layout.createSequentialGroup()
-                    .addGap(19, 19, 19)
-                    .addComponent(lblAprovisionamentoTot)
-                    .addContainerGap(20, Short.MAX_VALUE)))
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addGap(17, 17, 17)
+                .addComponent(lblAprovisionamentoTot)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblAprovisionamentoTot1)
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 20, 170, 80));
-
-        jPanel12.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel12.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Total Instaladas", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 204, 0))); // NOI18N
-
-        jLabel10.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel10.setText("8 instaladas");
-
-        jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel9.setText("R$ 40");
-
-        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
-        jPanel12.setLayout(jPanel12Layout);
-        jPanel12Layout.setHorizontalGroup(
-            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel12Layout.createSequentialGroup()
-                .addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel12Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jLabel10))
-                    .addGroup(jPanel12Layout.createSequentialGroup()
-                        .addGap(34, 34, 34)
-                        .addComponent(jLabel9)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel12Layout.setVerticalGroup(
-            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel12Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
-                .addComponent(jLabel9)
-                .addGap(50, 50, 50))
-        );
-
-        jPanel2.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(580, 30, 140, 200));
+        jPanel2.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 240, 100));
 
         jPanel13.setBackground(new java.awt.Color(255, 255, 255));
         jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Canceladas", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(255, 0, 0))); // NOI18N
 
         lblCanceladaTot.setText("Cancelada");
 
+        lblCanceladaTot1.setText("Cancelada");
+
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
         jPanel13Layout.setHorizontalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 166, Short.MAX_VALUE)
-            .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel13Layout.createSequentialGroup()
-                    .addGap(55, 55, 55)
-                    .addComponent(lblCanceladaTot)
-                    .addContainerGap(56, Short.MAX_VALUE)))
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblCanceladaTot1)
+                    .addComponent(lblCanceladaTot))
+                .addContainerGap(175, Short.MAX_VALUE))
         );
         jPanel13Layout.setVerticalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 55, Short.MAX_VALUE)
-            .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel13Layout.createSequentialGroup()
-                    .addGap(19, 19, 19)
-                    .addComponent(lblCanceladaTot)
-                    .addContainerGap(20, Short.MAX_VALUE)))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblCanceladaTot)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)
+                .addComponent(lblCanceladaTot1)
+                .addContainerGap())
         );
 
-        jPanel2.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 20, 180, 80));
+        jPanel2.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 40, 250, 90));
 
         jPanel14.setBackground(new java.awt.Color(255, 255, 255));
         jPanel14.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "Instaladas", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 204, 0))); // NOI18N
 
         lblInstaladaTot.setText("Instaladas");
 
+        lblInstaladaTot1.setText("Instaladas");
+
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 146, Short.MAX_VALUE)
-            .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel14Layout.createSequentialGroup()
-                    .addGap(47, 47, 47)
-                    .addComponent(lblInstaladaTot)
-                    .addContainerGap(47, Short.MAX_VALUE)))
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblInstaladaTot1)
+                    .addComponent(lblInstaladaTot))
+                .addContainerGap(256, Short.MAX_VALUE))
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 55, Short.MAX_VALUE)
-            .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanel14Layout.createSequentialGroup()
-                    .addGap(19, 19, 19)
-                    .addComponent(lblInstaladaTot)
-                    .addContainerGap(20, Short.MAX_VALUE)))
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addComponent(lblInstaladaTot)
+                .addGap(18, 18, 18)
+                .addComponent(lblInstaladaTot1)
+                .addGap(0, 15, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 20, 160, 80));
+        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, 340, 90));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 10, 740, 250));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 10, 560, 250));
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Cadastrar Venda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Microsoft YaHei", 1, 14), new java.awt.Color(204, 0, 204))); // NOI18N
@@ -254,6 +303,11 @@ public class VendasAtual extends javax.swing.JFrame {
 
         cbPeriodo.setBackground(new java.awt.Color(255, 255, 255));
         cbPeriodo.setBorder(javax.swing.BorderFactory.createTitledBorder("Perido"));
+        cbPeriodo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbPeriodoActionPerformed(evt);
+            }
+        });
         cbPeriodo.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 cbPeriodoKeyPressed(evt);
@@ -281,6 +335,11 @@ public class VendasAtual extends javax.swing.JFrame {
 
         cbOrigem.setBackground(new java.awt.Color(255, 255, 255));
         cbOrigem.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Origem", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        cbOrigem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbOrigemActionPerformed(evt);
+            }
+        });
         cbOrigem.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 cbOrigemKeyPressed(evt);
@@ -323,7 +382,7 @@ public class VendasAtual extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(txaObs);
 
-        jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 1100, 60));
+        jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 980, 60));
 
         btnSale.setText("Cadastrar venda");
         btnSale.addActionListener(new java.awt.event.ActionListener() {
@@ -338,8 +397,31 @@ public class VendasAtual extends javax.swing.JFrame {
         });
         jPanel6.add(btnSale, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 90, 120, 40));
 
-        jButton2.setText("Limpar Campos");
-        jPanel6.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 40, 120, 40));
+        btnCancell.setBackground(new java.awt.Color(255, 51, 51));
+        btnCancell.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
+        btnCancell.setForeground(new java.awt.Color(255, 255, 255));
+        btnCancell.setText("Cancelar");
+        btnCancell.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, null, new java.awt.Color(255, 0, 0), null, null));
+        btnCancell.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancellActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnCancell, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 40, 120, 40));
+
+        cbSituatiom.setBackground(new java.awt.Color(255, 255, 255));
+        cbSituatiom.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Situação", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        cbSituatiom.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbSituatiomActionPerformed(evt);
+            }
+        });
+        cbSituatiom.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cbSituatiomKeyPressed(evt);
+            }
+        });
+        jPanel6.add(cbSituatiom, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 90, 110, 40));
 
         jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, 1270, 160));
 
@@ -366,7 +448,7 @@ public class VendasAtual extends javax.swing.JFrame {
                     .addComponent(lblAprovisionamento700)
                     .addComponent(lblInstalada700)
                     .addComponent(lblCancelada700))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
         );
         jPanel15Layout.setVerticalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -380,7 +462,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(330, 30, 140, 140));
+        jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 30, 210, 140));
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
         jPanel16.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "400MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
@@ -401,7 +483,7 @@ public class VendasAtual extends javax.swing.JFrame {
                     .addComponent(lblAprovisionamento400)
                     .addComponent(lblInstalada400)
                     .addComponent(lblCancelada400))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
         );
         jPanel16Layout.setVerticalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -415,7 +497,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 140, 140));
+        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 210, 140));
 
         jPanel17.setBackground(new java.awt.Color(255, 255, 255));
         jPanel17.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "600MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
@@ -436,7 +518,7 @@ public class VendasAtual extends javax.swing.JFrame {
                     .addComponent(lblAprovisionamento600)
                     .addComponent(lblInstalada600)
                     .addComponent(lblCancelada600))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(112, Short.MAX_VALUE))
         );
         jPanel17Layout.setVerticalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -450,56 +532,74 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 140, 140));
+        jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 30, 230, 140));
 
         lblEstimativa.setText("Estimativa de ");
         jPanel10.add(lblEstimativa, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 190, -1, -1));
 
-        jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 510, 250));
+        jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 700, 250));
 
         tblVendasRes.setBackground(new java.awt.Color(255, 255, 255));
+        tblVendasRes.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         tblVendasRes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
-                "Data Criação", "CPF/CNPJ", "Pacote", "Data Instalação", "Situação"
+                "ID", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, false, false, true, true
+                false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
+        tblVendasRes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblVendasResMouseClicked(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tblVendasResMousePressed(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblVendasRes);
+        if (tblVendasRes.getColumnModel().getColumnCount() > 0) {
+            tblVendasRes.getColumnModel().getColumn(0).setMinWidth(0);
+            tblVendasRes.getColumnModel().getColumn(0).setPreferredWidth(10);
+            tblVendasRes.getColumnModel().getColumn(0).setMaxWidth(20);
+            tblVendasRes.getColumnModel().getColumn(2).setResizable(false);
+            tblVendasRes.getColumnModel().getColumn(5).setResizable(false);
+            tblVendasRes.getColumnModel().getColumn(6).setMinWidth(30);
+            tblVendasRes.getColumnModel().getColumn(6).setPreferredWidth(0);
+            tblVendasRes.getColumnModel().getColumn(7).setResizable(false);
+            tblVendasRes.getColumnModel().getColumn(8).setResizable(false);
+            tblVendasRes.getColumnModel().getColumn(9).setResizable(false);
+        }
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 490, 910, 110));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 520, 1280, 170));
 
         lblValuePlan.setText("jLabel1");
         jPanel1.add(lblValuePlan, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 280, 130, -1));
 
-        txtTest.setBackground(new java.awt.Color(255, 255, 255));
-        txtTest.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "CPF/CNPJ", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Segoe UI", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        txtTest.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtTestKeyPressed(evt);
+        lblQtSellsTable.setText("jLabel1");
+        jPanel1.add(lblQtSellsTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 500, 230, -1));
+
+        btnReadSells.setText("Buscar vendas Planilha");
+        btnReadSells.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReadSellsActionPerformed(evt);
             }
         });
-        jPanel1.add(txtTest, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 270, 140, 30));
+        jPanel1.add(btnReadSells, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 470, 160, 30));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 1341, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 42, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -511,142 +611,502 @@ public class VendasAtual extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-//( seller,  sellDateHour,  cpf,  customers,  contact,  packages,  installationMarked,  period,  origin,  observation) {
-    
-     private void Saling() {
-         ldTSaleMade = LocalDateTime.now();
-            SalesController sc = new SalesController();
-            sc.saveSales(new Sales(new Vendedor(1), ldTSaleMade, cpf, cliente, contacts, packgeSelected.toString(), ldTSaleMarked, periodInstalation, originSell, observation));
-            ldTSaleMade = null;
-     }
-    
-    private void txtCPFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCPFKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            if (txtCPF.getText().length() < 11) {
-             JOptionPane.showMessageDialog(null, "O cpf/cnpj que digitou esta incorreto\n TAmanhaho: "+txtCPF.getText().length()+" caractes"  , "Aviso", JOptionPane.ERROR_MESSAGE);
-}else{
-            cpf = txtCPF.getText();
-            txtCliente.requestFocus();
+    private void triggerToChage(boolean active) {
+        if (active) {
+            txaObs.setSize((txaObs.getSize().height - cbSituatiom.getSize().width - 10), txaObs.getSize().height);
+            cbSituatiom.setVisible(active);
+            jScrollPane1.setSize((txaObs.getSize().height - cbSituatiom.getSize().width - 10), txaObs.getSize().height);
+            btnCancell.setVisible(active);
+        } else {
+            txaObs.setSize((txaObs.getSize().height + cbSituatiom.getSize().width + 10), txaObs.getSize().height);
+            jScrollPane1.setSize((txaObs.getSize().height + cbSituatiom.getSize().width + 10), txaObs.getSize().height);
+            cbSituatiom.setVisible(active);
+            btnCancell.setVisible(active);
         }
+    }
+
+    private void isToUpdateOrInsert(TypeBank tb) {
+        if (tb == TypeBank.UPDATE) {
+            triggerToChage(true);
+            txtCPF.requestFocus();
+            btnSale.setText("Atualizar Venda");
+
+        } else if (tb == TypeBank.INSERT) {
+            triggerToChage(false);
+            txtCPF.requestFocus();
+            btnSale.setText("Cadastrar Venda");
+
+        } else {
+            JOptionPane.showMessageDialog(null, "Escolha uma opção valida", "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
+        {
+
+        }
+    }
+
+    private void Saling() {
+        ldTSaleMade = LocalDateTime.now();
+        SalesController sc = new SalesController();
+        if (fielWithoutFielling().length() > 0) {
+            JOptionPane.showMessageDialog(null, "Favor preencher os seguintes campos\n " + fielWithoutFielling(), "Aviso", JOptionPane.ERROR_MESSAGE);
+
+        } else {
+            sc.saveSales(new Sales(
+                    new Vendedor(1),
+                    ldTSaleMade, cpf, cliente,
+                    contacts, packgeSelected.toString(),
+                    valuePackage, ldTSaleMarked, periodInstalation,
+                    originSell, Situation.PROVISIONING, observation));
+
+            DefaultTableModel dtm = (DefaultTableModel) tblVendasRes.getModel();
+            Object[] dados = {
+                format.dateTimeFormaterField(ldTSaleMade),
+                cpf,
+                cliente,
+                contacts,
+                packgeSelected.toString(),
+                ldTSaleMarked.toLocalDate(),
+                periodInstalation.toString(),
+                originSell.toString(),
+                Situation.PROVISIONING.toString(),
+                observation
+            };
+            dtm.addRow(dados);
+            cleanFields();
+            txtCPF.requestFocus();
+
+        }
+    }
+
+    private void update() {
+        SalesController sc = new SalesController();
+
+        sc.updateSales(new Sales(id, new Vendedor(1),
+                ldTSaleMade, cpf, cliente,
+                contacts, packgeSelected.toString(),
+                valuePackage, ldTSaleMarked, periodInstalation,
+                originSell, situation, observation));
+
+//            
+        lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        cleanFields();
+        txtCPF.requestFocus();
+
+    }
+
+    public void fillingsValuesPacksges() {
+        Map<String, Integer> position = returnPositionTable();
+
+        double packProvisig400 = 0;
+        double packInstalled400 = 0;
+        double packcancell400 = 0;
+        double packProvisig600 = 0;
+        double packInstalled600 = 0;
+        double packcancell600 = 0;
+        double packProvisig700 = 0;
+        double packInstalled700 = 0;
+        double packcancell700 = 0;
+
+        for (int i = 0; i < tblVendasRes.getRowCount(); i++) {
+            Packages pack = Packages.fromString(tblVendasRes.getValueAt(i, position.get("package")) + "");
+            Situation situation = Situation.fromString(tblVendasRes.getValueAt(i, position.get("situation")) + "");
+
+            double valuePerPack = Double.parseDouble(format.formatMoneyNumber(tblVendasRes.getValueAt(i, position.get("value")) + "", 'N'));
+
+            if (pack == Packages.I_400MB) {
+
+                switch (situation) {
+                    case CANCELED:
+                        packcancell400 += valuePerPack;
+                    case INSTALLED:
+                        packInstalled400 += valuePerPack;
+
+                        break;
+                    case PROVISIONING:
+                        packProvisig400 += valuePerPack;
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+            if (pack == Packages.I_500MB || pack == Packages.I_600MB) {
+
+                switch (situation) {
+                    case CANCELED:
+                        packcancell600 += valuePerPack;
+                        break;
+                    case INSTALLED:
+                        packInstalled600 += valuePerPack;
+
+                        break;
+                    case PROVISIONING:
+                        packProvisig600 += valuePerPack;
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+            if (pack == Packages.I_700MB || pack == Packages.I_1GB) {
+                switch (situation) {
+                    case CANCELED:
+                        packcancell700 += valuePerPack;
+                        break;
+                    case INSTALLED:
+                        packInstalled700 += valuePerPack;
+
+                        break;
+                    case PROVISIONING:
+                        packProvisig700 += valuePerPack;
+
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+
+        }
+        lblAprovisionamentoTot1.setText(format.formatMoneyNumber((packProvisig400 + packProvisig600 + packProvisig700) + "", 'M'));
+        lblInstaladaTot1.setText(format.formatMoneyNumber((packInstalled400 + packInstalled600 + packInstalled700) + "", 'M'));
+        lblCanceladaTot1.setText(format.formatMoneyNumber((packcancell400 + packcancell600 + packcancell700) + "", 'M'));
+
+    }
+
+    private void tableFormatColors() {
+        tblVendasRes.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.setHorizontalAlignment(JLabel.CENTER); // Adicione esta linha para centralizar o texto
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Suponha que a coluna que contém o valor "instalada" seja a penúltima coluna
+                int columnIndex = table.getColumnCount() - 2; // Ajuste este valor conforme necessário
+                String cellValue = (table.getValueAt(row, columnIndex).toString());
+
+                if ("Cancelada".equals(cellValue)) {
+                    c.setBackground(Color.decode("#FFC7CE"));
+                    c.setForeground(Color.decode("#9C0006"));
+                } else if ("Instalada".equals(cellValue)) {
+                    c.setBackground(Color.decode("#C6EFCE"));
+                    c.setForeground(Color.decode("#006100"));
+                } else {
+                    c.setBackground(Color.decode("#FFE699"));
+                    c.setForeground(Color.decode("#9C5700"));
+                }
+
+                return c;
+            }
+        });
+
+    }
+
+    //caso coloque as colunas desordenadas, esse metodo ira buscar os valores
+    public int findColumnByName(String name) {
+        for (int i = 0; i < tblVendasRes.getColumnCount(); i++) {
+            if (tblVendasRes.getColumnName(i).equals(name)) {
+                return i;
+            }
+        }
+        return -1;  // Retorna -1 se a coluna não foi encontrada
+    }
+
+    private Map<String, Integer> returnPositionTable() {
+
+        Map<String, Integer> posicoes = new HashMap<>();
+        posicoes.put("cpf", findColumnByName("CPF/CNPJ"));
+        posicoes.put("custormes", findColumnByName("Cliente"));
+        posicoes.put("contact", findColumnByName("Contato"));
+        posicoes.put("package", findColumnByName("Pacote"));
+        posicoes.put("value", findColumnByName("Valor"));
+        posicoes.put("dateInstalation", findColumnByName("Data Instalação"));
+        posicoes.put("dateMade", findColumnByName("Data Criação"));
+        posicoes.put("period", findColumnByName("Periodo"));
+        posicoes.put("origin", findColumnByName("Origem"));
+        posicoes.put("situation", findColumnByName("Situação"));
+        posicoes.put("obs", findColumnByName("Observação"));
+        return posicoes;
+    }
+
+    private void cleanFields() {
+        txtCPF.setText("");
+        txtCliente.setText("");
+        txtContato.setText("");
+        txaObs.setText("");
+        lblValuePlan.setText("");
+        cbOrigem.setSelectedIndex(0);
+        cbPacote.setSelectedIndex(0);
+        cbPeriodo.setSelectedIndex(0);
+        cbSituatiom.setSelectedIndex(0);
+        cpf = null;
+        contacts = null;
+        ldTSaleMarked = null;
+        ldTSaleMade = null;
+        packgeSelected = null;
+        originSell = null;
+        periodInstalation = null;
+        observation = null;
+        type = TypeBank.INSERT;
+        txtCPF.requestFocus();
+    }
+
+    private String fielWithoutFielling() {
+        String fwf = "";
+        if (txtCPF.getText().equals("")) {
+            fwf += "\"CPF\" ";
+        }
+        if (txtCliente.getText().equals("")) {
+            fwf += "\"Cliente\" ";
+        }
+        if (txtContato.getText().equals("")) {
+            fwf += "\"Contato\" ";
+        }
+        if (cbOrigem.getSelectedIndex() == 0) {
+            fwf += "\"Origem\" ";
+        }
+        if (cbPacote.getSelectedIndex() == 0) {
+            fwf += "\"Pacote\" ";
+        }
+        if (cbPeriodo.getSelectedIndex() == 0) {
+            fwf += "\"Periodo\" ";
+        }
+        if (type == TypeBank.UPDATE) {
+            if (cbSituatiom.getSelectedIndex() == 0) {
+                fwf += "\"Situação\" ";
+            }
+        }
+
+        return fwf;
+
+    }
+    private void txtCPFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCPFKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            if (txtCPF.getText().length() < 11) {
+                JOptionPane.showMessageDialog(null, "O cpf/cnpj que digitou esta incorreto\n TAmanhaho: " + txtCPF.getText().length() + " caractes", "Aviso", JOptionPane.ERROR_MESSAGE);
+            } else {
+                cpf = txtCPF.getText();
+                txtCliente.requestFocus();
+            }
         }
     }//GEN-LAST:event_txtCPFKeyPressed
 
     private void txtClienteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtClienteKeyPressed
-          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-             cliente = txtCliente.getText();
-              txtContato.requestFocus();
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            cliente = txtCliente.getText();
+            txtContato.requestFocus();
         }
     }//GEN-LAST:event_txtClienteKeyPressed
 
     private void txtContatoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtContatoKeyPressed
-          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
             if (txtCPF.getText().length() < 11) {
-             JOptionPane.showMessageDialog(null, "O cpf/cnpj que digitou esta incorreto\n TAmanhaho: "+txtCPF.getText().length()+" caractes"  , "Aviso", JOptionPane.ERROR_MESSAGE);
-}else{
+                JOptionPane.showMessageDialog(null, "O cpf/cnpj que digitou esta incorreto\n TAmanhaho: " + txtCPF.getText().length() + " caractes", "Aviso", JOptionPane.ERROR_MESSAGE);
+            } else {
 //              String[] contacts = txtContato.getText().replace(" ", "").split("/");
 //                   JOptionPane.showMessageDialog(null, contacts  , "Aviso", JOptionPane.ERROR_MESSAGE);
 //                for (String contact : contacts) {
 //                  contatos.add(contact);
 //              }
-            contacts = txtCPF.getText();
-                
-               cbPacote.requestFocus();
-        }
+                contacts = txtCPF.getText();
+
+                cbPacote.requestFocus();
+            }
         }
     }//GEN-LAST:event_txtContatoKeyPressed
 
     private void cbPacoteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPacoteKeyPressed
-          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-              if (cbPacote.getSelectedItem() == Packages.SELECT) {
-                               JOptionPane.showMessageDialog(null,"Selecione um Pacote!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
 
-              }else{
-                  packgeSelected = (Packages) cbPacote.getSelectedItem();
-                                                //JOptionPane.showMessageDialog(null,"Pacote escolhido: "+packgeSelected,"Aviso",JOptionPane.INFORMATION_MESSAGE);
-              }
+            fillingPackage();
+
         }
     }//GEN-LAST:event_cbPacoteKeyPressed
 
+    private void fillingPackage() {
+        if (cbPacote.getSelectedIndex() == 0) {
+            JOptionPane.showMessageDialog(null, "Selecione um pacote", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            cbPacote.requestFocus();
+        } else {
+            packgeSelected = (Packages) cbPacote.getSelectedItem();
+
+        }
+        Packages[] pack = {Packages.ALL};
+        valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED), packgeSelected);
+        lblValuePlan.setText(format.formatMoneyNumber(valuePackage + "", 'M'));
+        txtDataInstalacao.requestFocus();
+    }
+
     private void txtDataInstalacaoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDataInstalacaoKeyPressed
-         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-          // ld = format.dateFormaterBank(txtDataInstalacao.getText());
-             cbPeriodo.requestFocus();
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            // ld = format.dateFormaterBank(txtDataInstalacao.getText());
+            cbPeriodo.requestFocus();
         }
     }//GEN-LAST:event_txtDataInstalacaoKeyPressed
 
     private void cbPeriodoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPeriodoKeyPressed
-          if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-              if (cbPeriodo.getSelectedItem() == periodInstalation.SELECT) {
-                               JOptionPane.showMessageDialog(null,"Selecione um Periodo de Instalação!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            InsertPeriod();
 
-              }else{
-                  periodInstalation =  (Period) cbPeriodo.getSelectedItem();
-                  if (periodInstalation == Period.MORNING) {
-                      ldTSaleMarked = format.dateTimeFormaterBank(txtDataInstalacao.getText() + " 08:00");
-                      JOptionPane.showMessageDialog(null,"Data:  "+ldTSaleMarked,"Aviso",JOptionPane.INFORMATION_MESSAGE);
-
-                  }
-                  if (periodInstalation == Period.AFTERNOON) {
-                        ldTSaleMarked = format.dateTimeFormaterBank(txtDataInstalacao.getText() + " 13:00");
-                      JOptionPane.showMessageDialog(null,"Data:  "+ldTSaleMarked,"Aviso",JOptionPane.INFORMATION_MESSAGE);
-
-                  }
-     
-                  txtTrVendida.requestFocus();
-              }
-            
         }
     }//GEN-LAST:event_cbPeriodoKeyPressed
 
+    private void InsertPeriod() throws HeadlessException {
+
+        periodInstalation = (Period) cbPeriodo.getSelectedItem();
+        if (periodInstalation == Period.MORNING) {
+            ldTSaleMarked = format.dateTimeFormaterBank(txtDataInstalacao.getText() + " 08:00");
+            JOptionPane.showMessageDialog(null, "Data:  " + ldTSaleMarked, "Aviso", JOptionPane.INFORMATION_MESSAGE);
+
+        }
+        if (periodInstalation == Period.AFTERNOON) {
+            ldTSaleMarked = format.dateTimeFormaterBank(txtDataInstalacao.getText() + " 13:00");
+            JOptionPane.showMessageDialog(null, "Data:  " + ldTSaleMarked, "Aviso", JOptionPane.INFORMATION_MESSAGE);
+
+        }
+
+        txtTrVendida.requestFocus();
+
+    }
+
     private void txtTrVendidaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTrVendidaKeyPressed
-         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
             cbOrigem.requestFocus();
         }
     }//GEN-LAST:event_txtTrVendidaKeyPressed
 
     private void cbOrigemKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbOrigemKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            if (cbOrigem.getSelectedItem() == Origin.SELECT) {
-                               JOptionPane.showMessageDialog(null,"Selecione em qual lugar tu vedeu!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            insertOrigin();
 
-              }else{
-                  originSell =  (Origin) cbOrigem.getSelectedItem();
-                      txaObs.requestFocus();
-              }
-            
         }
     }//GEN-LAST:event_cbOrigemKeyPressed
 
-    private void cbPacoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPacoteActionPerformed
-        if (cbPacote.getSelectedItem() == Packages.SELECT) {
-                               JOptionPane.showMessageDialog(null,"Selecione um Pacote!","Aviso",JOptionPane.INFORMATION_MESSAGE);
+    private void insertOrigin() throws HeadlessException {
 
-              }else{
-                  packgeSelected = (Packages) cbPacote.getSelectedItem();
-                                                //JOptionPane.showMessageDialog(null,"Pacote escolhido: "+packgeSelected,"Aviso",JOptionPane.INFORMATION_MESSAGE);
-              }
+        originSell = (Origin) cbOrigem.getSelectedItem();
+        txaObs.requestFocus();
+
+    }
+
+    private void cbPacoteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPacoteActionPerformed
+        fillingPackage();   //JOptionPane.showMessageDialog(null,"Pacote escolhido: "+packgeSelected,"Aviso",JOptionPane.INFORMATION_MESSAGE);
+
     }//GEN-LAST:event_cbPacoteActionPerformed
 
-    private void txtTestKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTestKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) 
-            JOptionPane.showMessageDialog(null,"Valor do pacote é: "+SaleService.ValuePerSale(Integer.parseInt(txtTest.getText()), Packages.I_1GB),"Aviso",JOptionPane.INFORMATION_MESSAGE);
-    }//GEN-LAST:event_txtTestKeyPressed
-
     private void btnSaleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaleActionPerformed
-        Saling();
+        fillData();
+
+        if (type == TypeBank.INSERT) {
+            Saling();
+        } else {
+            update();
+            tableFormatColors();
+        }
     }//GEN-LAST:event_btnSaleActionPerformed
 
     private void txaObsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txaObsKeyPressed
-         if (evt.getKeyCode() == KeyEvent.VK_ENTER){ 
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+
             observation = txaObs.getText();
-            btnSale.requestFocus();
-         }
+            if (type == TypeBank.INSERT) {
+                btnSale.requestFocus();
+            } else {
+                cbSituatiom.requestFocus();
+            }
+        }
     }//GEN-LAST:event_txaObsKeyPressed
 
     private void btnSaleKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnSaleKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) 
-            Saling();
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB)
+            if (type == TypeBank.INSERT) {
+                Saling();
+            } else {
+                update();
+            }
     }//GEN-LAST:event_btnSaleKeyPressed
+
+    private void cbPeriodoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPeriodoActionPerformed
+        InsertPeriod();
+    }//GEN-LAST:event_cbPeriodoActionPerformed
+
+    private void cbOrigemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbOrigemActionPerformed
+        insertOrigin();
+    }//GEN-LAST:event_cbOrigemActionPerformed
+
+    public void actionMouseRight() {
+        tblVendasRes.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    // Obter a linha e a coluna na qual o usuário clicou
+                    int row = tblVendasRes.rowAtPoint(e.getPoint());
+                    int column = tblVendasRes.columnAtPoint(e.getPoint());
+
+                    // Selecionar a célula como se o botão esquerdo tivesse sido pressionado
+                    tblVendasRes.changeSelection(row, column, false, false);
+                    Map<String, Integer> ma = returnPositionTable();
+                    // Exibir uma caixa de diálogo
+                    int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja alterar a venda: "
+                            + "\n Feita em: " + tblVendasRes.getValueAt(row, ma.get("dateMade")) + "\n "
+                            + "Instalação marcada para " + tblVendasRes.getValueAt(row, 5) + " De " + tblVendasRes.getValueAt(row, 6), "Venda " + (row + 1) + " CPF: " + tblVendasRes.getValueAt(row, 1), JOptionPane.YES_NO_OPTION);
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+
+                        Map<String, Integer> values = returnPositionTable();
+
+                        type = TypeBank.UPDATE;
+                        isToUpdateOrInsert(type);
+                        txtCPF.setText(tblVendasRes.getValueAt(row, values.get("cpf")) + "");
+                        txtCliente.setText(tblVendasRes.getValueAt(row, values.get("custormes")) + "");
+                        txtContato.setText(tblVendasRes.getValueAt(row, values.get("contact")) + "");
+                        cbPacote.setSelectedItem(Packages.fromString(tblVendasRes.getValueAt(row, values.get("package")) + ""));
+                        txtDataInstalacao.setText(tblVendasRes.getValueAt(row, values.get("dateInstalation")) + "");
+                        cbPeriodo.setSelectedItem(Period.fromString(tblVendasRes.getValueAt(row, values.get("period")) + ""));
+                        // txtTrVendida.setText(tblVendasRes.getValueAt(row, 7)+"");
+                        cbOrigem.setSelectedItem((Origin.fromString(tblVendasRes.getValueAt(row, values.get("origin")) + "")));
+                        cbSituatiom.setSelectedItem((tblVendasRes.getValueAt(row, values.get("situation"))));
+                        txaObs.setText(tblVendasRes.getValueAt(row, values.get("obs")) + "");
+                        id = Integer.parseInt(tblVendasRes.getValueAt(row, 0).toString());
+                        ldTSaleMade = format.dateTimeFormaterBank(tblVendasRes.getValueAt(row, values.get("dateMade")) + "");
+
+                    }
+                }
+            }
+        });
+
+    }
+
+
+    private void tblVendasResMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblVendasResMouseClicked
+
+    }//GEN-LAST:event_tblVendasResMouseClicked
+
+    private void cbSituatiomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSituatiomActionPerformed
+        situation = (Situation) cbSituatiom.getSelectedItem();
+
+    }//GEN-LAST:event_cbSituatiomActionPerformed
+
+    private void cbSituatiomKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbSituatiomKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            situation = (Situation) cbSituatiom.getSelectedItem();
+        }
+
+    }//GEN-LAST:event_cbSituatiomKeyPressed
+
+    private void btnCancellActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancellActionPerformed
+        int dialogResult = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja cancelar a alteração da venda?", "ALERTA!", JOptionPane.YES_NO_OPTION);
+        if (dialogResult == JOptionPane.YES_OPTION) {
+            isToUpdateOrInsert(TypeBank.INSERT);
+            cleanFields();
+        }
+
+    }//GEN-LAST:event_btnCancellActionPerformed
+
+    private void tblVendasResMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblVendasResMousePressed
+
+    }//GEN-LAST:event_tblVendasResMousePressed
+
+    private void btnReadSellsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReadSellsActionPerformed
+        SalesController.searchSellsPlanilha();
+    }//GEN-LAST:event_btnReadSellsActionPerformed
 
     public static void main(String args[]) {
 
@@ -658,17 +1118,16 @@ public class VendasAtual extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCancell;
+    private javax.swing.JButton btnReadSells;
     private javax.swing.JButton btnSale;
     private javax.swing.JComboBox<String> cbOrigem;
     private javax.swing.JComboBox<String> cbPacote;
     private javax.swing.JComboBox<String> cbPeriodo;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel9;
+    private javax.swing.JComboBox<String> cbSituatiom;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
-    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel14;
     private javax.swing.JPanel jPanel15;
@@ -678,29 +1137,31 @@ public class VendasAtual extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JLabel lblAprovisionamento400;
-    private javax.swing.JLabel lblAprovisionamento600;
-    private javax.swing.JLabel lblAprovisionamento700;
-    private javax.swing.JLabel lblAprovisionamentoTot;
-    private javax.swing.JLabel lblCancelada400;
-    private javax.swing.JLabel lblCancelada600;
-    private javax.swing.JLabel lblCancelada700;
-    private javax.swing.JLabel lblCanceladaTot;
+    public static javax.swing.JLabel lblAprovisionamento400;
+    public static javax.swing.JLabel lblAprovisionamento600;
+    public static javax.swing.JLabel lblAprovisionamento700;
+    public static javax.swing.JLabel lblAprovisionamentoTot;
+    public static javax.swing.JLabel lblAprovisionamentoTot1;
+    public static javax.swing.JLabel lblCancelada400;
+    public static javax.swing.JLabel lblCancelada600;
+    public static javax.swing.JLabel lblCancelada700;
+    public static javax.swing.JLabel lblCanceladaTot;
+    public static javax.swing.JLabel lblCanceladaTot1;
     private javax.swing.JLabel lblEstimativa;
-    private javax.swing.JLabel lblInstalada400;
-    private javax.swing.JLabel lblInstalada600;
-    private javax.swing.JLabel lblInstalada700;
-    private javax.swing.JLabel lblInstaladaTot;
+    public static javax.swing.JLabel lblInstalada400;
+    public static javax.swing.JLabel lblInstalada600;
+    public static javax.swing.JLabel lblInstalada700;
+    public static javax.swing.JLabel lblInstaladaTot;
+    public static javax.swing.JLabel lblInstaladaTot1;
+    private javax.swing.JLabel lblQtSellsTable;
     private javax.swing.JLabel lblValuePlan;
-    private javax.swing.JTable tblVendasRes;
+    public static javax.swing.JTable tblVendasRes;
     private javax.swing.JTextArea txaObs;
     private javax.swing.JTextField txtCPF;
     private javax.swing.JTextField txtCliente;
     private javax.swing.JTextField txtContato;
     private javax.swing.JTextField txtDataInstalacao;
-    private javax.swing.JTextField txtTest;
     private javax.swing.JTextField txtTrVendida;
     // End of variables declaration//GEN-END:variables
 
-   
 }
