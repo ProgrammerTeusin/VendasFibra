@@ -2,6 +2,7 @@ package Model.Enums;
 
 public enum Situation {
     SELECT("Selecione"),
+    ALL("Todos"),
     PROVISIONING("Aprovisionamento"),
     INSTALLED("Instalada"),
     CANCELED("Cancelada");

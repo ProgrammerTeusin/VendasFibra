@@ -24,7 +24,22 @@ public class Sales {
     private String observation;
     private float valuePackage;
 
-     public Sales(Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage,LocalDateTime installationMarked, Period period, Origin origin, Situation situation,String observation) {
+    public Sales(){
+        
+    }
+    
+     public Sales(Vendedor seller, 
+             LocalDateTime sellDateHour, 
+             String cpf, 
+             String customers, 
+             String contact, 
+             String packages, 
+             float valuePackage,
+             LocalDateTime installationMarked, 
+             Period period, 
+             Origin origin, 
+             Situation situation,
+             String observation) {
         this.seller = seller;
         this.sellDateHour = sellDateHour;
         this.customers = customers;

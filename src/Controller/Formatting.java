@@ -14,10 +14,18 @@ public class Formatting {
         private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
        private DateTimeFormatter dtfComplete = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    DateTimeFormatter dtfExcel = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+    DateTimeFormatter dtfCompleteExcel = DateTimeFormatter.ofPattern("dd-MMM-yyyy HH:mm");
 
    
     public LocalDate dateFormaterBank(String date){
         return LocalDate.parse(date, dtf);
+    }
+    public  LocalDate dateFormaterBankExcel(String date){
+        return LocalDate.parse(date, dtfExcel);
+    }
+    public  LocalDateTime dateFormaterTimeBankExcel(String date){
+        return LocalDateTime.parse(date, dtfCompleteExcel);
     }
     public String dateFormaterField(LocalDate date){
         return dtf.format(date);
@@ -39,7 +47,6 @@ public class Formatting {
         switch (type) {
             case 'M':
                 // Formata como moeda   
-                System.out.println(NumberFormat.getCurrencyInstance().format(Double.parseDouble(valor)));
                 return NumberFormat.getCurrencyInstance().format(Double.parseDouble(valor));    
             case 'N':
                 // Formata como número, removendo "R$" e substituindo "," por "."

@@ -21,10 +21,11 @@ public class ConnectionFactory {
             return DriverManager.getConnection(URL, user, senha);
         
         } catch (ClassNotFoundException | SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro na conexão com o Banco de Dados:\n", "Erro", JOptionPane.ERROR_MESSAGE);
-           
+            JOptionPane.showMessageDialog(null, "Erro na conexão com o Banco de Dados:\n"+ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Erro na conexão com o Banco de Dados:\n"+ex);           
         }catch(RuntimeException ex){
             JOptionPane.showMessageDialog(null, "Erro na conexão com o Banco de Dados:\n"+ ex);
+            System.out.println("Erro na conexão com o Banco de Dados:\n"+ex);           
         }
         return null;
         
@@ -37,8 +38,8 @@ public class ConnectionFactory {
                 conn.close();
                 System.out.println("Banco fechado com sucesso");
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "Erro ao fechar conexao com o banco de dados:\n", "Erro", JOptionPane.ERROR_MESSAGE);
-              
+                JOptionPane.showMessageDialog(null, "Erro ao fechar conexao com o banco de dados:\n", "Erro"+ex, JOptionPane.ERROR_MESSAGE);
+               System.out.println("Erro ao fechar conexao com o banco de dados:\n"+ex); 
             }
         }
 
@@ -52,7 +53,7 @@ public class ConnectionFactory {
             }
             conn.close();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao fechar conexao com o banco de dados:\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro ao fechar conexao com o banco de dados:\n"+ex, "Erro", JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -67,7 +68,7 @@ public class ConnectionFactory {
             }
             conn.close();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao fechar conexao com o banco de dados:\n", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro ao fechar conexao com o banco de dados:\n"+ex, "Erro", JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(ConnectionFactory.class.getName()).log(Level.SEVERE, null, ex);
         }
 

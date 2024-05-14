@@ -2,19 +2,27 @@ package Controller;
 
 import DAO.ConnectionFactory;
 import Dao.SalesDAO;
+import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Situation;
+import static Model.Enums.Situation.CANCELED;
+import static Model.Enums.Situation.INSTALLED;
+import static Model.Enums.Situation.PROVISIONING;
 import Model.Sales;
 import Services.SaleService;
+import View.AllSales;
 import View.VendasAtual;
 import com.mysql.cj.protocol.Resultset;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.*;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JLabel;
@@ -27,10 +35,9 @@ import javax.swing.table.DefaultTableModel;
  */
 public class SalesController {
 
-  
-
     Formatting format = new Formatting();
     SalesDAO salesdao = new SalesDAO();
+    SaleService salesSer = new SaleService();
 
     public void saveSales(Sales sale) {
 
@@ -46,7 +53,8 @@ public class SalesController {
             if (!salesdao.searchDate(sale.getInstallationMarked())) {
                 salesdao.insertDateMarked(sale.getInstallationMarked());
             }
-            ps.setInt(1, 1);
+            Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
+            ps.setInt(1, salesdao.returnIdSeller(sale.getSeller().getTr()));
             ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
             ps.setString(3, sale.getCustomers());
             ps.setString(4, sale.getContact());
@@ -58,6 +66,9 @@ public class SalesController {
             ps.setString(10, sale.getCpf());
             ps.setInt(11, SalesDAO.searchSituation(sale.getSituation().name()));
             ps.executeUpdate();
+
+            configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+            returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(),sale.getInstallationMarked().toLocalDate());
 
             JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
 
@@ -79,45 +90,171 @@ public class SalesController {
 
     }
 
-    public void returnData() {
-        List<Sales> data = SalesDAO.returnData();
-        DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
+    public void saveSalesExcel(Sales sale) {
+
+        Connection conn = ConnectionFactory.getConnection();
+        PreparedStatement ps = null;
+        Resultset rs = null;
+
+        String sqlInjection = "INSERT INTO tbSales(idSeller,DateMade,customers,contacts,valueSale,"
+                + "package,idDateInstalation,origin,observation,cpf,idSituation) values (?,?,?,?,?,?,?,?,?,?,?)";
+
+        try {
+            ps = conn.prepareStatement(sqlInjection);
+            if (!salesdao.searchDate(sale.getInstallationMarked())) {
+                salesdao.insertDateMarked(sale.getInstallationMarked());
+            }
+            Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
+            ps.setInt(1, sale.getSeller().getIdentificador());
+            ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
+            ps.setString(3, sale.getCustomers());
+            ps.setString(4, sale.getContact());
+            ps.setFloat(5, sale.getValuePackage());
+            ps.setString(6, sale.getPackages());
+            ps.setInt(7, salesdao.searchDate2(sale.getInstallationMarked()));
+            ps.setString(8, ori.name());
+            ps.setString(9, sale.getObservation());
+            ps.setString(10, sale.getCpf());
+            ps.setInt(11, SalesDAO.searchSituation(sale.getSituation().name()));
+            ps.executeUpdate();
+            returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),sale.getInstallationMarked().toLocalDate(),sale.getInstallationMarked().toLocalDate());
+
+            //configPriceSellingMonthController(Packages.fromString(sale.getPackages()));
+            // JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao salvar venda \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+    }
+
+    public void returnData(char type, DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
+        List<Sales> data = SalesDAO.returnData(type,dateTimeInicial,dateTimeFinal);
+        //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
         dtm.setRowCount(0);
 
-        for (Sales sales : data) {
+        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+            for (Sales sales : data) {
 
-            Object[] dados = {
-                sales.getId(),
-                format.dateTimeFormaterField(sales.getSellDateHour()),
-                sales.getCpf(),
-                sales.getCustomers(),
-                sales.getContact(),
-                sales.getPackages(),
-                format.formatMoneyNumber(sales.getValuePackage()+"", 'M'),
-                format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                sales.getPeriod().toString(),
-                sales.getOrigin().toString(),
-                sales.getSituation(),
-                sales.getObservation()
-            };
-            dtm.addRow(dados);
+                Object[] dados = {
+                    sales.getId(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation()
+                };
+                dtm.addRow(dados);
+            }
+            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        } else {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    sales.getSeller().getTr(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation()
+                };
+                dtm.addRow(dados);
+            }
+           //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         }
     }
 
-    public void fillingsPacksges() {//Alerta de gasto de processamento, melhore no futuro colocando uma unica busca
+public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableModel dtm) {//c para  cpf n para nome
+        List<Sales> data = SalesDAO.returnDataByCPForName(search, cpfOrName);
+        //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
+        dtm.setRowCount(0);
+
+        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation()
+                };
+                dtm.addRow(dados);
+            }
+            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        } else {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    sales.getSeller().getTr(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation()
+                };
+                dtm.addRow(dados);
+            }
+        }
+    }
+
+
+    public void fillingsPacksges(char time) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas 
+//Alerta de gasto de processamento, melhore no futuro colocando uma unica busca
+
         Packages[] pack = {Packages.I_400MB};
-        int count400Provisioning = SalesDAO.returnQtdPackgeInstalled(pack, Situation.PROVISIONING);
-        int count400Installed = SalesDAO.returnQtdPackgeInstalled(pack, Situation.INSTALLED);
-        int count400Canceled = SalesDAO.returnQtdPackgeInstalled(pack, Situation.CANCELED);
+        int count400Provisioning = SalesDAO.returnQtdPackgeInstalled(pack, Situation.PROVISIONING, time);
+        int count400Installed = SalesDAO.returnQtdPackgeInstalled(pack, Situation.INSTALLED, time);
+        int count400Canceled = SalesDAO.returnQtdPackgeInstalled(pack, Situation.CANCELED, time);
 
-        int count500600Provisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.PROVISIONING);
-        int count500600Installed = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.INSTALLED);
-        int count500600Canceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.CANCELED);
+        int count500600Provisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.PROVISIONING, time);
+        int count500600Installed = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.INSTALLED, time);
+        int count500600Canceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.CANCELED, time);
 
-        int count7001GBProvisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.PROVISIONING);
-        int count7001GBInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.INSTALLED);
-        int count7001GBCanceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.CANCELED);
+        int count7001GBProvisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.PROVISIONING, time);
+        int count7001GBInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.INSTALLED, time);
+        int count7001GBCanceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.CANCELED, time);
 
         setLabelText(VendasAtual.lblAprovisionamento400, count400Provisioning, " Em Aprovisionamento");
         setLabelText(VendasAtual.lblAprovisionamento600, count500600Provisioning, " Em Aprovisionamento");
@@ -134,15 +271,88 @@ public class SalesController {
         int totCannncell = (count7001GBCanceled + count500600Canceled + count400Canceled);
         int totProvisig = (count7001GBProvisioning + count500600Provisioning + count400Provisioning);
         int totInstalled = (count7001GBInstalled + count500600Installed + count400Installed);
-                    setLabelText(VendasAtual.lblAprovisionamentoTot, totProvisig,  " Em Apovisionamento");
-                setLabelText(VendasAtual.lblInstaladaTot, totInstalled, " Instaladas");
-                setLabelText(VendasAtual.lblCanceladaTot, totCannncell, " Canceladas");
+        setLabelText(VendasAtual.lblAprovisionamentoTot, totProvisig, " Em Apovisionamento");
+        setLabelText(VendasAtual.lblInstaladaTot, totInstalled, " Instaladas");
+        setLabelText(VendasAtual.lblCanceladaTot, totCannncell, " Canceladas");
 
-        
-        
     }
-    
 
+    public void fillingsValuesPacksges(Map<String, Integer> returnPositionTable) {
+        Map<String, Integer> position = returnPositionTable;
+
+        double packProvisig400 = 0;
+        double packInstalled400 = 0;
+        double packcancell400 = 0;
+        double packProvisig600 = 0;
+        double packInstalled600 = 0;
+        double packcancell600 = 0;
+        double packProvisig700 = 0;
+        double packInstalled700 = 0;
+        double packcancell700 = 0;
+
+        for (int i = 0; i < VendasAtual.tblVendasRes.getRowCount(); i++) {
+            Packages pack = Packages.fromString(VendasAtual.tblVendasRes.getValueAt(i, position.get("package")) + "");
+            Situation situation = Situation.fromString(VendasAtual.tblVendasRes.getValueAt(i, position.get("situation")) + "");
+
+            double valuePerPack = Double.parseDouble(format.formatMoneyNumber(VendasAtual.tblVendasRes.getValueAt(i, position.get("value")) + "", 'N'));
+
+            if (pack == Packages.I_400MB) {
+
+                switch (situation) {
+                    case CANCELED:
+                        packcancell400 += valuePerPack;
+                    case INSTALLED:
+                        packInstalled400 += valuePerPack;
+
+                        break;
+                    case PROVISIONING:
+                        packProvisig400 += valuePerPack;
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+            if (pack == Packages.I_500MB || pack == Packages.I_600MB) {
+
+                switch (situation) {
+                    case CANCELED:
+                        packcancell600 += valuePerPack;
+                        break;
+                    case INSTALLED:
+                        packInstalled600 += valuePerPack;
+
+                        break;
+                    case PROVISIONING:
+                        packProvisig600 += valuePerPack;
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+            if (pack == Packages.I_700MB || pack == Packages.I_1GB) {
+                switch (situation) {
+                    case CANCELED:
+                        packcancell700 += valuePerPack;
+                        break;
+                    case INSTALLED:
+                        packInstalled700 += valuePerPack;
+
+                        break;
+                    case PROVISIONING:
+                        packProvisig700 += valuePerPack;
+
+                        break;
+                    default:
+                        throw new AssertionError();
+                }
+            }
+
+        }
+        VendasAtual.lblAprovisionamentoTot1.setText(format.formatMoneyNumber((packProvisig400 + packProvisig600 + packProvisig700) + "", 'M'));
+        VendasAtual.lblInstaladaTot1.setText(format.formatMoneyNumber((packInstalled400 + packInstalled600 + packInstalled700) + "", 'M'));
+        VendasAtual.lblCanceladaTot1.setText(format.formatMoneyNumber((packcancell400 + packcancell600 + packcancell700) + "", 'M'));
+
+    }
 
     public void setLabelText(JLabel label, int count, String message) {
         label.setText((count > 9)
@@ -153,12 +363,34 @@ public class SalesController {
 
     public void updateSales(Sales sale) {
         salesdao.updateSalesDAO(sale);
-        fillingsPacksges();
-        returnData();
+        fillingsPacksges('m');
+        returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
     }
-    
-    
-      public static void searchSellsPlanilha() {
-          SaleService.searchSellsPlanilhaService();
+
+    public void searchSellsPlanilha() {
+
+        salesSer.searchSellsPlanilhaService();
+    }
+
+    public void configPriceSellingMonthController(Packages pack, Sales sales) {
+        float valueLast = SalesDAO.returnLastValuePackage(pack);
+        int sizeTable = VendasAtual.tblVendasRes.getRowCount();
+        if (valueLast != sales.getValuePackage() && sizeTable > 1) {
+            Map<String, Float> values = SaleService.returnValuesPlanService(SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm'), pack);
+            SalesDAO.updateValuesPackageMonthDAO(values.get(pack.toString()), pack.toString(), sales.getInstallationMarked());
+            pack = pack == Packages.I_400MB ? Packages.I_500MB : Packages.I_400MB;
+            Map<String, Float> values2 = SaleService.returnValuesPlanService(SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm'), pack);
+            SalesDAO.updateValuesPackageMonthDAO(values2.get(pack.toString()), pack.toString(), sales.getInstallationMarked());
+
+        }
+    }
+
+    public void searchSellsPlanilhaController() {
+        List<Sales> sal = salesSer.searchSellsPlanilhaService();
+        for (Sales sales : sal) {
+            saveSalesExcel(sales);
+        }
+        JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as ", "Erro", JOptionPane.ERROR_MESSAGE);
+
     }
 }
