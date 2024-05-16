@@ -47,7 +47,8 @@ public class SalesDAO {
             switch (type) {
                 case 'c':
 
-                    sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
+                 //   sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
+                    sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by s.id desc";
                     ps = con.prepareCall(sql);
                     ps.setDate(1, Date.valueOf(dateInitial + ""));
                     ps.setDate(2, Date.valueOf(dateFinal + ""));
@@ -441,7 +442,7 @@ public class SalesDAO {
             if (!searchDate(sale.getInstallationMarked())) {
                 insertDateMarked(sale.getInstallationMarked());
             }
-            ps.setInt(1, 1);
+            ps.setInt(1, returnIdSeller(sale.getSeller().getTr()));
             ps.setString(2, sale.getCpf());
             ps.setTimestamp(3, Timestamp.valueOf(sale.getSellDateHour()));
             ps.setString(4, sale.getCustomers());

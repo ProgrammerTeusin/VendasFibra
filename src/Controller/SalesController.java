@@ -69,7 +69,7 @@ public class SalesController {
 
             configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
             returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(),sale.getInstallationMarked().toLocalDate());
-
+salesSer.insertSellExcel(sale);
             JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
 
         } catch (SQLException ex) {
@@ -104,6 +104,13 @@ public class SalesController {
             if (!salesdao.searchDate(sale.getInstallationMarked())) {
                 salesdao.insertDateMarked(sale.getInstallationMarked());
             }
+            Situation situ;
+                    if (sale.getSituation() == null) {
+                        situ = Situation.PROVISIONING;  //situation;
+                            
+                    }else{
+                        situ = sale.getSituation();
+                    }
             Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
             ps.setInt(1, sale.getSeller().getIdentificador());
             ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
@@ -115,7 +122,7 @@ public class SalesController {
             ps.setString(8, ori.name());
             ps.setString(9, sale.getObservation());
             ps.setString(10, sale.getCpf());
-            ps.setInt(11, SalesDAO.searchSituation(sale.getSituation().name()));
+            ps.setInt(11, SalesDAO.searchSituation(situ.name()));
             ps.executeUpdate();
             returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),sale.getInstallationMarked().toLocalDate(),sale.getInstallationMarked().toLocalDate());
 
@@ -363,8 +370,8 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
 
     public void updateSales(Sales sale) {
         salesdao.updateSalesDAO(sale);
-        fillingsPacksges('m');
-        returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
+       // fillingsPacksges('m'); comentei pois esta  usando  esse metodo  tamem no allSales
+        //returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
     }
 
     public void searchSellsPlanilha() {

@@ -144,7 +144,7 @@ public class SaleService {
                 if (i > 0) {
 
                     System.out.println("Valor da linha " + i + ": " + next.getCell(0));
-                    System.out.println("Valor da data : " + format.dateFormaterBankExcel(next.getCell(5) + ""));
+                    //System.out.println("Valor da data : " + format.dateFormaterBankExcel(next.getCell(5) + ""));
                     int seller;
 
                     String obs = next.getCell(9) + "";
@@ -175,12 +175,42 @@ public class SaleService {
                         }
 
                     }
+                    System.out.println("Formato da data: " + next.getCell(6));
                     Origin ori = next.getCell(10) != null ? Origin.fromString(next.getCell(10) + "") : Origin.CHAT;
-                    LocalDate dtInstalation = format.dateFormaterBankExcel(next.getCell(6) + "") == null ? LocalDate.parse("2001-05-07") : format.dateFormaterBankExcel(next.getCell(6) + "");
+                    LocalDate dtInstalation;
+                    try {
+                        dtInstalation = format.dateFormaterBankExcel(next.getCell(6) + "") == null ? LocalDate.parse("2001-05-07") : format.dateFormaterBankExcel(next.getCell(6) + "");
+
+                    } catch (java.time.format.DateTimeParseException e) {
+                        System.out.println("Erro: " + e);
+                        JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos", JOptionPane.ERROR_MESSAGE);
+                        System.out.println("Erro: " + e);
+                        JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos", JOptionPane.ERROR_MESSAGE);
+
+                        dtInstalation = format.dateFormaterBank(next.getCell(6) + "") == null ? LocalDate.parse("2001-05-07") : format.dateFormaterBank(next.getCell(6) + "");
+                        JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    LocalDateTime ldt;
+                    try {
+                        ldt = (next.getCell(5) + "").length() > 12 ? format.dateFormaterTimeBankExcel(next.getCell(5) + "") : format.dateFormaterTimeBankExcel(next.getCell(5) + " 13:00");
+                    } catch (java.time.format.DateTimeParseException e) {
+                        System.out.println("Erro: " + e);
+                        JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos data feita", JOptionPane.ERROR_MESSAGE);
+                        ldt = (next.getCell(5) + "").length() > 12 ? format.dateTimeFormaterBank(next.getCell(5) + "") : format.dateTimeFormaterBank(next.getCell(5) + " 13:00");
+                        JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
+                        
+                    }
+                    Situation situ;
+                    if (next.getCell(8) == null) {
+                        situ = Situation.PROVISIONING;  //situation;
+                            
+                    }else{
+                        situ = Situation.fromString(next.getCell(8) + "");
+                    }
                     Iterator<Cell> cellIterato = next.cellIterator();
 
                     sales.add(new Sales(new Vendedor(seller),
-                            format.dateFormaterTimeBankExcel(next.getCell(5) + " 13:00"),
+                            ldt,
                             next.getCell(0) + "", //cpf
                             next.getCell(1) + "", //customers
                             next.getCell(2) + "", //contact
@@ -188,13 +218,13 @@ public class SaleService {
                             value, //valuePackage
                             dtInstalation.atTime(time), //installationMarked
                             period, //period
-                            Origin.fromString(next.getCell(10) + ""),//origin
-                            Situation.fromString(next.getCell(8) + ""), //situation;
+                            Origin.fromString(next.getCell(10) == null ? "Chat" : next.getCell(10) + ""),//origin
+                            situ, //situation;
                             next.getCell(9) + "" //observation
                     ));
                     System.out.println("Data instalação: " + dtInstalation.atTime(time));
                     System.out.println("Vendedor: " + seller + "\n"
-                            + "Data feita: " + (format.dateFormaterBankExcel(next.getCell(5) + "")).atTime(13, 00) + "\n"
+                            + "Data feita: " + ldt + "\n"
                             + "customers: " + next.getCell(1) + "\n"
                             + "contact: " + next.getCell(2) + "\n"
                             + "packages: " + next.getCell(3) + "\n"
@@ -206,7 +236,7 @@ public class SaleService {
                             + "valuePackage: " + next.getCell(4) + "\n"
                             + "observation: " + next.getCell(9) + "\n"
                     );
-
+                    
                 }
                 i++;
 
@@ -260,8 +290,8 @@ public class SaleService {
 
     }
 
-    public void insertSellExcel() {
-        File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibraSamuel2024v2.xlsm");
+    public void insertSellExcel(Sales sale) {
+        File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibraSamuel20241.xlsm");
         FileInputStream filePlani;
 
         try {
@@ -278,7 +308,18 @@ public class SaleService {
             XSSFRow newRow = sheet.createRow(lastRowNum + 1);
 
             // Adicione células à nova linha conforme necessário
-            newRow.createCell(0).setCellValue("Novo Dado");
+            newRow.createCell(0).setCellValue(sale.getCpf());
+            newRow.createCell(1).setCellValue(sale.getCustomers());
+            newRow.createCell(2).setCellValue(sale.getContact());
+            newRow.createCell(3).setCellValue(sale.getPackages());
+            newRow.createCell(4).setCellValue(sale.getValuePackage());
+            newRow.createCell(5).setCellValue(format.dateTimeFormaterField(sale.getSellDateHour()) + "");
+            newRow.createCell(6).setCellValue((format.dateFormaterField(sale.getInstallationMarked().toLocalDate())) + "");
+            newRow.createCell(7).setCellValue(sale.getPeriod().toString());
+            newRow.createCell(8).setCellValue(sale.getSituation().toString());
+            newRow.createCell(9).setCellValue(sale.getObservation());
+            newRow.createCell(10).setCellValue(sale.getOrigin().toString());
+//CPF	Cliente	Contato	Pacote	Comissão	Data 	Data Instalação	Periodo	Situação	Obersavação	Origem
 
             // Escreva as alterações de volta para o arquivo
             FileOutputStream outputStream = new FileOutputStream(file);

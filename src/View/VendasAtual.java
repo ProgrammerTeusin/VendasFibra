@@ -93,7 +93,7 @@ public class VendasAtual extends javax.swing.JFrame {
         initComponents();
         setExtendedState(MAXIMIZED_BOTH);
         jPanel1.setSize(getMaximumSize());
-        sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
+        sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
 
         txtCPF.requestFocus();
         cbPacote.setModel(new DefaultComboBoxModel(Packages.values()));
@@ -113,14 +113,14 @@ public class VendasAtual extends javax.swing.JFrame {
         //returnPositionTable();
         fillingsValuesPacksges();
         // sc.fillingsValuesPacksges(returnPositionTable());
-//        txtCPF.setText("621354848464");
-//        txtCliente.setText("Jao de barro");
-//        txtContato.setText("842133005");
-//        txaObs.setText("i dont now");
-//        cbOrigem.setSelectedIndex(1);
-//        cbPacote.setSelectedIndex(1);
-//        cbPeriodo.setSelectedIndex(1);
-//        cbSituatiom.setSelectedIndex(1);
+        txtCPF.setText("621354848464");
+        txtCliente.setText("Jao de barro");
+        txtContato.setText("842133005");
+        txaObs.setText("i dont now");
+        cbOrigem.setSelectedIndex(1);
+        cbPacote.setSelectedIndex(1);
+        cbPeriodo.setSelectedIndex(1);
+        cbSituatiom.setSelectedIndex(1);
         //colortable();
         typePossibilitySellins();
     }
@@ -153,14 +153,15 @@ public class VendasAtual extends javax.swing.JFrame {
         }
     }
 
-  
-
     private void fillData() {
 
         String fielsWithout = fielWithoutFielling();
         if (fielsWithout == "" || fielsWithout == null || fielsWithout.length() == 0) {
             if (cliente == null) {
                 cliente = txtCliente.getText();
+            }
+            if (trSell == null) {
+                trSell = txtTrVendida.getText();
             }
 
             if (cpf == null) {
@@ -198,7 +199,8 @@ public class VendasAtual extends javax.swing.JFrame {
 
     Formatting format = new Formatting();
     SalesController sc = new SalesController();
-  private void triggerToChage(boolean active) {
+
+    private void triggerToChage(boolean active) {
         if (active) {
             txaObs.setSize((txaObs.getSize().height - cbSituatiom.getSize().width - 10), txaObs.getSize().height);
             cbSituatiom.setVisible(active);
@@ -274,13 +276,15 @@ public class VendasAtual extends javax.swing.JFrame {
     private void update() {
         SalesController sc = new SalesController();
 
-        sc.updateSales(new Sales(id, new Vendedor(1),
+        sc.updateSales(new Sales(id, new Vendedor(trSell),
                 ldTSaleMade, cpf, cliente,
                 contacts, packgeSelected.toString(),
                 valuePackage, ldTSaleMarked, periodInstalation,
                 originSell, situation, observation));
 
-//            
+        sc.fillingsPacksges('m');
+        sc.returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+
         lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         cleanFields();
@@ -423,6 +427,9 @@ public class VendasAtual extends javax.swing.JFrame {
         if (txtCliente.getText().equals("")) {
             fwf += "\"Cliente\" ";
         }
+        if (txtTrVendida.getText().equals("")) {
+            fwf += "\" TR \" ";
+        }
         if (txtContato.getText().equals("")) {
             fwf += "\"Contato\" ";
         }
@@ -464,8 +471,7 @@ public class VendasAtual extends javax.swing.JFrame {
         double tot = Math.ceil(((double) qtd / daysToToday) * daysInMonth);
         return tot;
     }
-    
-    
+
     private void InsertPeriod() throws HeadlessException {
 
         periodInstalation = (Period) cbPeriodo.getSelectedItem();
@@ -481,8 +487,8 @@ public class VendasAtual extends javax.swing.JFrame {
         txtTrVendida.requestFocus();
 
     }
-    
-     private void fillingPackage() {
+
+    private void fillingPackage() {
         if (cbPacote.getSelectedIndex() == 0) {
             JOptionPane.showMessageDialog(null, "Selecione um pacote", "Aviso", JOptionPane.INFORMATION_MESSAGE);
             cbPacote.requestFocus();
@@ -495,8 +501,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblValuePlan.setText(format.formatMoneyNumber(valuePackage + "", 'M'));
         txtDataInstalacao.requestFocus();
     }
-    
-     
+
     public void actionMouseRight() {
         tblVendasRes.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -508,12 +513,12 @@ public class VendasAtual extends javax.swing.JFrame {
 
                     // Selecionar a célula como se o botão esquerdo tivesse sido pressionado
                     tblVendasRes.changeSelection(row, column, false, false);
-                    
+
                     Map<String, Integer> values = returnPositionTable();
 // Exibir uma caixa de diálogo
                     int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja alterar a venda: "
                             + "\n Feita em: " + tblVendasRes.getValueAt(row, values.get("dateMade")) + "\n "
-                            + "Instalação marcada para " + tblVendasRes.getValueAt(row, values.get("dateInstalation")) 
+                            + "Instalação marcada para " + tblVendasRes.getValueAt(row, values.get("dateInstalation"))
                             + " De " + tblVendasRes.getValueAt(row, values.get("period")), "Venda " + (row + 1) + " CPF: " + tblVendasRes.getValueAt(row, values.get("cpf")), JOptionPane.YES_NO_OPTION);
                     if (dialogResult == JOptionPane.YES_OPTION) {
 
@@ -1072,7 +1077,7 @@ public class VendasAtual extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-  
+
     private void txtCPFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCPFKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
             if (txtCPF.getText().length() < 11) {
@@ -1116,7 +1121,6 @@ public class VendasAtual extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_cbPacoteKeyPressed
 
-   
 
     private void txtDataInstalacaoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDataInstalacaoKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
@@ -1246,18 +1250,18 @@ public class VendasAtual extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         if (true) {
-            
-dispose();
-        new AllSales().show();
+
+            dispose();
+            new AllSales().show();
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
-      
+
     }//GEN-LAST:event_jMenu3ActionPerformed
 
     private void jMenu3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu3MouseClicked
-         dispose();
+        dispose();
         new AllSales().show();
     }//GEN-LAST:event_jMenu3MouseClicked
 
@@ -1266,8 +1270,8 @@ dispose();
         ocultFields(fieldsVisible);
     }//GEN-LAST:event_btnSetVisibleActionPerformed
 
-      public static void main(String args[]) {
-     
+    public static void main(String args[]) {
+
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
