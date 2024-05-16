@@ -92,6 +92,18 @@ public class VendasAtual extends javax.swing.JFrame {
     public VendasAtual() {
         initComponents();
         setExtendedState(MAXIMIZED_BOTH);
+        panelCanceled3.setBackground(java.awt.Color.decode("#FFC7CE"));
+        panelCanceled1.setBackground(java.awt.Color.decode("#FFC7CE"));
+        panelCanceled4.setBackground(java.awt.Color.decode("#FFC7CE"));
+        panelCanceled5.setBackground(java.awt.Color.decode("#C6EFCE"));
+        panelCanceled6.setBackground(java.awt.Color.decode("#C6EFCE"));
+        panelCanceled7.setBackground(java.awt.Color.decode("#C6EFCE"));
+        panelCanceled8.setBackground(java.awt.Color.decode("#C6EFCE"));
+        panelCanceled9.setBackground(java.awt.Color.decode("#FFE699"));
+        panelCanceled10.setBackground(java.awt.Color.decode("#FFE699"));
+        panelCanceled11.setBackground(java.awt.Color.decode("#FFE699"));
+        panelCanceled12.setBackground(java.awt.Color.decode("#FFE699"));
+        panelCanceled13.setBackground(java.awt.Color.decode("#FFC7CE"));
         jPanel1.setSize(getMaximumSize());
         sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
 
@@ -551,12 +563,15 @@ public class VendasAtual extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
+        panelCanceled12 = new javax.swing.JPanel();
         lblAprovisionamentoTot = new javax.swing.JLabel();
         lblAprovisionamentoTot1 = new javax.swing.JLabel();
         jPanel13 = new javax.swing.JPanel();
-        lblCanceladaTot = new javax.swing.JLabel();
+        panelCanceled13 = new javax.swing.JPanel();
         lblCanceladaTot1 = new javax.swing.JLabel();
+        lblCanceladaTot = new javax.swing.JLabel();
         jPanel14 = new javax.swing.JPanel();
+        panelCanceled8 = new javax.swing.JPanel();
         lblInstaladaTot = new javax.swing.JLabel();
         lblInstaladaTot1 = new javax.swing.JLabel();
         jPanel6 = new javax.swing.JPanel();
@@ -575,16 +590,25 @@ public class VendasAtual extends javax.swing.JFrame {
         cbSituatiom = new javax.swing.JComboBox<>();
         jPanel10 = new javax.swing.JPanel();
         jPanel15 = new javax.swing.JPanel();
+        panelCanceled4 = new javax.swing.JPanel();
         lblCancelada700 = new javax.swing.JLabel();
+        panelCanceled5 = new javax.swing.JPanel();
         lblInstalada700 = new javax.swing.JLabel();
+        panelCanceled10 = new javax.swing.JPanel();
         lblAprovisionamento700 = new javax.swing.JLabel();
         jPanel16 = new javax.swing.JPanel();
-        lblAprovisionamento400 = new javax.swing.JLabel();
-        lblInstalada400 = new javax.swing.JLabel();
+        panelCanceled1 = new javax.swing.JPanel();
         lblCancelada400 = new javax.swing.JLabel();
+        panelCanceled7 = new javax.swing.JPanel();
+        lblInstalada400 = new javax.swing.JLabel();
+        panelCanceled9 = new javax.swing.JPanel();
+        lblAprovisionamento400 = new javax.swing.JLabel();
         jPanel17 = new javax.swing.JPanel();
+        panelCanceled3 = new javax.swing.JPanel();
         lblCancelada600 = new javax.swing.JLabel();
+        panelCanceled6 = new javax.swing.JPanel();
         lblInstalada600 = new javax.swing.JLabel();
+        panelCanceled11 = new javax.swing.JPanel();
         lblAprovisionamento600 = new javax.swing.JLabel();
         lblEstimativa = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -597,7 +621,7 @@ public class VendasAtual extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Vendas Fibra");
         setBackground(new java.awt.Color(255, 255, 255));
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -612,33 +636,29 @@ public class VendasAtual extends javax.swing.JFrame {
         jPanel11.setBackground(new java.awt.Color(255, 255, 255));
         jPanel11.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "Aprovisionamento", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
 
-        lblAprovisionamentoTot.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        panelCanceled12.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled12.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled12.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblAprovisionamentoTot.setFont(new java.awt.Font("Serif", 1, 22)); // NOI18N
         lblAprovisionamentoTot.setForeground(java.awt.Color.decode("#9C5700"));
         lblAprovisionamentoTot.setText("Aprovisionamento");
+        panelCanceled12.add(lblAprovisionamentoTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
 
-        lblAprovisionamentoTot1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblAprovisionamentoTot1.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblAprovisionamentoTot1.setForeground(java.awt.Color.decode("#9C5700"));
         lblAprovisionamentoTot1.setText("Aprovisionamento");
+        panelCanceled12.add(lblAprovisionamentoTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, -1));
 
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel11Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblAprovisionamentoTot)
-                    .addComponent(lblAprovisionamentoTot1))
-                .addContainerGap(93, Short.MAX_VALUE))
+            .addComponent(panelCanceled12, javax.swing.GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
         );
         jPanel11Layout.setVerticalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel11Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
-                .addComponent(lblAprovisionamentoTot)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblAprovisionamentoTot1)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(panelCanceled12, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
         );
 
         jPanel2.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 30, 260, 100));
@@ -646,71 +666,62 @@ public class VendasAtual extends javax.swing.JFrame {
         jPanel13.setBackground(new java.awt.Color(255, 255, 255));
         jPanel13.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "Cancelada", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
 
-        lblCanceladaTot.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        lblCanceladaTot.setForeground(java.awt.Color.decode("#9C0006"));
-        lblCanceladaTot.setText("Cancelada");
+        panelCanceled13.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblCanceladaTot1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblCanceladaTot1.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblCanceladaTot1.setForeground(java.awt.Color.decode("#9C0006"));
         lblCanceladaTot1.setText("Cancelada");
+        panelCanceled13.add(lblCanceladaTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 40, -1, -1));
+
+        lblCanceladaTot.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
+        lblCanceladaTot.setForeground(java.awt.Color.decode("#9C0006"));
+        lblCanceladaTot.setText("Cancelada");
+        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 0, -1, -1));
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
         jPanel13Layout.setHorizontalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel13Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblCanceladaTot1)
-                    .addComponent(lblCanceladaTot))
-                .addContainerGap(150, Short.MAX_VALUE))
+            .addComponent(panelCanceled13, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
         );
         jPanel13Layout.setVerticalGroup(
             jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblCanceladaTot)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(lblCanceladaTot1)
-                .addContainerGap())
+            .addComponent(panelCanceled13, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
         );
 
-        jPanel2.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 40, 250, 90));
+        jPanel2.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 30, 280, 100));
 
         jPanel14.setBackground(new java.awt.Color(255, 255, 255));
         jPanel14.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "Instalada", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
 
-        lblInstaladaTot.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        panelCanceled8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstaladaTot.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblInstaladaTot.setForeground(java.awt.Color.decode("#006100"));
         lblInstaladaTot.setText("Instaladas");
+        panelCanceled8.add(lblInstaladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 0, -1, -1));
 
-        lblInstaladaTot1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        lblInstaladaTot1.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblInstaladaTot1.setForeground(java.awt.Color.decode("#006100"));
         lblInstaladaTot1.setText("Instaladas");
+        panelCanceled8.add(lblInstaladaTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 40, -1, -1));
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel14Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblInstaladaTot1)
-                    .addComponent(lblInstaladaTot))
-                .addContainerGap(229, Short.MAX_VALUE))
+            .addComponent(panelCanceled8, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel14Layout.createSequentialGroup()
-                .addComponent(lblInstaladaTot)
-                .addGap(18, 18, 18)
-                .addComponent(lblInstaladaTot1)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(panelCanceled8, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 5, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 150, 340, 90));
+        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 140, 340, 100));
 
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 10, 560, 250));
+        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, 600, 250));
 
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "Cadastrar Venda", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Microsoft YaHei", 1, 14), new java.awt.Color(204, 0, 204))); // NOI18N
@@ -817,6 +828,9 @@ public class VendasAtual extends javax.swing.JFrame {
 
         jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 980, 60));
 
+        btnSale.setBackground(new java.awt.Color(0, 204, 0));
+        btnSale.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
+        btnSale.setForeground(new java.awt.Color(255, 255, 255));
         btnSale.setText("Cadastrar venda");
         btnSale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -865,123 +879,152 @@ public class VendasAtual extends javax.swing.JFrame {
         jPanel15.setBackground(new java.awt.Color(255, 255, 255));
         jPanel15.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "700MB / 1Gb", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
 
+        panelCanceled4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblCancelada700.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblCancelada700.setForeground(java.awt.Color.decode("#9C0006"));
         lblCancelada700.setText("Cancelada");
+        panelCanceled4.add(lblCancelada700, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
+        panelCanceled5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstalada700.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblInstalada700.setForeground(java.awt.Color.decode("#006100"));
         lblInstalada700.setText("Instaladas");
+        panelCanceled5.add(lblInstalada700, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
 
+        panelCanceled10.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled10.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblAprovisionamento700.setFont(new java.awt.Font("Footlight MT Light", 1, 16)); // NOI18N
         lblAprovisionamento700.setForeground(java.awt.Color.decode("#9C5700"));
         lblAprovisionamento700.setText("Aprovisionamento");
+        panelCanceled10.add(lblAprovisionamento700, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
         jPanel15.setLayout(jPanel15Layout);
         jPanel15Layout.setHorizontalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel15Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblAprovisionamento700)
-                    .addComponent(lblInstalada700)
-                    .addComponent(lblCancelada700))
-                .addContainerGap(92, Short.MAX_VALUE))
+            .addComponent(panelCanceled10, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+            .addComponent(panelCanceled5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelCanceled4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel15Layout.setVerticalGroup(
             jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel15Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(lblAprovisionamento700)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblInstalada700)
-                .addGap(18, 18, 18)
-                .addComponent(lblCancelada700)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addComponent(panelCanceled10, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCanceled5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCanceled4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 30, 210, 140));
+        jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 30, 220, 160));
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
         jPanel16.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "400MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
 
-        lblAprovisionamento400.setForeground(java.awt.Color.decode("#9C5700"));
-        lblAprovisionamento400.setText("Aprovisionamento");
+        panelCanceled1.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblInstalada400.setForeground(java.awt.Color.decode("#006100"));
-        lblInstalada400.setText("Instaladas");
-
+        lblCancelada400.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblCancelada400.setForeground(java.awt.Color.decode("#9C0006"));
         lblCancelada400.setText("Cancelada");
+        panelCanceled1.add(lblCancelada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
+
+        panelCanceled7.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled7.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstalada400.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
+        lblInstalada400.setForeground(java.awt.Color.decode("#006100"));
+        lblInstalada400.setText("Instaladas");
+        panelCanceled7.add(lblInstalada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
+
+        panelCanceled9.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled9.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblAprovisionamento400.setFont(new java.awt.Font("Footlight MT Light", 1, 16)); // NOI18N
+        lblAprovisionamento400.setForeground(java.awt.Color.decode("#9C5700"));
+        lblAprovisionamento400.setText("Aprovisionamento");
+        panelCanceled9.add(lblAprovisionamento400, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
         jPanel16.setLayout(jPanel16Layout);
         jPanel16Layout.setHorizontalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel16Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblAprovisionamento400)
-                    .addComponent(lblInstalada400)
-                    .addComponent(lblCancelada400))
-                .addContainerGap(92, Short.MAX_VALUE))
+            .addComponent(panelCanceled1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelCanceled7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelCanceled9, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
         );
         jPanel16Layout.setVerticalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel16Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(lblAprovisionamento400)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblInstalada400)
-                .addGap(18, 18, 18)
-                .addComponent(lblCancelada400)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addComponent(panelCanceled9, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCanceled7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCanceled1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 3, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 210, 140));
+        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 220, 160));
 
         jPanel17.setBackground(new java.awt.Color(255, 255, 255));
         jPanel17.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "500MB / 600MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
 
+        panelCanceled3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblCancelada600.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblCancelada600.setForeground(java.awt.Color.decode("#9C0006"));
         lblCancelada600.setText("Cancelada");
+        panelCanceled3.add(lblCancelada600, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
 
+        panelCanceled6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstalada600.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblInstalada600.setForeground(java.awt.Color.decode("#006100"));
         lblInstalada600.setText("Instaladas");
+        panelCanceled6.add(lblInstalada600, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
 
+        panelCanceled11.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled11.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled11.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblAprovisionamento600.setFont(new java.awt.Font("Footlight MT Light", 1, 16)); // NOI18N
         lblAprovisionamento600.setForeground(java.awt.Color.decode("#9C5700"));
         lblAprovisionamento600.setText("Aprovisionamento");
+        panelCanceled11.add(lblAprovisionamento600, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
         jPanel17.setLayout(jPanel17Layout);
         jPanel17Layout.setHorizontalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel17Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblAprovisionamento600)
-                    .addComponent(lblInstalada600)
-                    .addComponent(lblCancelada600))
-                .addContainerGap(112, Short.MAX_VALUE))
+            .addComponent(panelCanceled6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelCanceled11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 216, Short.MAX_VALUE)
+            .addComponent(panelCanceled3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel17Layout.setVerticalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel17Layout.createSequentialGroup()
-                .addGap(15, 15, 15)
-                .addComponent(lblAprovisionamento600)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(lblInstalada600)
-                .addGap(18, 18, 18)
-                .addComponent(lblCancelada600)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addComponent(panelCanceled11, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCanceled6, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(panelCanceled3, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 30, 230, 140));
+        jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 30, 230, 160));
 
         lblEstimativa.setFont(new java.awt.Font("Segoe UI Black", 0, 18)); // NOI18N
         lblEstimativa.setForeground(new java.awt.Color(0, 51, 204));
         lblEstimativa.setText("Estimativa de ");
-        jPanel10.add(lblEstimativa, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 180, 640, 60));
+        jPanel10.add(lblEstimativa, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, 210, 60));
 
-        jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 700, 250));
+        jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 720, 250));
 
         tblVendasRes.setBackground(new java.awt.Color(255, 255, 255));
         tblVendasRes.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
@@ -1055,7 +1098,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 btnSetVisibleActionPerformed(evt);
             }
         });
-        jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 140, 30, 30));
+        jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 140, 30, 30));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1520, 680));
 
@@ -1324,6 +1367,18 @@ public class VendasAtual extends javax.swing.JFrame {
     public static javax.swing.JLabel lblInstaladaTot1;
     public static javax.swing.JLabel lblQtSellsTable;
     private javax.swing.JLabel lblValuePlan;
+    private javax.swing.JPanel panelCanceled1;
+    private javax.swing.JPanel panelCanceled10;
+    private javax.swing.JPanel panelCanceled11;
+    private javax.swing.JPanel panelCanceled12;
+    private javax.swing.JPanel panelCanceled13;
+    private javax.swing.JPanel panelCanceled3;
+    private javax.swing.JPanel panelCanceled4;
+    private javax.swing.JPanel panelCanceled5;
+    private javax.swing.JPanel panelCanceled6;
+    private javax.swing.JPanel panelCanceled7;
+    private javax.swing.JPanel panelCanceled8;
+    private javax.swing.JPanel panelCanceled9;
     public static javax.swing.JTable tblVendasRes;
     private javax.swing.JTextArea txaObs;
     private javax.swing.JTextField txtCPF;

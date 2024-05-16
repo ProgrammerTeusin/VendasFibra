@@ -32,7 +32,31 @@ public class AllSales extends javax.swing.JFrame {
 
     public AllSales() {
         initComponents();
-
+ panelCanceled9.setBackground(java.awt.Color.decode("#FFE699"));
+ panelCanceled10.setBackground(java.awt.Color.decode("#FFC7CE"));
+ panelCanceled12.setBackground(java.awt.Color.decode("#FFC7CE"));
+ panelCanceled15.setBackground(java.awt.Color.decode("#FFC7CE"));
+ panelCanceled11.setBackground(java.awt.Color.decode("#C6EFCE"));
+ panelCanceled13.setBackground(java.awt.Color.decode("#C6EFCE"));
+ panelCanceled14.setBackground(java.awt.Color.decode("#C6EFCE"));
+ 
+ lblProvsingQtd.setForeground(java.awt.Color.decode("#9C5700"));
+ lblProvsingvalue.setForeground(java.awt.Color.decode("#9C5700"));
+ 
+ lblCancelada.setForeground(java.awt.Color.decode("#9C0006"));
+ lblCancelada1.setForeground(java.awt.Color.decode("#9C0006"));
+ lblCanceladaValue1.setForeground(java.awt.Color.decode("#9C0006"));
+ lblCanceladaValue2.setForeground(java.awt.Color.decode("#9C0006"));
+ lblCancelada2.setForeground(java.awt.Color.decode("#9C0006"));
+ lblCanceladaValue.setForeground(java.awt.Color.decode("#9C0006"));
+ 
+ lblInstaladas.setForeground(java.awt.Color.decode("#006100"));
+ lblInstaladas1.setForeground(java.awt.Color.decode("#006100"));
+ lblInstaladas2.setForeground(java.awt.Color.decode("#006100"));
+ lblInstaladasValue.setForeground(java.awt.Color.decode("#006100"));
+ lblInstaladasValue1.setForeground(java.awt.Color.decode("#006100"));
+ lblInstaladasValue2.setForeground(java.awt.Color.decode("#006100"));
+ 
         setExtendedState(MAXIMIZED_BOTH);
         jPanel1.setSize(getMaximumSize());
         sc.returnData('a', (DefaultTableModel) tblRelatorioVendas.getModel(), LocalDate.now(), LocalDate.now());
@@ -186,22 +210,29 @@ public class AllSales extends javax.swing.JFrame {
         tblRelatorioVendas = new javax.swing.JTable();
         lblQtSellsTable = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        panelCanceled12 = new javax.swing.JPanel();
         lblCancelada = new javax.swing.JLabel();
-        lblInstaladasValue = new javax.swing.JLabel();
         lblCanceladaValue = new javax.swing.JLabel();
+        panelCanceled13 = new javax.swing.JPanel();
         lblInstaladas = new javax.swing.JLabel();
+        lblInstaladasValue = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        lblInstaladasValue1 = new javax.swing.JLabel();
-        lblInstaladas1 = new javax.swing.JLabel();
-        lblCanceladaValue1 = new javax.swing.JLabel();
-        lblCancelada1 = new javax.swing.JLabel();
+        panelCanceled9 = new javax.swing.JPanel();
         lblProvsingQtd = new javax.swing.JLabel();
         lblProvsingvalue = new javax.swing.JLabel();
+        panelCanceled10 = new javax.swing.JPanel();
+        lblCancelada1 = new javax.swing.JLabel();
+        lblCanceladaValue1 = new javax.swing.JLabel();
+        panelCanceled11 = new javax.swing.JPanel();
+        lblInstaladasValue1 = new javax.swing.JLabel();
+        lblInstaladas1 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
-        lblInstaladasValue2 = new javax.swing.JLabel();
+        panelCanceled14 = new javax.swing.JPanel();
         lblInstaladas2 = new javax.swing.JLabel();
-        lblCanceladaValue2 = new javax.swing.JLabel();
+        lblInstaladasValue2 = new javax.swing.JLabel();
+        panelCanceled15 = new javax.swing.JPanel();
         lblCancelada2 = new javax.swing.JLabel();
+        lblCanceladaValue2 = new javax.swing.JLabel();
         cbChoose = new javax.swing.JComboBox<>();
         txtField2 = new javax.swing.JTextField();
         txtField1 = new javax.swing.JTextField();
@@ -210,7 +241,8 @@ public class AllSales extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Relatorio de Vendas");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -294,25 +326,37 @@ public class AllSales extends javax.swing.JFrame {
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51)), "Mes passado", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Yu Gothic UI Semibold", 0, 14), new java.awt.Color(0, 102, 102))); // NOI18N
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        panelCanceled12.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled12.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled12.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         lblCancelada.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblCancelada.setForeground(new java.awt.Color(255, 0, 51));
         lblCancelada.setText("Canceladas");
-        jPanel3.add(lblCancelada, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
-
-        lblInstaladasValue.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblInstaladasValue.setForeground(new java.awt.Color(0, 153, 0));
-        lblInstaladasValue.setText("Instaladas");
-        jPanel3.add(lblInstaladasValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 90, -1, -1));
+        panelCanceled12.add(lblCancelada, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
 
         lblCanceladaValue.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblCanceladaValue.setForeground(new java.awt.Color(255, 0, 51));
         lblCanceladaValue.setText("Canceladas");
-        jPanel3.add(lblCanceladaValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 30, -1, 20));
+        panelCanceled12.add(lblCanceladaValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, 20));
+
+        jPanel3.add(panelCanceled12, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 300, 60));
+
+        panelCanceled13.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled13.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled13.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblInstaladas.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblInstaladas.setForeground(new java.awt.Color(0, 153, 0));
         lblInstaladas.setText("Instaladas");
-        jPanel3.add(lblInstaladas, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, -1, -1));
+        panelCanceled13.add(lblInstaladas, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        lblInstaladasValue.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblInstaladasValue.setForeground(new java.awt.Color(0, 153, 0));
+        lblInstaladasValue.setText("Instaladas");
+        panelCanceled13.add(lblInstaladasValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, -1));
+
+        jPanel3.add(panelCanceled13, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 300, 60));
 
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, 320, 150));
 
@@ -320,87 +364,101 @@ public class AllSales extends javax.swing.JFrame {
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51)), "Este Mês", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Yu Gothic UI Semibold", 0, 14), new java.awt.Color(0, 102, 102))); // NOI18N
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lblInstaladasValue1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblInstaladasValue1.setForeground(new java.awt.Color(0, 153, 0));
-        lblInstaladasValue1.setText("Instaladas");
-        jPanel4.add(lblInstaladasValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 110, -1, -1));
-
-        lblInstaladas1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblInstaladas1.setForeground(new java.awt.Color(0, 153, 0));
-        lblInstaladas1.setText("Instaladas");
-        jPanel4.add(lblInstaladas1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 110, -1, -1));
-
-        lblCanceladaValue1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblCanceladaValue1.setForeground(new java.awt.Color(255, 0, 51));
-        lblCanceladaValue1.setText("Canceladas");
-        jPanel4.add(lblCanceladaValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 60, -1, 20));
-
-        lblCancelada1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblCancelada1.setForeground(new java.awt.Color(255, 0, 51));
-        lblCancelada1.setText("Canceladas");
-        jPanel4.add(lblCancelada1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 60, -1, -1));
+        panelCanceled9.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled9.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblProvsingQtd.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblProvsingQtd.setForeground(new java.awt.Color(255, 153, 0));
         lblProvsingQtd.setText("Provising");
-        jPanel4.add(lblProvsingQtd, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, -1, -1));
+        panelCanceled9.add(lblProvsingQtd, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
         lblProvsingvalue.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblProvsingvalue.setForeground(new java.awt.Color(255, 153, 0));
         lblProvsingvalue.setText("Provising");
-        jPanel4.add(lblProvsingvalue, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 30, -1, -1));
+        panelCanceled9.add(lblProvsingvalue, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, -1, -1));
+
+        jPanel4.add(panelCanceled9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 370, 40));
+
+        panelCanceled10.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled10.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled10.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblCancelada1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblCancelada1.setForeground(new java.awt.Color(255, 0, 51));
+        lblCancelada1.setText("Canceladas");
+        panelCanceled10.add(lblCancelada1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+
+        lblCanceladaValue1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblCanceladaValue1.setForeground(new java.awt.Color(255, 0, 51));
+        lblCanceladaValue1.setText("Canceladas");
+        panelCanceled10.add(lblCanceladaValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, 80, 20));
+
+        jPanel4.add(panelCanceled10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 370, 40));
+
+        panelCanceled11.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled11.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled11.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstaladasValue1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblInstaladasValue1.setForeground(new java.awt.Color(0, 153, 0));
+        lblInstaladasValue1.setText("Instaladas");
+        panelCanceled11.add(lblInstaladasValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, -1, -1));
+
+        lblInstaladas1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblInstaladas1.setForeground(new java.awt.Color(0, 153, 0));
+        lblInstaladas1.setText("Instaladas");
+        panelCanceled11.add(lblInstaladas1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+
+        jPanel4.add(panelCanceled11, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 100, 370, 40));
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 10, 390, 150));
 
         jPanel5.setBackground(new java.awt.Color(255, 255, 255));
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51)), "Este Ano", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Yu Gothic UI Semibold", 0, 14), new java.awt.Color(0, 102, 102))); // NOI18N
 
-        lblInstaladasValue2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblInstaladasValue2.setForeground(new java.awt.Color(0, 153, 0));
-        lblInstaladasValue2.setText("Instaladas");
+        panelCanceled14.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled14.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled14.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblInstaladas2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblInstaladas2.setForeground(new java.awt.Color(0, 153, 0));
         lblInstaladas2.setText("Instaladas");
+        panelCanceled14.add(lblInstaladas2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, -1, -1));
 
-        lblCanceladaValue2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
-        lblCanceladaValue2.setForeground(new java.awt.Color(255, 0, 51));
-        lblCanceladaValue2.setText("Canceladas");
+        lblInstaladasValue2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblInstaladasValue2.setForeground(new java.awt.Color(0, 153, 0));
+        lblInstaladasValue2.setText("Instaladas");
+        panelCanceled14.add(lblInstaladasValue2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 20, -1, -1));
+
+        panelCanceled15.setMaximumSize(new java.awt.Dimension(34, 34));
+        panelCanceled15.setMinimumSize(new java.awt.Dimension(0, 0));
+        panelCanceled15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblCancelada2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblCancelada2.setForeground(new java.awt.Color(255, 0, 51));
         lblCancelada2.setText("Canceladas");
+        panelCanceled15.add(lblCancelada2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        lblCanceladaValue2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
+        lblCanceladaValue2.setForeground(new java.awt.Color(255, 0, 51));
+        lblCanceladaValue2.setText("Canceladas");
+        panelCanceled15.add(lblCanceladaValue2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 10, -1, 20));
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(3, 3, 3)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lblInstaladas2)
-                    .addComponent(lblCancelada2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 119, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(lblCanceladaValue2)
-                        .addGap(17, 17, 17))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(lblInstaladasValue2)
-                        .addGap(34, 34, 34))))
+            .addComponent(panelCanceled15, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+            .addComponent(panelCanceled14, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblCancelada2)
-                    .addComponent(lblCanceladaValue2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblInstaladas2)
-                    .addComponent(lblInstaladasValue2))
-                .addGap(18, 18, 18))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addGap(0, 1, Short.MAX_VALUE)
+                .addComponent(panelCanceled15, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(1, 1, 1)
+                .addComponent(panelCanceled14, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         jPanel1.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 10, 340, 150));
@@ -611,6 +669,13 @@ public class AllSales extends javax.swing.JFrame {
     public static javax.swing.JLabel lblProvsingQtd;
     public static javax.swing.JLabel lblProvsingvalue;
     public static javax.swing.JLabel lblQtSellsTable;
+    private javax.swing.JPanel panelCanceled10;
+    private javax.swing.JPanel panelCanceled11;
+    private javax.swing.JPanel panelCanceled12;
+    private javax.swing.JPanel panelCanceled13;
+    private javax.swing.JPanel panelCanceled14;
+    private javax.swing.JPanel panelCanceled15;
+    private javax.swing.JPanel panelCanceled9;
     public static javax.swing.JTable tblRelatorioVendas;
     private javax.swing.JTextField txtField1;
     private javax.swing.JTextField txtField2;

@@ -5,11 +5,14 @@
         <group>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Dao/AllSalesDao.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/View/AlterData.java</file>
-            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Controller/SalesController.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/nbproject/build-impl.xml</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Services/ToPDF.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Dao/SalesDAO.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Controller/AllSalesController.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/View/AllSales.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/View/VendasAtual.java</file>
             <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Services/SaleService.java</file>
+            <file>file:/D:/Meus%20Arquivos/Minhas%20Vendas/Oi%20Fibra/Programas%20Venndas/VendasFibra/src/Controller/Formatting.java</file>
         </group>
     </open-files>
 </project-private>

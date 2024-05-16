@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -43,6 +44,7 @@ public class AlterData extends javax.swing.JFrame {
     AllSalesController asc = new AllSalesController();
 
     public AlterData() {
+        
         initComponents();
         cbPacote.setModel(new DefaultComboBoxModel(Packages.values()));
         cbPacote.removeItem(Packages.ALL);
@@ -54,6 +56,8 @@ public class AlterData extends javax.swing.JFrame {
         cbSituatiom.setModel(new DefaultComboBoxModel(Situation.values()));
         cbSituatiom.removeItem(Situation.ALL);
         //cbSituatiom.removeItem(Situation.SELECT);
+         setResizable(false);
+         setTitle("Atualizar Venda");
 
     }
 
@@ -202,6 +206,7 @@ public class AlterData extends javax.swing.JFrame {
         txtValue = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -321,6 +326,9 @@ public class AlterData extends javax.swing.JFrame {
         });
         jPanel1.add(cbSituatiom, new org.netbeans.lib.awtextra.AbsoluteConstraints(375, 216, 110, 40));
 
+        btnSale.setBackground(new java.awt.Color(0, 204, 0));
+        btnSale.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
+        btnSale.setForeground(new java.awt.Color(0, 0, 0));
         btnSale.setText("Atualizar Venda");
         btnSale.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -332,7 +340,7 @@ public class AlterData extends javax.swing.JFrame {
                 btnSaleKeyPressed(evt);
             }
         });
-        jPanel1.add(btnSale, new org.netbeans.lib.awtextra.AbsoluteConstraints(268, 463, 120, 40));
+        jPanel1.add(btnSale, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 460, 140, 40));
 
         btnCancell.setBackground(new java.awt.Color(255, 51, 51));
         btnCancell.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
@@ -355,16 +363,7 @@ public class AlterData extends javax.swing.JFrame {
         });
         jPanel1.add(txtValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(173, 284, 130, 40));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 570, 540));
 
         pack();
         setLocationRelativeTo(null);
