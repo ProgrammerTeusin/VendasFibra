@@ -44,7 +44,7 @@ public class AlterData extends javax.swing.JFrame {
     AllSalesController asc = new AllSalesController();
 
     public AlterData() {
-        
+
         initComponents();
         cbPacote.setModel(new DefaultComboBoxModel(Packages.values()));
         cbPacote.removeItem(Packages.ALL);
@@ -56,8 +56,8 @@ public class AlterData extends javax.swing.JFrame {
         cbSituatiom.setModel(new DefaultComboBoxModel(Situation.values()));
         cbSituatiom.removeItem(Situation.ALL);
         //cbSituatiom.removeItem(Situation.SELECT);
-         setResizable(false);
-         setTitle("Atualizar Venda");
+        setResizable(false);
+        setTitle("Atualizar Venda");
 
     }
 
@@ -82,7 +82,7 @@ public class AlterData extends javax.swing.JFrame {
         if (txtCliente.getText().equals("")) {
             fwf += "\"Cliente\" ";
         }
-         if (txtTrVendida.getText().equals("")) {
+        if (txtTrVendida.getText().equals("")) {
             fwf += "\" TR \" ";
         }
         if (txtContato.getText().equals("")) {
@@ -106,38 +106,18 @@ public class AlterData extends javax.swing.JFrame {
 
         String fielsWithout = fielWithoutFielling();
         if (fielsWithout == "" || fielsWithout == null || fielsWithout.length() == 0) {
-            if (cliente == null) {
-                cliente = txtCliente.getText();
-            }
+            cliente = txtCliente.getText();
+            cpf = txtCPF.getText();
+            trSell = txtTrVendida.getText();
+            contacts = txtContato.getText();
+            observation = txaObs.getText()+"\n* Alterado em "+format.dateTimeFormaterField(LocalDateTime.now())+" *";
 
-            if (cpf == null) {
-                cpf = txtCPF.getText();
-            }
-              if (trSell == null) {
-                trSell = txtTrVendida.getText();
-            }
+            InsertPeriod();
 
-            if (contacts == null) {
-                contacts = txtContato.getText();
-            }
-            if (observation == null) {
-                observation = txaObs.getText();
-            }
+            fillingPackage();
 
-            if (ldTSaleMarked == null) {
-                InsertPeriod();
-            }
-
-            if (packgeSelected == null) {
-                fillingPackage();
-            }
-
-            if (originSell == null) {
-                originSell = Origin.valueOf(cbOrigem.getSelectedItem() + "");
-            }
-            if (situation == null) {
-                situation = (Situation) cbSituatiom.getSelectedItem();
-            }
+            originSell = Origin.fromString(cbOrigem.getSelectedItem() + "");
+            situation = (Situation) cbSituatiom.getSelectedItem();
 
         } else {
             JOptionPane.showMessageDialog(null, "Favor preencher os seguintes campos\n " + fielsWithout, "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -171,7 +151,6 @@ public class AlterData extends javax.swing.JFrame {
 
     private void update() {
         SalesController sc = new SalesController();
-
         sc.updateSales(new Sales(idUpdate, new Vendedor(trSell),
                 ldTSaleMade, cpf, cliente,
                 contacts, packgeSelected.toString(),
@@ -465,7 +444,7 @@ public class AlterData extends javax.swing.JFrame {
 
     private void btnSaleKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnSaleKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
-
+            fillData();
             update();
 
         }
@@ -486,11 +465,7 @@ public class AlterData extends javax.swing.JFrame {
         if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
             situation = (Situation) cbSituatiom.getSelectedItem();
         }
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
 
-            update();
-
-        }
     }//GEN-LAST:event_cbSituatiomKeyPressed
 
     private void txtValueKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtValueKeyPressed

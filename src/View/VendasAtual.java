@@ -104,7 +104,11 @@ public class VendasAtual extends javax.swing.JFrame {
         panelCanceled11.setBackground(java.awt.Color.decode("#FFE699"));
         panelCanceled12.setBackground(java.awt.Color.decode("#FFE699"));
         panelCanceled13.setBackground(java.awt.Color.decode("#FFC7CE"));
+        paneValue.setBackground(java.awt.Color.decode("#C6EFCE"));
+        paneValue.setVisible(false);
         jPanel1.setSize(getMaximumSize());
+        lblValuePlan.setBackground(java.awt.Color.decode("#C6EFCE"));
+        lblValuePlan.setForeground(java.awt.Color.decode("#006100"));
         sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
 
         txtCPF.requestFocus();
@@ -122,7 +126,7 @@ public class VendasAtual extends javax.swing.JFrame {
         triggerToChage(false);
         type = TypeBank.INSERT;
         lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
-        //returnPositionTable();
+
         fillingsValuesPacksges();
         // sc.fillingsValuesPacksges(returnPositionTable());
         txtCPF.setText("621354848464");
@@ -133,7 +137,12 @@ public class VendasAtual extends javax.swing.JFrame {
         cbPacote.setSelectedIndex(1);
         cbPeriodo.setSelectedIndex(1);
         cbSituatiom.setSelectedIndex(1);
-        //colortable();
+
+        Map<String, Integer> positionT = returnPositionTable();
+        if (fillingPacksValuesWillIntalationToday(positionT) > 0) {
+            fillingPacksValuesIntaledToday(positionT);
+        }
+
         typePossibilitySellins();
     }
 
@@ -301,6 +310,7 @@ public class VendasAtual extends javax.swing.JFrame {
 
         cleanFields();
         txtCPF.requestFocus();
+        fillingPacksValuesIntaledToday(returnPositionTable());
 
     }
 
@@ -414,6 +424,7 @@ public class VendasAtual extends javax.swing.JFrame {
         txtContato.setText("");
         txaObs.setText("");
         lblValuePlan.setText("");
+        paneValue.setVisible(false);
         cbOrigem.setSelectedIndex(0);
         cbPacote.setSelectedIndex(0);
         cbPeriodo.setSelectedIndex(0);
@@ -468,8 +479,7 @@ public class VendasAtual extends javax.swing.JFrame {
         int cancelled = searchQtdSituationTable(Situation.CANCELED);
         int installed = searchQtdSituationTable(Situation.INSTALLED);
         int made = searchQtdSituationTable(Situation.ALL);
-        System.out.println("instaladas " + installed + "instaladas " + cancelled + "instaladas " + made);
-
+        
         lblEstimativa.setText("Previsão de:\n " + returnValueSitationMonth(cancelled)
                 + " Linhas canceladas\n " + returnValueSitationMonth(installed)
                 + " Linhas Instaladas\n " + returnValueSitationMonth(made) + " Feitas");
@@ -504,14 +514,83 @@ public class VendasAtual extends javax.swing.JFrame {
         if (cbPacote.getSelectedIndex() == 0) {
             JOptionPane.showMessageDialog(null, "Selecione um pacote", "Aviso", JOptionPane.INFORMATION_MESSAGE);
             cbPacote.requestFocus();
+            lblValuePlan.setText("");
+            paneValue.setVisible(false);
         } else {
             packgeSelected = (Packages) cbPacote.getSelectedItem();
-
+            Packages[] pack = {Packages.ALL};
+            valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm'), packgeSelected);
+            lblValuePlan.setText(format.formatMoneyNumber(valuePackage + "", 'M'));
+            paneValue.setVisible(true);
+            txtDataInstalacao.requestFocus();
         }
-        Packages[] pack = {Packages.ALL};
-        valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm'), packgeSelected);
-        lblValuePlan.setText(format.formatMoneyNumber(valuePackage + "", 'M'));
-        txtDataInstalacao.requestFocus();
+
+    }
+//conta as que vao instalar no dia
+
+    public int countPackgeInstalled(JTable tbl, int columnData, int columnPeriod, int columnSituation, char period) {
+        int countPack = 0;
+        for (int i = 0; i < tbl.getRowCount(); i++) {
+            LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, columnData) + "");
+            int dayPego = dateFormated.getDayOfMonth();
+            int dayToday = LocalDate.now().getDayOfMonth();
+
+            if (dayPego == dayToday) {
+                if ((tbl.getValueAt(i, columnPeriod)).toString().charAt(0) == period
+                        && (tbl.getValueAt(i, columnSituation)).toString().charAt(0)  == 'A') {
+                    countPack += 1;
+                }
+            }
+        }
+        return countPack;
+    }
+
+    //conta as instaladas do dia
+    public int countPackgeInstalled(JTable tbl, int columnData, int columnPeriod, int columnSituation) {
+        int countPack = 0;
+        for (int i = 0; i < tbl.getRowCount(); i++) {
+            LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, columnData) + "");
+            int dayPego = dateFormated.getDayOfMonth();
+            int dayToday = LocalDate.now().getDayOfMonth();
+
+            if (dayPego == dayToday) {
+                if ((tbl.getValueAt(i, columnSituation)).toString() == "Instalada") {
+                    countPack += 1;
+                }
+            }
+        }
+
+        return countPack;
+    }
+
+    private int fillingPacksValuesWillIntalationToday(Map<String, Integer> values) {
+        int instMorning = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"), 'M');
+        int instAfternoon = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"), 'T');
+        int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"));
+
+        int tot = instAfternoon + instMorning;
+        if (tot > 0) {
+            jPanel3.setVisible(true);
+            jPanel4.setVisible(true);
+            jPanel7.setVisible(true);
+            jPanel8.setVisible(true);
+            lblInstaMorning1.setText(instMorning + "");
+            lblInstaAfternoon1.setText(instAfternoon + "");
+            lblInstaAfternoon1.setText(instAfternoon + "");
+        } else {
+            jPanel3.setVisible(false);
+            jPanel4.setVisible(false);
+            jPanel7.setVisible(false);
+            jPanel8.setVisible(false);
+        }
+        return tot;
+    }
+
+    private void fillingPacksValuesIntaledToday(Map<String, Integer> values) {
+        int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"));
+
+        lblInstadasToday.setText(instTot + "");
+
     }
 
     public void actionMouseRight() {
@@ -610,14 +689,29 @@ public class VendasAtual extends javax.swing.JFrame {
         lblInstalada600 = new javax.swing.JLabel();
         panelCanceled11 = new javax.swing.JPanel();
         lblAprovisionamento600 = new javax.swing.JLabel();
-        lblEstimativa = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
+        lblInstadasToday = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        lblInstaMor = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jPanel8 = new javax.swing.JPanel();
+        lblInstaMorning1 = new javax.swing.JLabel();
+        lblInstaAfternoon1 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        lblEstimativa = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblVendasRes = new javax.swing.JTable();
-        lblValuePlan = new javax.swing.JLabel();
         lblQtSellsTable = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         btnSetVisible = new javax.swing.JButton();
+        paneValue = new javax.swing.JPanel();
+        lblValuePlan = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
 
@@ -671,12 +765,12 @@ public class VendasAtual extends javax.swing.JFrame {
         lblCanceladaTot1.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblCanceladaTot1.setForeground(java.awt.Color.decode("#9C0006"));
         lblCanceladaTot1.setText("Cancelada");
-        panelCanceled13.add(lblCanceladaTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 40, -1, -1));
+        panelCanceled13.add(lblCanceladaTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 40, -1, -1));
 
         lblCanceladaTot.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblCanceladaTot.setForeground(java.awt.Color.decode("#9C0006"));
         lblCanceladaTot.setText("Cancelada");
-        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 0, -1, -1));
+        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, -1, -1));
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -719,7 +813,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addGap(0, 5, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 140, 340, 100));
+        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 140, 340, 100));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, 600, 250));
 
@@ -900,7 +994,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblAprovisionamento700.setFont(new java.awt.Font("Footlight MT Light", 1, 16)); // NOI18N
         lblAprovisionamento700.setForeground(java.awt.Color.decode("#9C5700"));
         lblAprovisionamento700.setText("Aprovisionamento");
-        panelCanceled10.add(lblAprovisionamento700, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+        panelCanceled10.add(lblAprovisionamento700, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
 
         javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
         jPanel15.setLayout(jPanel15Layout);
@@ -917,11 +1011,10 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(panelCanceled5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled4, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(panelCanceled4, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 30, 220, 160));
+        jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 20, 220, 160));
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
         jPanel16.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "400MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
@@ -971,7 +1064,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addGap(0, 3, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 30, 220, 160));
+        jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 220, 160));
 
         jPanel17.setBackground(new java.awt.Color(255, 255, 255));
         jPanel17.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "500MB / 600MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
@@ -1017,12 +1110,77 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addComponent(panelCanceled3, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE))
         );
 
-        jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 30, 230, 160));
+        jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 230, 160));
 
-        lblEstimativa.setFont(new java.awt.Font("Segoe UI Black", 0, 18)); // NOI18N
-        lblEstimativa.setForeground(new java.awt.Color(0, 51, 204));
-        lblEstimativa.setText("Estimativa de ");
-        jPanel10.add(lblEstimativa, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 180, 210, 60));
+        jPanel3.setBackground(new java.awt.Color(0, 0, 153));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel1.setText("jLabel1");
+        jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 28, -1, -1));
+
+        jLabel3.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("Instaladas Hoje");
+        jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
+
+        jPanel10.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 180, 150, 30));
+
+        jPanel7.setBackground(new java.awt.Color(102, 204, 0));
+        jPanel7.setForeground(new java.awt.Color(255, 0, 0));
+        jPanel7.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstadasToday.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        lblInstadasToday.setForeground(new java.awt.Color(0, 0, 0));
+        lblInstadasToday.setText("Tarde");
+        jPanel7.add(lblInstadasToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, -1));
+
+        jPanel10.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 210, 150, 30));
+
+        jPanel4.setBackground(new java.awt.Color(255, 153, 0));
+        jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel5.setText("jLabel1");
+        jPanel4.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(6, 28, -1, -1));
+
+        lblInstaMor.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        lblInstaMor.setForeground(new java.awt.Color(0, 0, 0));
+        lblInstaMor.setText("Manhã");
+        jPanel4.add(lblInstaMor, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        jLabel7.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel7.setText("Instalar Hoje");
+        jPanel4.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, -1));
+
+        jLabel8.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(0, 0, 0));
+        jLabel8.setText("Tarde");
+        jPanel4.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, -1, -1));
+
+        jPanel10.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 180, 170, 30));
+
+        jPanel8.setBackground(new java.awt.Color(102, 204, 0));
+        jPanel8.setForeground(new java.awt.Color(255, 0, 0));
+        jPanel8.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblInstaMorning1.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        lblInstaMorning1.setForeground(new java.awt.Color(0, 0, 0));
+        lblInstaMorning1.setText("Manhã");
+        jPanel8.add(lblInstaMorning1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
+
+        lblInstaAfternoon1.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
+        lblInstaAfternoon1.setForeground(new java.awt.Color(0, 0, 0));
+        lblInstaAfternoon1.setText("Tarde");
+        jPanel8.add(lblInstaAfternoon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, -1, -1));
+
+        jPanel10.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 210, 170, 30));
+
+        lblEstimativa.setEditable(false);
+        lblEstimativa.setColumns(20);
+        lblEstimativa.setRows(5);
+        lblEstimativa.setToolTipText("clique aqui");
+        jScrollPane3.setViewportView(lblEstimativa);
+
+        jPanel10.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 260, 60));
 
         jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 720, 250));
 
@@ -1066,13 +1224,10 @@ public class VendasAtual extends javax.swing.JFrame {
             tblVendasRes.getColumnModel().getColumn(9).setResizable(false);
         }
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 520, 1280, 160));
-
-        lblValuePlan.setText("jLabel1");
-        jPanel1.add(lblValuePlan, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 280, 130, -1));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 500, 1280, 160));
 
         lblQtSellsTable.setText("jLabel1");
-        jPanel1.add(lblQtSellsTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 500, 230, -1));
+        jPanel1.add(lblQtSellsTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 480, 230, -1));
 
         jButton1.setText("jButton1");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -1080,7 +1235,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 480, -1, -1));
+        jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 460, -1, -1));
 
         jButton2.setText("Ir para todas vendas");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -1088,7 +1243,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 480, -1, -1));
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(970, 460, -1, -1));
 
         btnSetVisible.setBackground(new java.awt.Color(255, 255, 255));
         btnSetVisible.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IconsImages/eyeOpen.png"))); // NOI18N
@@ -1100,7 +1255,18 @@ public class VendasAtual extends javax.swing.JFrame {
         });
         jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 140, 30, 30));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1520, 680));
+        paneValue.setMaximumSize(new java.awt.Dimension(34, 34));
+        paneValue.setMinimumSize(new java.awt.Dimension(0, 0));
+        paneValue.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lblValuePlan.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 24)); // NOI18N
+        lblValuePlan.setForeground(java.awt.Color.decode("#006100"));
+        lblValuePlan.setText("Instaladas");
+        paneValue.add(lblValuePlan, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 0, -1, -1));
+
+        jPanel1.add(paneValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 270, 190, 40));
+
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1530, 700));
 
         jMenu3.setText("Relatorio de Vendas");
         jMenu3.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -1304,8 +1470,8 @@ public class VendasAtual extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenu3ActionPerformed
 
     private void jMenu3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu3MouseClicked
-        dispose();
         new AllSales().show();
+        dispose();
     }//GEN-LAST:event_jMenu3MouseClicked
 
     private void btnSetVisibleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSetVisibleActionPerformed
@@ -1335,6 +1501,11 @@ public class VendasAtual extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cbSituatiom;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
@@ -1346,9 +1517,14 @@ public class VendasAtual extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     public static javax.swing.JLabel lblAprovisionamento400;
     public static javax.swing.JLabel lblAprovisionamento600;
     public static javax.swing.JLabel lblAprovisionamento700;
@@ -1359,14 +1535,19 @@ public class VendasAtual extends javax.swing.JFrame {
     public static javax.swing.JLabel lblCancelada700;
     public static javax.swing.JLabel lblCanceladaTot;
     public static javax.swing.JLabel lblCanceladaTot1;
-    private javax.swing.JLabel lblEstimativa;
+    private javax.swing.JTextArea lblEstimativa;
+    private javax.swing.JLabel lblInstaAfternoon1;
+    private javax.swing.JLabel lblInstaMor;
+    private javax.swing.JLabel lblInstaMorning1;
+    private javax.swing.JLabel lblInstadasToday;
     public static javax.swing.JLabel lblInstalada400;
     public static javax.swing.JLabel lblInstalada600;
     public static javax.swing.JLabel lblInstalada700;
     public static javax.swing.JLabel lblInstaladaTot;
     public static javax.swing.JLabel lblInstaladaTot1;
     public static javax.swing.JLabel lblQtSellsTable;
-    private javax.swing.JLabel lblValuePlan;
+    public static javax.swing.JLabel lblValuePlan;
+    private javax.swing.JPanel paneValue;
     private javax.swing.JPanel panelCanceled1;
     private javax.swing.JPanel panelCanceled10;
     private javax.swing.JPanel panelCanceled11;
