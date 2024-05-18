@@ -126,7 +126,7 @@ public class SaleService {
         List<Sales> sales = new ArrayList<>();
 
         try {
-            File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibraSamuel20241.xlsm");
+            File file = new File("C:\\Program Files\\VendasFibra\\vendasFibraSamuel20241.xlsm");
             FileInputStream filePlani = new FileInputStream(file);
 
             XSSFWorkbook workbook;

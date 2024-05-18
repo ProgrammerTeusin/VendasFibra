@@ -217,6 +217,42 @@ public class VendasAtual extends javax.swing.JFrame {
         }
 
     }
+    private void fillDataUpadate() {
+
+        String fielsWithout = fielWithoutFielling();
+        if (fielsWithout == "" || fielsWithout == null || fielsWithout.length() == 0) {
+            
+                cliente = txtCliente.getText();
+            
+          
+                trSell = txtTrVendida.getText();
+            
+
+               cpf = txtCPF.getText();
+            
+
+                contacts = txtContato.getText();
+            
+                observation = txaObs.getText();
+            
+
+                InsertPeriod();
+            
+
+                fillingPackage();
+            
+
+                originSell = Origin.valueOf(cbOrigem.getSelectedItem() + "");
+            
+                situation = (Situation) cbSituatiom.getSelectedItem();
+            
+
+        }
+        else{
+            JOptionPane.showMessageDialog(null, "Favor preencher os seguintes campos\n " + fielsWithout, "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+
+    }
 
     Formatting format = new Formatting();
     SalesController sc = new SalesController();
@@ -1132,7 +1168,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblInstadasToday.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
         lblInstadasToday.setForeground(new java.awt.Color(0, 0, 0));
         lblInstadasToday.setText("Tarde");
-        jPanel7.add(lblInstadasToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, -1));
+        jPanel7.add(lblInstadasToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 10, -1, -1));
 
         jPanel10.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 210, 150, 30));
 
