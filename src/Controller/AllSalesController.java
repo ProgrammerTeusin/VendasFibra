@@ -1,27 +1,37 @@
 package Controller;
 
 import Dao.AllSalesDao;
+import Dao.SalesDAO;
+import Model.Enums.MonthsYear;
 import Model.Enums.Situation;
+import Model.Sales;
+import Services.ToPDF;
 import View.AllSales;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.swing.JOptionPane;
 
 public class AllSalesController {
 
     Formatting format = new Formatting();
 
-    public void qtdSituationMonth() {
-                AllSales.lblCancelada.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now().minusMonths(1), 'm')+" Linhas Canceladas");
-                AllSales.lblCancelada1.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now(), 'm')+" Linhas Canceladas");
-                AllSales.lblCancelada2.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now() , 'a')+" Linhas Canceladas");
-                
-                AllSales.lblInstaladas.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now().minusMonths(1) , 'm')+" Linhas Instaladas");
-                AllSales.lblInstaladas1.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now() , 'm')+" Linhas Instaladas");
-                AllSales.lblInstaladas2.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now() , 'a')+" Linhas Instaladas");
-                AllSales.lblProvsingQtd.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.PROVISIONING, LocalDate.now() , 'm')+" Linhas Em Aprovisionamento");
+    ToPDF pdf = new ToPDF();
 
-     
+    public void qtdSituationMonth() {
+        AllSales.lblCancelada.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now().minusMonths(1), 'm') + " Linhas Canceladas");
+        AllSales.lblCancelada1.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now(), 'm') + " Linhas Canceladas");
+        AllSales.lblCancelada2.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now(), 'a') + " Linhas Canceladas");
+
+        AllSales.lblInstaladas.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now().minusMonths(1), 'm') + " Linhas Instaladas");
+        AllSales.lblInstaladas1.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'm') + " Linhas Instaladas");
+        AllSales.lblInstaladas2.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'a') + " Linhas Instaladas");
+        AllSales.lblProvsingQtd.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.PROVISIONING, LocalDate.now(), 'm') + " Linhas Em Aprovisionamento");
+
     }
 
     public void valueSituationMonth() {
@@ -47,4 +57,53 @@ public class AllSalesController {
 //
 //        }
     }
+
+    public void toExportPDFController(char type, LocalDate dateInitial, LocalDate dateFinal) {
+        Set<String> processedMonths = new HashSet<>();
+        List<MonthsYear> monthsYear = new ArrayList<>();
+        float value = 0;
+        int qtd = 0;
+        List<Sales> sales = new ArrayList<>();
+        switch (type) {
+            case 'a'://a de all - todos
+                sales = (SalesDAO.returnData('a', LocalDate.MIN, LocalDate.MIN));
+        qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'a');
+        value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now(),'a');
+                
+                break;
+
+            case 'm'://m de this month - esse mes
+                sales = (SalesDAO.returnData('m', LocalDate.MIN, LocalDate.MIN));
+        qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'm');
+        value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now(),'m');
+                break;
+            case 'l'://l de last month - mes passado
+                sales = (SalesDAO.returnData('l', LocalDate.MIN, LocalDate.MIN));
+        qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now().minusMonths(1), 'm');
+        value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now().minusMonths(1),'m');
+                break;
+            case 'c'://c de choose - escolja de periodos
+                sales = (SalesDAO.returnData('c', dateInitial, dateFinal));
+        qtd = AllSalesDao.returnQtdPackgeInstalledByPeriod(Situation.INSTALLED, dateInitial, dateFinal);
+        value = AllSalesDao.returnValuesPackageByPeriod(Situation.INSTALLED, dateInitial, dateFinal);
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Opção Invalida! \n"
+                        + "Para pesquisar todas vendas insira 'a' de all"
+                        + "Para pesquisar vendas desse mês insira 'm' de month"
+                        + "Para pesquisar mês passado digite 'l' de last month"
+                        + "E para escolha de periodos 'c' de choose", "Erro", JOptionPane.ERROR_MESSAGE);
+
+        }
+
+        for (Sales sale : sales) {
+            String month = sale.getInstallationMarked().getMonth() + "";
+            if (!processedMonths.contains(month)) {
+                monthsYear.add(MonthsYear.valueOf(month));
+                processedMonths.add(month);
+            }
+        }
+        pdf.toExportPDFService(sales, monthsYear, monthsYear.toString(), qtd, value);
+    }
+
 }

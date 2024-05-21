@@ -1,5 +1,6 @@
 package View;
 
+import Controller.AllSalesController;
 import Controller.Formatting;
 import Controller.SalesController;
 import Dao.SalesDAO;
@@ -13,36 +14,23 @@ import static Model.Enums.Situation.PROVISIONING;
 import Model.Sales;
 import Model.Vendedor;
 import Services.SaleService;
-import View.AllSales;
-import View.AllSales;
-import java.awt.Color;
-import java.awt.Component;
+import Services.ToPDF;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableModel;
-import org.apache.poi.ss.util.ImageUtils;
 
 public class VendasAtual extends javax.swing.JFrame {
 
@@ -64,6 +52,7 @@ public class VendasAtual extends javax.swing.JFrame {
     int idSelection = 0;
     int id = 0;
     SaleService ss = new SaleService();
+    AllSalesController asc = new AllSalesController();
     boolean fieldsVisible = true;
 
     private int searchQtdSituationTable(Situation situation) {
@@ -129,14 +118,14 @@ public class VendasAtual extends javax.swing.JFrame {
 
         fillingsValuesPacksges();
         // sc.fillingsValuesPacksges(returnPositionTable());
-        txtCPF.setText("621354848464");
-        txtCliente.setText("Jao de barro");
-        txtContato.setText("842133005");
-        txaObs.setText("i dont now");
-        cbOrigem.setSelectedIndex(1);
-        cbPacote.setSelectedIndex(1);
-        cbPeriodo.setSelectedIndex(1);
-        cbSituatiom.setSelectedIndex(1);
+//        txtCPF.setText("621354848464");
+//        txtCliente.setText("Jao de barro");
+//        txtContato.setText("842133005");
+//        txaObs.setText("Sem ");
+//        cbOrigem.setSelectedIndex(1);
+//        cbPacote.setSelectedIndex(1);
+//        cbPeriodo.setSelectedIndex(1);
+//        cbSituatiom.setSelectedIndex(1);
 
         Map<String, Integer> positionT = returnPositionTable();
         if (fillingPacksValuesWillIntalationToday(positionT) > 0) {
@@ -217,38 +206,31 @@ public class VendasAtual extends javax.swing.JFrame {
         }
 
     }
+
     private void fillDataUpadate() {
 
         String fielsWithout = fielWithoutFielling();
         if (fielsWithout == "" || fielsWithout == null || fielsWithout.length() == 0) {
-            
-                cliente = txtCliente.getText();
-            
-          
-                trSell = txtTrVendida.getText();
-            
 
-               cpf = txtCPF.getText();
-            
+            cliente = txtCliente.getText();
 
-                contacts = txtContato.getText();
-            
-                observation = txaObs.getText();
-            
+            trSell = txtTrVendida.getText();
 
-                InsertPeriod();
-            
+            cpf = txtCPF.getText();
 
-                fillingPackage();
-            
+            contacts = txtContato.getText();
 
-                originSell = Origin.valueOf(cbOrigem.getSelectedItem() + "");
-            
-                situation = (Situation) cbSituatiom.getSelectedItem();
-            
+            observation = txaObs.getText();
 
-        }
-        else{
+            InsertPeriod();
+
+            fillingPackage();
+
+            originSell = Origin.valueOf(cbOrigem.getSelectedItem() + "");
+
+            situation = (Situation) cbSituatiom.getSelectedItem();
+
+        } else {
             JOptionPane.showMessageDialog(null, "Favor preencher os seguintes campos\n " + fielsWithout, "Aviso", JOptionPane.WARNING_MESSAGE);
         }
 
@@ -362,12 +344,18 @@ public class VendasAtual extends javax.swing.JFrame {
         double packProvisig700 = 0;
         double packInstalled700 = 0;
         double packcancell700 = 0;
-
+        int j = 0;
+        float val = 0;
         for (int i = 0; i < tblVendasRes.getRowCount(); i++) {
             Packages pack = Packages.fromString(tblVendasRes.getValueAt(i, position.get("package")) + "");
             Situation situation = Situation.fromString(tblVendasRes.getValueAt(i, position.get("situation")) + "");
-
             double valuePerPack = Double.parseDouble(format.formatMoneyNumber(tblVendasRes.getValueAt(i, position.get("value")) + "", 'N'));
+
+            if (situation == Situation.INSTALLED) {
+                j++;
+                val += valuePerPack;
+               
+            }
 
             if (pack == Packages.I_400MB) {
 
@@ -422,7 +410,8 @@ public class VendasAtual extends javax.swing.JFrame {
 
         }
         lblAprovisionamentoTot1.setText(format.formatMoneyNumber((packProvisig400 + packProvisig600 + packProvisig700) + "", 'M'));
-        lblInstaladaTot1.setText(format.formatMoneyNumber((packInstalled400 + packInstalled600 + packInstalled700) + "", 'M'));
+        //lblInstaladaTot1.setText(format.formatMoneyNumber((packInstalled400 + packInstalled600 + packInstalled700) + "", 'M'));
+        lblInstaladaTot1.setText(format.formatMoneyNumber(val + "", 'M'));
         lblCanceladaTot1.setText(format.formatMoneyNumber((packcancell400 + packcancell600 + packcancell700) + "", 'M'));
 
     }
@@ -515,7 +504,7 @@ public class VendasAtual extends javax.swing.JFrame {
         int cancelled = searchQtdSituationTable(Situation.CANCELED);
         int installed = searchQtdSituationTable(Situation.INSTALLED);
         int made = searchQtdSituationTable(Situation.ALL);
-        
+
         lblEstimativa.setText("Previsão de:\n " + returnValueSitationMonth(cancelled)
                 + " Linhas canceladas\n " + returnValueSitationMonth(installed)
                 + " Linhas Instaladas\n " + returnValueSitationMonth(made) + " Feitas");
@@ -573,7 +562,7 @@ public class VendasAtual extends javax.swing.JFrame {
 
             if (dayPego == dayToday) {
                 if ((tbl.getValueAt(i, columnPeriod)).toString().charAt(0) == period
-                        && (tbl.getValueAt(i, columnSituation)).toString().charAt(0)  == 'A') {
+                        && (tbl.getValueAt(i, columnSituation)).toString().charAt(0) == 'A') {
                     countPack += 1;
                 }
             }
@@ -750,6 +739,10 @@ public class VendasAtual extends javax.swing.JFrame {
         lblValuePlan = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Vendas Fibra");
@@ -1317,6 +1310,34 @@ public class VendasAtual extends javax.swing.JFrame {
         });
         jMenuBar1.add(jMenu3);
 
+        jMenu2.setText("Exportar PDF");
+
+        jMenuItem1.setText("Entre Datas");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem1);
+
+        jMenuItem2.setText("Este Mês");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem2);
+
+        jMenuItem3.setText("Mês Passado");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem3);
+
+        jMenuBar1.add(jMenu2);
+
         setJMenuBar(jMenuBar1);
 
         pack();
@@ -1515,6 +1536,22 @@ public class VendasAtual extends javax.swing.JFrame {
         ocultFields(fieldsVisible);
     }//GEN-LAST:event_btnSetVisibleActionPerformed
 
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+
+        new DateChoose().show();
+
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        asc.toExportPDFController('l', LocalDate.MIN, LocalDate.MIN);
+
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // This month
+        asc.toExportPDFController('m', LocalDate.MIN, LocalDate.MIN);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
     public static void main(String args[]) {
 
 
@@ -1542,8 +1579,12 @@ public class VendasAtual extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;

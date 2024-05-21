@@ -67,8 +67,10 @@ public class SalesDAO {
                     break;
                 case 'l':
 
-                    dateTimeInitial = Timestamp.valueOf(LocalDateTime.of(dateInitial, LocalTime.MIN).with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
-                    dateTimeFinal = Timestamp.valueOf(LocalDateTime.of(dateFinal, LocalTime.MIN).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
+//                    dateTimeInitial = Timestamp.valueOf(LocalDateTime.of(dateInitial, LocalTime.MIN).with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
+  //                  dateTimeFinal = Timestamp.valueOf(LocalDateTime.of(dateFinal, LocalTime.MIN).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
+                    dateTimeInitial = Timestamp.valueOf(LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
+                    dateTimeFinal = Timestamp.valueOf(LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
                     sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
                     ps = con.prepareCall(sql);
                     ps.setTimestamp(1, dateTimeInitial);
