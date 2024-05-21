@@ -18,6 +18,7 @@ import com.lowagie.text.Font;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
+import com.lowagie.text.html.simpleparser.StyleSheet;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -40,15 +41,13 @@ public class ToPDF {
 
     Formatting format = new Formatting();
     Document document = new Document();
-String path = "";
+    String path = "";
+
     public void head(Sales sale, List<MonthsYear> monthYear, String nameFile, float valueTot, int qtdTot) {
 
-            path = "C:/Users/mathe/Downloads/" + nameFile+".pdf";
+        path = "C:/Users/mathe/Downloads/" + nameFile + ".pdf";
+        int num = 0;
         try {
-            File file = new File(nameFile);
-            if (file.exists()) {
-                //fazer depois para alterar os numeros
-            }
             FileOutputStream filepdf = new FileOutputStream(path);
             PdfWriter writer = PdfWriter.getInstance(document, filepdf);
             document.open();
@@ -65,19 +64,17 @@ String path = "";
 
                     month = monthYear.get(i).toString().replace(']', ' ');
                 }
-                if (i < monthYear.size() - 1 && i != monthYear.size()-2) {
+                if (i < monthYear.size() - 1 && i != monthYear.size() - 2) {
                     month += ", ";
                 }
                 if (i == monthYear.size() - 2) {
                     month += " e ";
                 }
-                
+
             }
 
-            Paragraph pTitle = new Paragraph();
+            Paragraph pTitle = insertColumFormatedParagraph("Relatorio De Vendas Mês(es) " + month + " de " + sale.getInstallationMarked().getYear(),18,1, Color.red, Color.red);
             pTitle.setAlignment(Element.ALIGN_CENTER);
-            pTitle.add(new Chunk("Relatorio De Vendas Mês(es) " + month + " de " + sale.getInstallationMarked().getYear(),
-                    new Font(Font.DEFAULTSIZE, 18)));
             document.add(pTitle);
             document.add(new Paragraph("\n\n\n"));
 
@@ -88,32 +85,33 @@ String path = "";
             table.setTotalWidth(document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin());
             table.setWidthPercentage(100); // largura como porcentagem do tamanho da página
 
-            PdfPCell cell;
-            cell = new PdfPCell(new Phrase(
+            PdfPCell cellDate = new PdfPCell(new Phrase(
                     new Chunk("Data Gerada: " + "\n" + format.dateTimeFormaterField(LocalDateTime.now()),
-                            new Font(Font.STRIKETHRU, 12))));
-            cell.setBorder(Rectangle.NO_BORDER); // Remove a borda
-            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-            table.addCell(cell);
+                            new Font(Font.STRIKETHRU, 12,1,java.awt.Color.decode("#9C5700")))));
+            cellDate.setBorder(Rectangle.NO_BORDER); // Remove a borda
+            cellDate.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cellDate.setBackgroundColor(java.awt.Color.decode("#FFE699"));
+            table.addCell(cellDate);
 
-            cell = new PdfPCell(new Phrase(
+            PdfPCell cellSeller = new PdfPCell(new Phrase(
                     new Chunk("Nome Vendedor: " + "\n" + " Carlos Matheus",
-                            new Font(Font.STRIKETHRU, 12))));
-            cell.setBorder(Rectangle.NO_BORDER); // Remove a borda
-            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-            table.addCell(cell);
+                            new Font(Font.STRIKETHRU, 12,1,java.awt.Color.decode("#9C5700")))));
+            cellSeller.setBorder(Rectangle.NO_BORDER); // Remove a borda
+            cellSeller.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cellSeller.setBackgroundColor(java.awt.Color.decode("#FFE699"));
+            table.addCell(cellSeller);
 
-            cell = new PdfPCell(new Phrase(
-                    new Chunk("Qtd Instalada: "
-                            + qtdTot//SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm') + "\n"
-                            + "\nValor Calculado : "
-                            + format.formatMoneyNumber(valueTot+"",'M'),
-//format.formatMoneyNumber(AllSalesDao.returnValuesPackage(Situation.INSTALLED, sale.getInstallationMarked().toLocalDate(), 'm') + "", 'M'),
-                            new Font(Font.STRIKETHRU, 12)))
-            );
-            cell.setBorder(Rectangle.NO_BORDER); // Remove a borda
-            cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-            table.addCell(cell);
+            PdfPCell cellValues = insertColumFormated("Qtd Instalada: "
+                    + qtdTot//SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm') + "\n"
+                    + "\nValor Calculado : "
+                    + format.formatMoneyNumber(valueTot + "", 'M'), 12, 1,
+                    java.awt.Color.decode("#C6EFCE"),
+                    java.awt.Color.decode("#006100"));
+
+            cellValues.setBorder(Rectangle.NO_BORDER); // Remove a borda
+            cellValues.setHorizontalAlignment(Element.ALIGN_LEFT);
+            cellValues.setBackgroundColor(java.awt.Color.decode("#C6EFCE"));
+            table.addCell(cellValues);
 
             document.add(table);
 
@@ -129,13 +127,14 @@ String path = "";
     public void body(List<Sales> sale) {
         document.add(new Chunk("\n\nAlerta! O valor calculado foi feito automaticamente pelo sistema, "
                 + "favor confirmar se esta correto o valor.\n\n",
-                new Font(Font.NORMAL)));
+                new Font(Font.BOLD,14,1,java.awt.Color.decode("#FF4500"))));
         String[] headers = {"Venda", "CPF", "Nome", "TR Vendida", "Situação"};
 
         PdfPTable table = new PdfPTable(headers.length); // Cria uma tabela com o número de colunas igual ao número de títulos
 
         for (String header : headers) {
-            PdfPCell headerCell = new PdfPCell(new Phrase(header));
+             PdfPCell headerCell = insertColumFormated(header, 14, 1,java.awt.Color.decode("#800080"),
+                        Color.white);
             table.addCell(headerCell).setHorizontalAlignment(Element.ALIGN_CENTER);
         }
 
@@ -145,12 +144,34 @@ String path = "";
         for (int i = 0; i < sale.size(); i++) {
             if (sale.get(i).getSituation() == Situation.INSTALLED) {
                 cont++;
+                PdfPCell cellCont = insertColumFormated(cont > 9 ? cont + "" : "0" + cont, 12, 1,
+                        java.awt.Color.decode("#C6EFCE"),
+                        java.awt.Color.decode("#006100"));
+                PdfPCell cellCPF = insertColumFormated(sale.get(i).getCpf(), 12, 1,
+                        java.awt.Color.decode("#C6EFCE"),
+                        java.awt.Color.decode("#006100"));
+                PdfPCell cellSituation = insertColumFormated(sale.get(i).getSituation().toString(), 12, 1,
+                        java.awt.Color.decode("#C6EFCE"),
+                        java.awt.Color.decode("#006100"));
+                PdfPCell cellCustommers = insertColumFormated(sale.get(i).getCustomers(), 12, 1,
+                        java.awt.Color.decode("#C6EFCE"),
+                        java.awt.Color.decode("#006100"));
+                PdfPCell cellTR = insertColumFormated(sale.get(i).getSeller().getTr(),12, 1,
+                        java.awt.Color.decode("#C6EFCE"),
+                        java.awt.Color.decode("#006100"));
 
-                table.addCell((cont > 9 ? cont + "" : "0" + cont)).setHorizontalAlignment(Element.ALIGN_CENTER);
-                table.addCell(sale.get(i).getCpf()).setHorizontalAlignment(Element.ALIGN_CENTER);
-                table.addCell(sale.get(i).getCustomers()).setHorizontalAlignment(Element.ALIGN_CENTER);
-                table.addCell(sale.get(i).getSeller().getTr()).setHorizontalAlignment(Element.ALIGN_CENTER);
-                table.addCell(sale.get(i).getSituation().toString()).setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellCont);
+                table.addCell(cellCPF);
+                table.addCell(cellCustommers);
+                table.addCell(cellTR);
+                table.addCell(cellSituation);
+
+                //use as debaixo e exlcua as de cima caso se arrependa das cores 
+//                table.addCell((cont > 9 ? cont + "" : "0" + cont)).setHorizontalAlignment(Element.ALIGN_CENTER);
+//                table.addCell(sale.get(i).getCpf()).setHorizontalAlignment(Element.ALIGN_CENTER);
+//                table.addCell(sale.get(i).getCustomers()).setHorizontalAlignment(Element.ALIGN_CENTER);
+//                table.addCell(sale.get(i).getSeller().getTr()).setHorizontalAlignment(Element.ALIGN_CENTER);
+//                table.addCell(sale.get(i).getSituation().toString()).setHorizontalAlignment(Element.ALIGN_CENTER);
             }
             if (sale.get(i).getSituation() == Situation.CANCELED) {
 
@@ -166,52 +187,101 @@ String path = "";
         }
         for (String[] values : cpfCancelled) {
             cont++;
-            table.addCell((cont > 9 ? cont + "" : "0" + cont)).setHorizontalAlignment(Element.ALIGN_CENTER);
-            table.addCell(values[0]).setHorizontalAlignment(Element.ALIGN_CENTER);
-            table.addCell(values[1]).setHorizontalAlignment(Element.ALIGN_CENTER);
-            table.addCell(values[2]).setHorizontalAlignment(Element.ALIGN_CENTER);
-            table.addCell(values[3]).setHorizontalAlignment(Element.ALIGN_CENTER);
 
+            PdfPCell cellCont = insertColumFormated(cont > 9 ? cont + "" : "0" + cont, 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
+            PdfPCell cellCPF = insertColumFormated(values[0], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
+            PdfPCell cellSituation = insertColumFormated(values[1], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
+            PdfPCell cellCustommers = insertColumFormated(values[2], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
+            PdfPCell cellTR = insertColumFormated(values[3], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
+
+//            PdfPCell cellTR = new PdfPCell(new Phrase(
+//                    new Chunk(,
+//                            new Font(Font.STRIKETHRU, 12))));
+//            // cellCont.setBorder(Rectangle.NO_BORDER); // Remove a borda
+//            cellTR.setBorder(Rectangle.BOX); // Remove a borda
+//            cellTR.setHorizontalAlignment(Element.ALIGN_CENTER);
+//            cellTR.setBackgroundColor(java.awt.Color.decode("#FFC7CE"));
+            table.addCell(cellCont);
+            table.addCell(cellCPF);
+            table.addCell(cellCustommers);
+            table.addCell(cellTR);
+            table.addCell(cellSituation);
+
+            //use as debaixo e exlcua as de cima caso se arrependa das cores 
+//            table.addCell((cont > 9 ? cont + "" : "0" + cont)).setHorizontalAlignment(Element.ALIGN_CENTER);
+//            table.addCell(values[0]).setHorizontalAlignment(Element.ALIGN_CENTER);
+//            table.addCell(values[1]).setHorizontalAlignment(Element.ALIGN_CENTER);
+//            table.addCell(values[2]).setHorizontalAlignment(Element.ALIGN_CENTER);
+//            table.addCell(values[3]).setHorizontalAlignment(Element.ALIGN_CENTER);
         }
         Anchor anchorTarget = downloadCPFs(sale, cont + " Registros de vendas ");
 
         document.add(anchorTarget);
         document.add(new Paragraph("\n"));
-cont = 0;
+        cont = 0;
         document.add(table);
         document.add(new Paragraph("\n\n"));
         footer(path);
 
     }
 
+    private PdfPCell insertColumFormated(String value, Color color) {
+        PdfPCell cell = new PdfPCell(new Phrase(
+                new Chunk(value,
+                        new Font(Font.STRIKETHRU, 12))));
+        cell.setBorder(Rectangle.ALIGN_UNDEFINED); // Remove a borda
+        //cell.setBorder(Rectangle.BOX); // Remove a borda
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBackgroundColor(color);
+        return cell;
+    }
+
+    private PdfPCell insertColumFormated(String value, int sizeLetter, int style, Color color, Color colorForeground) {
+        PdfPCell cell = new PdfPCell(new Phrase(
+                new Chunk(value,
+                        new Font(Font.STRIKETHRU, sizeLetter, style, colorForeground))));
+        cell.setBorder(Rectangle.ALIGN_UNDEFINED); // Remove a borda
+        //cell.setBorder(Rectangle.BOX); // Remove a borda
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBackgroundColor(color);
+        return cell;
+    }
+
     private Anchor downloadCPFs(List<Sales> sale, String msg) {
-    FileWriter writer = null;
-    String reference = "C:/Users/mathe/Desktop/CPFs.txt";
-    try {
-        writer = new FileWriter(reference);
-        int i =1;
-        for (Sales values : sale) {
-            writer.write("CPF "+i+": "+ values.getCpf() + "\n");
-        i++;
-        }
-    } catch (IOException ex) {
-        Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
-    } finally {
-        if (writer != null) {
-            try {
-                writer.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+        FileWriter writer = null;
+        String reference = "C:/Users/mathe/Desktop/CPFs.txt";
+        try {
+            writer = new FileWriter(reference);
+            int i = 1;
+            for (Sales values : sale) {
+                writer.write("CPF " + i + ": " + values.getCpf() + "\n");
+                i++;
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
+        Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
+        anchorTarget.setReference(reference);
+        return anchorTarget;
     }
-    Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
-    anchorTarget.setReference(reference);
-    return anchorTarget;
-}
+
+    private Paragraph insertColumFormatedParagraph(String value, int sizeLetter, int style, Color color, Color colorForeground) {
+        Paragraph cell = new Paragraph(new Phrase(
+                new Chunk(value,
+                        new Font(Font.STRIKETHRU, sizeLetter, style, colorForeground))));
+        return cell;
+    }
 
     public void footer(String path) {
-        Paragraph p = new Paragraph("Desenvolved by Seller Carlos Matheus");
+        Paragraph p = insertColumFormatedParagraph("Desenvolved by Seller Carlos Matheus", 12, 0, Color.red, Color.red);
         p.setAlignment(Element.ALIGN_CENTER);
         document.add(p);
         document.close();
@@ -231,11 +301,11 @@ cont = 0;
         }
     }
 
-    public void toExportPDFService(List<Sales> sales, List<MonthsYear> monthsYear, String path,int qtdTot,float valueTot) {
-        
-        head(sales.get(0), monthsYear.reversed(), path,valueTot,qtdTot );
+    public void toExportPDFService(List<Sales> sales, List<MonthsYear> monthsYear, String path, int qtdTot, float valueTot) {
+
+        head(sales.get(0), monthsYear.reversed(), path, valueTot, qtdTot);
         body(sales);
-        
+
     }
 
     public static void main(String[] args) {
@@ -245,13 +315,15 @@ cont = 0;
                 0, LocalDateTime.now(), Period.SELECT,
                 Origin.SELECT, Situation.SELECT, "Ai pai para");
         List<MonthsYear> mon = new ArrayList<>();
+        List<Sales> sales = new ArrayList<>();
+        sales.add(sale);
         mon.add(MonthsYear.MAY);
         mon.add(MonthsYear.AUGUST);
         mon.add(MonthsYear.DECEMBER);
         MonthsYear monthYear = MonthsYear.valueOf(sale.getInstallationMarked().getMonth().name());
         //t.head(sale, "Aqui deu cert", monthYear,"FilesPDF.pdf");
-       // t.head(sale, mon, mon.toString() + ".pdf");
-
+        // t.head(sale, mon, mon.toString() + ".pdf");
+        t.toExportPDFService(sales, mon, "C:/Users/mathe/Downloads/abr", 0, 0);
         t.body(SalesDAO.returnData('c', LocalDate.of(2024, Month.MARCH, 13), LocalDate.now()));
 //        t.head(new Sales(new Vendedor("799469"), LocalDateTime.now(), "75465356",
 //                "Eu", "65465465", packages, 0, LocalDateTime.MIN, Period.SELECT, Origin.SELECT, Situation.SELECT, observation), 5,LocalDateTime.now() , Period.SELECT, Origin.SELECT, Situation.SELECT, "Era yna vez"));

@@ -54,6 +54,7 @@ public class VendasAtual extends javax.swing.JFrame {
     SaleService ss = new SaleService();
     AllSalesController asc = new AllSalesController();
     boolean fieldsVisible = true;
+    boolean searchInstaltionToday = false;
 
     private int searchQtdSituationTable(Situation situation) {
         int col = findColumnByName("Situação");
@@ -126,13 +127,20 @@ public class VendasAtual extends javax.swing.JFrame {
 //        cbPacote.setSelectedIndex(1);
 //        cbPeriodo.setSelectedIndex(1);
 //        cbSituatiom.setSelectedIndex(1);
-
-        Map<String, Integer> positionT = returnPositionTable();
-        if (fillingPacksValuesWillIntalationToday(positionT) > 0) {
-            fillingPacksValuesIntaledToday(positionT);
-        }
+        returnPacksInstalledsAndValuesLBL();
 
         typePossibilitySellins();
+    }
+
+    private void returnPacksInstalledsAndValuesLBL() {
+        Map<String, Integer> positionT = returnPositionTable();
+        if (fillingPacksValuesWillIntalationToday(positionT) > 0 || countPackgeInstalled(tblVendasRes, positionT.get("dateInstalation"), positionT.get("situation")) > 0) {
+            fillingPacksValuesIntaledToday(positionT);
+            btnSearchIntaltion.setVisible(true);
+        } else {
+            btnSearchIntaltion.setVisible(false);
+
+        }
     }
 
     private void ocultFields(boolean toActive) {
@@ -322,8 +330,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 originSell, situation, observation));
 
         sc.fillingsPacksges('m');
-        sc.returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
-
+      
         lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         cleanFields();
@@ -354,7 +361,7 @@ public class VendasAtual extends javax.swing.JFrame {
             if (situation == Situation.INSTALLED) {
                 j++;
                 val += valuePerPack;
-               
+
             }
 
             if (pack == Packages.I_400MB) {
@@ -571,13 +578,12 @@ public class VendasAtual extends javax.swing.JFrame {
     }
 
     //conta as instaladas do dia
-    public int countPackgeInstalled(JTable tbl, int columnData, int columnPeriod, int columnSituation) {
+    public int countPackgeInstalled(JTable tbl, int columnData, int columnSituation) {
         int countPack = 0;
         for (int i = 0; i < tbl.getRowCount(); i++) {
             LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, columnData) + "");
             int dayPego = dateFormated.getDayOfMonth();
             int dayToday = LocalDate.now().getDayOfMonth();
-
             if (dayPego == dayToday) {
                 if ((tbl.getValueAt(i, columnSituation)).toString() == "Instalada") {
                     countPack += 1;
@@ -591,10 +597,10 @@ public class VendasAtual extends javax.swing.JFrame {
     private int fillingPacksValuesWillIntalationToday(Map<String, Integer> values) {
         int instMorning = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"), 'M');
         int instAfternoon = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"), 'T');
-        int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"));
+        int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("situation"));
 
         int tot = instAfternoon + instMorning;
-        if (tot > 0) {
+        if (tot > 0 || countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("situation")) > 0) {
             jPanel3.setVisible(true);
             jPanel4.setVisible(true);
             jPanel7.setVisible(true);
@@ -612,7 +618,7 @@ public class VendasAtual extends javax.swing.JFrame {
     }
 
     private void fillingPacksValuesIntaledToday(Map<String, Integer> values) {
-        int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"));
+        int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("situation"));
 
         lblInstadasToday.setText(instTot + "");
 
@@ -729,6 +735,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblInstaAfternoon1 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         lblEstimativa = new javax.swing.JTextArea();
+        btnSearchIntaltion = new javax.swing.JToggleButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblVendasRes = new javax.swing.JTable();
         lblQtSellsTable = new javax.swing.JLabel();
@@ -822,18 +829,18 @@ public class VendasAtual extends javax.swing.JFrame {
         lblInstaladaTot.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblInstaladaTot.setForeground(java.awt.Color.decode("#006100"));
         lblInstaladaTot.setText("Instaladas");
-        panelCanceled8.add(lblInstaladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 0, -1, -1));
+        panelCanceled8.add(lblInstaladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, -1, -1));
 
         lblInstaladaTot1.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblInstaladaTot1.setForeground(java.awt.Color.decode("#006100"));
         lblInstaladaTot1.setText("Instaladas");
-        panelCanceled8.add(lblInstaladaTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 40, -1, -1));
+        panelCanceled8.add(lblInstaladaTot1, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 40, -1, -1));
 
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCanceled8, javax.swing.GroupLayout.DEFAULT_SIZE, 326, Short.MAX_VALUE)
+            .addComponent(panelCanceled8, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
         );
         jPanel14Layout.setVerticalGroup(
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -842,7 +849,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 .addGap(0, 5, Short.MAX_VALUE))
         );
 
-        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 140, 340, 100));
+        jPanel2.add(jPanel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 140, 550, 100));
 
         jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 10, 600, 250));
 
@@ -1152,7 +1159,7 @@ public class VendasAtual extends javax.swing.JFrame {
         jLabel3.setText("Instaladas Hoje");
         jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
 
-        jPanel10.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 180, 150, 30));
+        jPanel10.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 180, 150, 30));
 
         jPanel7.setBackground(new java.awt.Color(102, 204, 0));
         jPanel7.setForeground(new java.awt.Color(255, 0, 0));
@@ -1160,10 +1167,10 @@ public class VendasAtual extends javax.swing.JFrame {
 
         lblInstadasToday.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
         lblInstadasToday.setForeground(new java.awt.Color(0, 0, 0));
-        lblInstadasToday.setText("Tarde");
+        lblInstadasToday.setText("a");
         jPanel7.add(lblInstadasToday, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 10, -1, -1));
 
-        jPanel10.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 210, 150, 30));
+        jPanel10.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 210, 150, 30));
 
         jPanel4.setBackground(new java.awt.Color(255, 153, 0));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1185,7 +1192,7 @@ public class VendasAtual extends javax.swing.JFrame {
         jLabel8.setText("Tarde");
         jPanel4.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, -1, -1));
 
-        jPanel10.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 180, 170, 30));
+        jPanel10.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 180, 170, 30));
 
         jPanel8.setBackground(new java.awt.Color(102, 204, 0));
         jPanel8.setForeground(new java.awt.Color(255, 0, 0));
@@ -1201,7 +1208,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblInstaAfternoon1.setText("Tarde");
         jPanel8.add(lblInstaAfternoon1, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, -1, -1));
 
-        jPanel10.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 210, 170, 30));
+        jPanel10.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 210, 170, 30));
 
         lblEstimativa.setEditable(false);
         lblEstimativa.setColumns(20);
@@ -1210,6 +1217,17 @@ public class VendasAtual extends javax.swing.JFrame {
         jScrollPane3.setViewportView(lblEstimativa);
 
         jPanel10.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 180, 260, 60));
+
+        btnSearchIntaltion.setBackground(new java.awt.Color(153, 0, 153));
+        btnSearchIntaltion.setForeground(new java.awt.Color(255, 255, 255));
+        btnSearchIntaltion.setText("B I H");
+        btnSearchIntaltion.setToolTipText("Buscar Instalações de Hoje");
+        btnSearchIntaltion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchIntaltionActionPerformed(evt);
+            }
+        });
+        jPanel10.add(btnSearchIntaltion, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 180, 60, 60));
 
         jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 720, 250));
 
@@ -1224,7 +1242,7 @@ public class VendasAtual extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -1251,6 +1269,9 @@ public class VendasAtual extends javax.swing.JFrame {
             tblVendasRes.getColumnModel().getColumn(7).setResizable(false);
             tblVendasRes.getColumnModel().getColumn(8).setResizable(false);
             tblVendasRes.getColumnModel().getColumn(9).setResizable(false);
+            tblVendasRes.getColumnModel().getColumn(11).setMinWidth(0);
+            tblVendasRes.getColumnModel().getColumn(11).setPreferredWidth(100);
+            tblVendasRes.getColumnModel().getColumn(11).setMaxWidth(200);
         }
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 500, 1280, 160));
@@ -1282,7 +1303,7 @@ public class VendasAtual extends javax.swing.JFrame {
                 btnSetVisibleActionPerformed(evt);
             }
         });
-        jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 140, 30, 30));
+        jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 140, 40, 30));
 
         paneValue.setMaximumSize(new java.awt.Dimension(34, 34));
         paneValue.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -1437,7 +1458,14 @@ public class VendasAtual extends javax.swing.JFrame {
             update();
             ss.tableFormatColors(tblVendasRes);
         }
-        sc.fillingsPacksges('m');
+
+        returnPacksInstalledsAndValuesLBL();
+        if (searchInstaltionToday) {
+            sc.returnData('d', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+        } else {
+            sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+        }
+
         sc.fillingsValuesPacksges(returnPositionTable());
     }//GEN-LAST:event_btnSaleActionPerformed
 
@@ -1552,6 +1580,24 @@ public class VendasAtual extends javax.swing.JFrame {
         asc.toExportPDFController('m', LocalDate.MIN, LocalDate.MIN);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    private void btnSearchIntaltionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchIntaltionActionPerformed
+        searchInstation();
+    }//GEN-LAST:event_btnSearchIntaltionActionPerformed
+
+    private void searchInstation() {
+        searchInstaltionToday = !searchInstaltionToday;
+        if (searchInstaltionToday) {
+            btnSearchIntaltion.setText("V M");
+            btnSearchIntaltion.setToolTipText("Buscar todas vendas do mes");
+            sc.returnData('d', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+        } else {
+
+            btnSearchIntaltion.setText("B I H");
+            btnSearchIntaltion.setToolTipText("Buscar Instalações de Hoje");
+            sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+        }
+    }
+
     public static void main(String args[]) {
 
 
@@ -1567,6 +1613,7 @@ public class VendasAtual extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancell;
     private javax.swing.JButton btnSale;
+    private javax.swing.JToggleButton btnSearchIntaltion;
     private javax.swing.JButton btnSetVisible;
     private javax.swing.JComboBox<String> cbOrigem;
     private javax.swing.JComboBox<String> cbPacote;

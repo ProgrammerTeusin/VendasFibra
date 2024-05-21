@@ -54,7 +54,23 @@ public class SalesDAO {
                     ps.setDate(2, Date.valueOf(dateFinal + ""));
                     rs = ps.executeQuery();
                     break;
-
+case 'd': //day uniq - dia unico
+dateTimeInitial = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(0, 0)));
+                    dateTimeFinal = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(23, 59)));
+                    
+                 //   sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
+                    sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                            + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,"
+                            + "d.dateIntalation from tbSales s join tbDateInstalation d on "
+                            + "s.idDateInstalation = d.id join tbSeller v on "
+                            + "s.idSeller = v.id join tbSituation situa on "
+                            + "s.idSituation = situa.id "
+                            + "where d.dateIntalation >= ? AND d.dateIntalation <= ? order by s.id desc";
+                    ps = con.prepareCall(sql);
+                    ps.setTimestamp(1, dateTimeInitial);
+                    ps.setTimestamp(2,dateTimeFinal);
+                    rs = ps.executeQuery();
+                    break;
                 case 'm':
                     LocalDateTime now = LocalDateTime.now();
                     dateTimeInitial = Timestamp.valueOf(now.with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
