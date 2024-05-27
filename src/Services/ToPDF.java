@@ -73,7 +73,7 @@ public class ToPDF {
 
             }
 
-            Paragraph pTitle = insertColumFormatedParagraph("Relatorio De Vendas Mês(es) " + month + " de " + sale.getInstallationMarked().getYear(),18,1, Color.red, Color.red);
+            Paragraph pTitle = insertColumFormatedParagraph("Relatorio De Vendas Mês(es) " + month + " de " + sale.getInstallationMarked().getYear(), 18, 1, Color.red, Color.red);
             pTitle.setAlignment(Element.ALIGN_CENTER);
             document.add(pTitle);
             document.add(new Paragraph("\n\n\n"));
@@ -87,7 +87,7 @@ public class ToPDF {
 
             PdfPCell cellDate = new PdfPCell(new Phrase(
                     new Chunk("Data Gerada: " + "\n" + format.dateTimeFormaterField(LocalDateTime.now()),
-                            new Font(Font.STRIKETHRU, 12,1,java.awt.Color.decode("#9C5700")))));
+                            new Font(Font.STRIKETHRU, 12, 1, java.awt.Color.decode("#9C5700")))));
             cellDate.setBorder(Rectangle.NO_BORDER); // Remove a borda
             cellDate.setHorizontalAlignment(Element.ALIGN_LEFT);
             cellDate.setBackgroundColor(java.awt.Color.decode("#FFE699"));
@@ -95,7 +95,7 @@ public class ToPDF {
 
             PdfPCell cellSeller = new PdfPCell(new Phrase(
                     new Chunk("Nome Vendedor: " + "\n" + " Carlos Matheus",
-                            new Font(Font.STRIKETHRU, 12,1,java.awt.Color.decode("#9C5700")))));
+                            new Font(Font.STRIKETHRU, 12, 1, java.awt.Color.decode("#9C5700")))));
             cellSeller.setBorder(Rectangle.NO_BORDER); // Remove a borda
             cellSeller.setHorizontalAlignment(Element.ALIGN_LEFT);
             cellSeller.setBackgroundColor(java.awt.Color.decode("#FFE699"));
@@ -127,14 +127,14 @@ public class ToPDF {
     public void body(List<Sales> sale) {
         document.add(new Chunk("\n\nAlerta! O valor calculado foi feito automaticamente pelo sistema, "
                 + "favor confirmar se esta correto o valor.\n\n",
-                new Font(Font.BOLD,14,1,java.awt.Color.decode("#FF4500"))));
+                new Font(Font.BOLD, 14, 1, java.awt.Color.decode("#FF4500"))));
         String[] headers = {"Venda", "CPF", "Nome", "TR Vendida", "Situação"};
 
         PdfPTable table = new PdfPTable(headers.length); // Cria uma tabela com o número de colunas igual ao número de títulos
 
         for (String header : headers) {
-             PdfPCell headerCell = insertColumFormated(header, 14, 1,java.awt.Color.decode("#800080"),
-                        Color.white);
+            PdfPCell headerCell = insertColumFormated(header, 14, 1, java.awt.Color.decode("#800080"),
+                    Color.white);
             table.addCell(headerCell).setHorizontalAlignment(Element.ALIGN_CENTER);
         }
 
@@ -156,7 +156,7 @@ public class ToPDF {
                 PdfPCell cellCustommers = insertColumFormated(sale.get(i).getCustomers(), 12, 1,
                         java.awt.Color.decode("#C6EFCE"),
                         java.awt.Color.decode("#006100"));
-                PdfPCell cellTR = insertColumFormated(sale.get(i).getSeller().getTr(),12, 1,
+                PdfPCell cellTR = insertColumFormated(sale.get(i).getSeller().getTr(), 12, 1,
                         java.awt.Color.decode("#C6EFCE"),
                         java.awt.Color.decode("#006100"));
 
@@ -188,11 +188,11 @@ public class ToPDF {
         for (String[] values : cpfCancelled) {
             cont++;
 
-            PdfPCell cellCont = insertColumFormated(cont > 9 ? cont + "" : "0" + cont, 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
-            PdfPCell cellCPF = insertColumFormated(values[0], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
-            PdfPCell cellSituation = insertColumFormated(values[1], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
-            PdfPCell cellCustommers = insertColumFormated(values[2], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
-            PdfPCell cellTR = insertColumFormated(values[3], 12,1,java.awt.Color.decode("#FFC7CE"),java.awt.Color.decode("#9C0006"));
+            PdfPCell cellCont = insertColumFormated(cont > 9 ? cont + "" : "0" + cont, 12, 1, java.awt.Color.decode("#FFC7CE"), java.awt.Color.decode("#9C0006"));
+            PdfPCell cellCPF = insertColumFormated(values[0], 12, 1, java.awt.Color.decode("#FFC7CE"), java.awt.Color.decode("#9C0006"));
+            PdfPCell cellCustommers = insertColumFormated(values[1], 12, 1, java.awt.Color.decode("#FFC7CE"), java.awt.Color.decode("#9C0006"));
+            PdfPCell cellTR = insertColumFormated(values[2], 12, 1, java.awt.Color.decode("#FFC7CE"), java.awt.Color.decode("#9C0006"));
+            PdfPCell cellSituation = insertColumFormated(values[3], 12, 1, java.awt.Color.decode("#FFC7CE"), java.awt.Color.decode("#9C0006"));
 
 //            PdfPCell cellTR = new PdfPCell(new Phrase(
 //                    new Chunk(,
@@ -247,31 +247,36 @@ public class ToPDF {
         return cell;
     }
 
-    private Anchor downloadCPFs(List<Sales> sale, String msg) {
-        FileWriter writer = null;
-        String reference = "C:/Users/mathe/Desktop/CPFs.txt";
-        try {
-            writer = new FileWriter(reference);
-            int i = 1;
-            for (Sales values : sale) {
-                writer.write("CPF " + i + ": " + values.getCpf() + "\n");
-                i++;
+        private Anchor downloadCPFs(List<Sales> sale, String msg) {
+            FileWriter writer = null;
+            String reference = "C:\\CPFs.txt";
+            File file = new File(reference);
+            if (!file.exists()) {
+                file.mkdir();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+          //  reference += "/CPFs.txt";
+            try {
+                writer = new FileWriter(reference);
+                int i = 1;
+                for (Sales values : sale) {
+                    writer.write("CPF " + i + ": " + values.getCpf() + "\n");
+                    i++;
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                if (writer != null) {
+                    try {
+                        writer.close();
+                    } catch (IOException ex) {
+                        Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
             }
+            Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
+            anchorTarget.setReference(reference);
+            return anchorTarget;
         }
-        Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
-        anchorTarget.setReference(reference);
-        return anchorTarget;
-    }
 
     private Paragraph insertColumFormatedParagraph(String value, int sizeLetter, int style, Color color, Color colorForeground) {
         Paragraph cell = new Paragraph(new Phrase(
@@ -310,21 +315,21 @@ public class ToPDF {
 
     public static void main(String[] args) {
         ToPDF t = new ToPDF();
-        Sales sale = new Sales(new Vendedor("799469"), LocalDateTime.now(),
-                "75465356", "Eu", "65465465", Packages.I_400MB.toString(),
-                0, LocalDateTime.now(), Period.SELECT,
-                Origin.SELECT, Situation.SELECT, "Ai pai para");
-        List<MonthsYear> mon = new ArrayList<>();
-        List<Sales> sales = new ArrayList<>();
-        sales.add(sale);
-        mon.add(MonthsYear.MAY);
-        mon.add(MonthsYear.AUGUST);
-        mon.add(MonthsYear.DECEMBER);
-        MonthsYear monthYear = MonthsYear.valueOf(sale.getInstallationMarked().getMonth().name());
-        //t.head(sale, "Aqui deu cert", monthYear,"FilesPDF.pdf");
-        // t.head(sale, mon, mon.toString() + ".pdf");
-        t.toExportPDFService(sales, mon, "C:/Users/mathe/Downloads/abr", 0, 0);
-        t.body(SalesDAO.returnData('c', LocalDate.of(2024, Month.MARCH, 13), LocalDate.now()));
+//        Sales sale = new Sales(new Vendedor("799469"), LocalDateTime.now(),
+//                "75465356", "Eu", "65465465", Packages.I_400MB.toString(),
+//                0, LocalDateTime.now(), Period.SELECT,
+//                Origin.SELECT, Situation.SELECT, "Ai pai para");
+//        List<MonthsYear> mon = new ArrayList<>();
+//        List<Sales> sales = new ArrayList<>();
+//        sales.add(sale);
+//        mon.add(MonthsYear.MAY);
+//        mon.add(MonthsYear.AUGUST);
+//        mon.add(MonthsYear.DECEMBER);
+//        MonthsYear monthYear = MonthsYear.valueOf(sale.getInstallationMarked().getMonth().name());
+//        //t.head(sale, "Aqui deu cert", monthYear,"FilesPDF.pdf");
+//        // t.head(sale, mon, mon.toString() + ".pdf");
+//        t.toExportPDFService(sales, mon, "C:/Users/mathe/Downloads/abr", 0, 0);
+//        t.body(SalesDAO.returnData('c', LocalDate.of(2024, Month.MARCH, 13), LocalDate.now()));
 //        t.head(new Sales(new Vendedor("799469"), LocalDateTime.now(), "75465356",
 //                "Eu", "65465465", packages, 0, LocalDateTime.MIN, Period.SELECT, Origin.SELECT, Situation.SELECT, observation), 5,LocalDateTime.now() , Period.SELECT, Origin.SELECT, Situation.SELECT, "Era yna vez"));
     }

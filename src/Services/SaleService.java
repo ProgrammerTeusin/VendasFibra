@@ -5,9 +5,11 @@ import Controller.SalesController;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Period;
+import Model.Enums.ToPrioritize;
 import Model.Enums.Situation;
 import Model.Sales;
 import Model.Vendedor;
+import View.Loading;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
@@ -126,7 +128,7 @@ public class SaleService {
         List<Sales> sales = new ArrayList<>();
 
         try {
-            File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibraSamuel20241.xlsm");
+            File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibra2024.xlsx");
             FileInputStream filePlani = new FileInputStream(file);
 
             XSSFWorkbook workbook;
@@ -198,13 +200,13 @@ public class SaleService {
                         JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos data feita", JOptionPane.ERROR_MESSAGE);
                         ldt = (next.getCell(5) + "").length() > 12 ? format.dateTimeFormaterBank(next.getCell(5) + "") : format.dateTimeFormaterBank(next.getCell(5) + " 13:00");
                         JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
-                        
+
                     }
                     Situation situ;
                     if (next.getCell(8) == null) {
                         situ = Situation.PROVISIONING;  //situation;
-                            
-                    }else{
+
+                    } else {
                         situ = Situation.fromString(next.getCell(8) + "");
                     }
                     Iterator<Cell> cellIterato = next.cellIterator();
@@ -220,7 +222,8 @@ public class SaleService {
                             period, //period
                             Origin.fromString(next.getCell(10) == null ? "Chat" : next.getCell(10) + ""),//origin
                             situ, //situation;
-                            next.getCell(9) + "" //observation
+                            next.getCell(9) + "", //observation
+                            ToPrioritize.fromString(next.getCell(11) + "") //ToPrioritize
                     ));
                     System.out.println("Data instalação: " + dtInstalation.atTime(time));
                     System.out.println("Vendedor: " + seller + "\n"
@@ -235,8 +238,9 @@ public class SaleService {
                             + "cpf: " + next.getCell(0) + "\n"
                             + "valuePackage: " + next.getCell(4) + "\n"
                             + "observation: " + next.getCell(9) + "\n"
+                            + "Priotize: " + next.getCell(11) + "\n"
                     );
-                    
+
                 }
                 i++;
 
@@ -259,7 +263,7 @@ public class SaleService {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
                 // Suponha que a coluna que contém o valor "instalada" seja a penúltima coluna
-                int columnIndex = table.getColumnCount() - 2; // Ajuste este valor conforme necessário
+                int columnIndex = table.getColumnCount() - 3; // Ajuste este valor conforme necessário
                 String cellValue = (table.getValueAt(row, columnIndex).toString());
 
                 if ("Cancelada".equals(cellValue)) {
@@ -268,6 +272,10 @@ public class SaleService {
                 } else if ("Instalada".equals(cellValue)) {
                     c.setBackground(java.awt.Color.decode("#C6EFCE"));
                     c.setForeground(java.awt.Color.decode("#006100"));
+                } else if (ToPrioritize.YES.toString()
+                        .equals((table.getValueAt(row, table.getColumnCount() - 1).toString()))) {
+                    c.setBackground(java.awt.Color.red);
+                    c.setForeground(java.awt.Color.white);
                 } else {
                     c.setBackground(java.awt.Color.decode("#FFE699"));
                     c.setForeground(java.awt.Color.decode("#9C5700"));
@@ -291,7 +299,7 @@ public class SaleService {
     }
 
     public void insertSellExcel(Sales sale) {
-        File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibraSamuel20241.xlsm");
+        File file = new File("C:\\Users\\mathe\\Desktop\\VendasFibra2024.xlsx");
         FileInputStream filePlani;
 
         try {
@@ -319,6 +327,7 @@ public class SaleService {
             newRow.createCell(8).setCellValue(sale.getSituation().toString());
             newRow.createCell(9).setCellValue(sale.getObservation());
             newRow.createCell(10).setCellValue(sale.getOrigin().toString());
+            newRow.createCell(11).setCellValue(sale.getPrioritize().toString());
 //CPF	Cliente	Contato	Pacote	Comissão	Data 	Data Instalação	Periodo	Situação	Obersavação	Origem
 
             // Escreva as alterações de volta para o arquivo
@@ -326,10 +335,67 @@ public class SaleService {
             workbook.write(outputStream);
             outputStream.close();
         } catch (FileNotFoundException ex) {
+            JOptionPane.showInputDialog(null, "Arquivo excel não encontrado\nFavor cole o PATH do arquivo!", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (IOException ex) {
+            JOptionPane.showInputDialog(null, ex, "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Erro: " + ex);
+        }
+
+    }
+
+    public void updateValuesExcel(Sales sale) {
+        File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibra2024.xlsx");
+        FileInputStream filePlani;
+
+        try {
+            filePlani = new FileInputStream(file);
+            XSSFWorkbook workbook;
+
+            ///cria um workboo que e o mesmo que plailha com todas as abas
+            workbook = new XSSFWorkbook(filePlani);
+            ///recupernado uma aba da planilha
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
+            int i = 0;
+            while (rowIterator.hasNext()) {
+                Row next = rowIterator.next();
+                if (i > 0) {
+                    String cpf = next.getCell(0).toString();
+                    if (i == sale.getId() || cpf == sale.getCpf()) {
+                        next.getCell(0).setCellValue(cpf); //cpf
+                        next.getCell(1).setCellValue(sale.getCustomers()); //customers
+                        next.getCell(2).setCellValue(sale.getContact()); //contact
+                        next.getCell(3).setCellValue(sale.getPackages().toString()); //packages
+                        next.getCell(4).setCellValue(sale.getValuePackage()); //Comissão
+                        next.getCell(6).setCellValue(format.dateFormaterField(sale.getInstallationMarked().toLocalDate())); //Data Instalação	
+                        next.getCell(7).setCellValue(sale.getPeriod().toString()); //Periodo
+                        next.getCell(8).setCellValue(sale.getSituation().toString()); //Situação
+                        next.getCell(9).setCellValue(sale.getObservation()); //Obersavação
+                        next.getCell(10).setCellValue(sale.getOrigin().toString()); //Origem
+                        next.getCell(11).setCellValue(sale.getPrioritize().toString()); //Priorizar
+                        System.out.println("Dados Inseridos " + sale.getCustomers() + " " + sale.getContact() + " " + sale.getValuePackage() + " " + next.getCell(7) + " " + sale.getSituation().toString());
+
+                    }
+                }
+                i++;
+
+// Salvar as alterações
+                try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                    workbook.write(fileOut);
+
+                    fileOut.close();
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 }

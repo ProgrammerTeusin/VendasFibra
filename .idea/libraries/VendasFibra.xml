@@ -2,8 +2,22 @@
   <library name="VendasFibra">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/dist/VendasFibra.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/excelJar/dom4j-1.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/excelJar/poi-3.10.1-20140818.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/excelJar/poi-ooxml-3.10.1-20140818.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/excelJar/poi-ooxml-schemas-3.10.1-20140818.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/excelJar/stax-api-1.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/excelJar/xmlbeans-2.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/itextpdf-5.5.13.3/itextpdf-5.5.13.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/mysql-connector-j-8.3.0/mysql-connector-j-8.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/openpdf/2.0.2/openpdf-2.0.2.jar!/" />
     </CLASSES>
-    <JAVADOC />
-    <SOURCES />
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/myLibrary/itextpdf-5.5.13.3/itextpdf-5.5.13.3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/myLibrary/itextpdf-5.5.13.3/itextpdf-5.5.13.3-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/myLibrary/openpdf/2.0.2/openpdf-2.0.2-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

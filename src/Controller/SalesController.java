@@ -166,7 +166,8 @@ salesSer.insertSellExcel(sale);
                     sales.getPeriod().toString(),
                     sales.getOrigin().toString(),
                     sales.getSituation(),
-                    sales.getObservation()
+                    sales.getObservation(),
+                    sales.getPrioritize()
                 };
                 dtm.addRow(dados);
             }
@@ -188,7 +189,113 @@ salesSer.insertSellExcel(sale);
                     sales.getPeriod().toString(),
                     sales.getOrigin().toString(),
                     sales.getSituation(),
-                    sales.getObservation()
+                    sales.getObservation(),
+                    sales.getPrioritize()
+                };
+                dtm.addRow(dados);
+            }
+           //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        }
+    }
+    public void returnDataBySituation(char type,Situation situ, DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
+        List<Sales> data = SalesDAO.returnDataBySituation(type,situ,dateTimeInicial,dateTimeFinal);
+        //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
+        dtm.setRowCount(0);
+
+        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
+                };
+                dtm.addRow(dados);
+            }
+            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        } else {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    sales.getSeller().getTr(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
+                };
+                dtm.addRow(dados);
+            }
+           //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        }
+    }
+    
+    public void returnDataByPrioriti(DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
+        List<Sales> data = SalesDAO.returnDataByPrioriti(dateTimeInicial,dateTimeFinal);
+        //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
+        dtm.setRowCount(0);
+
+        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
+                };
+                dtm.addRow(dados);
+            }
+            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        } else {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    sales.getSeller().getTr(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
                 };
                 dtm.addRow(dados);
             }
@@ -217,7 +324,8 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
                     sales.getPeriod().toString(),
                     sales.getOrigin().toString(),
                     sales.getSituation(),
-                    sales.getObservation()
+                    sales.getObservation(),
+                    sales.getPrioritize()
                 };
                 dtm.addRow(dados);
             }
@@ -239,7 +347,8 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
                     sales.getPeriod().toString(),
                     sales.getOrigin().toString(),
                     sales.getSituation(),
-                    sales.getObservation()
+                    sales.getObservation(),
+                    sales.getPrioritize()
                 };
                 dtm.addRow(dados);
             }
@@ -358,8 +467,9 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
         VendasAtual.lblAprovisionamentoTot1.setText(format.formatMoneyNumber((packProvisig400 + packProvisig600 + packProvisig700) + "", 'M'));
         VendasAtual.lblInstaladaTot1.setText(format.formatMoneyNumber((packInstalled400 + packInstalled600 + packInstalled700) + "", 'M'));
         VendasAtual.lblCanceladaTot1.setText(format.formatMoneyNumber((packcancell400 + packcancell600 + packcancell700) + "", 'M'));
-
+        System.out.println("passou Aqui: ");
     }
+    
 
     public void setLabelText(JLabel label, int count, String message) {
         label.setText((count > 9)
@@ -370,6 +480,7 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
 
     public void updateSales(Sales sale) {
         salesdao.updateSalesDAO(sale);
+        salesSer.updateValuesExcel(sale);
        // fillingsPacksges('m'); comentei pois esta  usando  esse metodo  tamem no allSales
         //returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
     }

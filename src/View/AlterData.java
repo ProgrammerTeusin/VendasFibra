@@ -8,6 +8,7 @@ import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Period;
 import Model.Enums.Situation;
+import Model.Enums.ToPrioritize;
 import Model.Sales;
 import Model.Vendedor;
 import Services.SaleService;
@@ -155,7 +156,7 @@ public class AlterData extends javax.swing.JFrame {
                 ldTSaleMade, cpf, cliente,
                 contacts, packgeSelected.toString(),
                 valuePackage, ldTSaleMarked, periodInstalation,
-                originSell, situation, observation));
+                originSell, situation, observation,ToPrioritize.NO));
 
         ss.tableFormatColors(AllSales.tblRelatorioVendas);
 

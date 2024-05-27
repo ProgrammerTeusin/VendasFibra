@@ -3,6 +3,7 @@ package Model;
 import Model.Enums.Origin;
 import Model.Enums.Period;
 import Model.Enums.Situation;
+import Model.Enums.ToPrioritize;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,7 @@ public class Sales {
     private Origin origin;
     private Situation situation;
     private String observation;
+    private ToPrioritize prioritize;
     private float valuePackage;
 
     public Sales(){
@@ -39,7 +41,8 @@ public class Sales {
              Period period, 
              Origin origin, 
              Situation situation,
-             String observation) {
+             String observation,
+             ToPrioritize prioritize) {
         this.seller = seller;
         this.sellDateHour = sellDateHour;
         this.customers = customers;
@@ -52,9 +55,10 @@ public class Sales {
         this.cpf = cpf;
         this.valuePackage = valuePackage;
         this.situation = situation;
+        this.prioritize = prioritize;
     }
     
-     public Sales(int id, Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage,LocalDateTime installationMarked, Period period, Origin origin, Situation situation,String observation) {
+     public Sales(int id, Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage,LocalDateTime installationMarked, Period period, Origin origin, Situation situation,String observation,ToPrioritize prioritize) {
         this.seller = seller;
         this.sellDateHour = sellDateHour;
         this.customers = customers;
@@ -68,6 +72,7 @@ public class Sales {
         this.valuePackage = valuePackage;
         this.situation = situation;
         this.id = id;
+        this.prioritize = prioritize;
        
     }
    
@@ -175,6 +180,14 @@ public class Sales {
 
     public void setSituation(Situation situation) {
         this.situation = situation;
+    }
+
+    public ToPrioritize getPrioritize() {
+        return prioritize;
+    }
+
+    public void setPrioritize(ToPrioritize prioritize) {
+        this.prioritize = prioritize;
     }
 
     

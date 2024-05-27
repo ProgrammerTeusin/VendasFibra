@@ -258,11 +258,11 @@ public class AllSales extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Tr Vendida", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação"
+                "ID", "Tr Vendida", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação", "Priorizar"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -319,6 +319,9 @@ public class AllSales extends javax.swing.JFrame {
             tblRelatorioVendas.getColumnModel().getColumn(12).setMinWidth(0);
             tblRelatorioVendas.getColumnModel().getColumn(12).setPreferredWidth(200);
             tblRelatorioVendas.getColumnModel().getColumn(12).setMaxWidth(200);
+            tblRelatorioVendas.getColumnModel().getColumn(13).setMinWidth(0);
+            tblRelatorioVendas.getColumnModel().getColumn(13).setPreferredWidth(50);
+            tblRelatorioVendas.getColumnModel().getColumn(13).setMaxWidth(70);
         }
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 270, 1250, 340));
@@ -574,10 +577,12 @@ public class AllSales extends javax.swing.JFrame {
 
     private void jMenu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MouseClicked
         new VendasAtual().show();
+        dispose();
     }//GEN-LAST:event_jMenu1MouseClicked
 
     private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
         new VendasAtual().show();
+        dispose();
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void txtField2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtField2KeyPressed
