@@ -237,7 +237,6 @@ public class AllSales extends javax.swing.JFrame {
         txtField2 = new javax.swing.JTextField();
         txtField1 = new javax.swing.JTextField();
         btnSetVisible = new javax.swing.JButton();
-        jToggleButton1 = new javax.swing.JToggleButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -291,7 +290,7 @@ public class AllSales extends javax.swing.JFrame {
             tblRelatorioVendas.getColumnModel().getColumn(2).setMaxWidth(150);
             tblRelatorioVendas.getColumnModel().getColumn(3).setMinWidth(0);
             tblRelatorioVendas.getColumnModel().getColumn(3).setPreferredWidth(80);
-            tblRelatorioVendas.getColumnModel().getColumn(3).setMaxWidth(80);
+            tblRelatorioVendas.getColumnModel().getColumn(3).setMaxWidth(120);
             tblRelatorioVendas.getColumnModel().getColumn(4).setMinWidth(0);
             tblRelatorioVendas.getColumnModel().getColumn(4).setPreferredWidth(200);
             tblRelatorioVendas.getColumnModel().getColumn(4).setMaxWidth(200);
@@ -324,10 +323,10 @@ public class AllSales extends javax.swing.JFrame {
             tblRelatorioVendas.getColumnModel().getColumn(13).setMaxWidth(70);
         }
 
-        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 270, 1250, 340));
+        jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 230, 1220, 430));
 
         lblQtSellsTable.setText("jLabel1");
-        jPanel1.add(lblQtSellsTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 240, 230, -1));
+        jPanel1.add(lblQtSellsTable, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 210, 230, -1));
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51), new java.awt.Color(51, 0, 51)), "Mes passado", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Yu Gothic UI Semibold", 0, 14), new java.awt.Color(0, 102, 102))); // NOI18N
@@ -484,7 +483,7 @@ public class AllSales extends javax.swing.JFrame {
                 cbChooseKeyPressed(evt);
             }
         });
-        jPanel1.add(cbChoose, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 210, 230, 50));
+        jPanel1.add(cbChoose, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 180, 230, 50));
 
         txtField2.setBackground(new java.awt.Color(255, 255, 255));
         txtField2.setForeground(new java.awt.Color(0, 0, 0));
@@ -494,7 +493,7 @@ public class AllSales extends javax.swing.JFrame {
                 txtField2KeyPressed(evt);
             }
         });
-        jPanel1.add(txtField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 210, 200, 40));
+        jPanel1.add(txtField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 180, 200, 40));
 
         txtField1.setBackground(new java.awt.Color(255, 255, 255));
         txtField1.setForeground(new java.awt.Color(0, 0, 0));
@@ -504,7 +503,7 @@ public class AllSales extends javax.swing.JFrame {
                 txtField1KeyPressed(evt);
             }
         });
-        jPanel1.add(txtField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 210, 190, 40));
+        jPanel1.add(txtField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 180, 190, 40));
 
         btnSetVisible.setBackground(new java.awt.Color(255, 255, 255));
         btnSetVisible.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IconsImages/eyeOpen.png"))); // NOI18N
@@ -514,12 +513,9 @@ public class AllSales extends javax.swing.JFrame {
                 btnSetVisibleActionPerformed(evt);
             }
         });
-        jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 170, 30, 30));
+        jPanel1.add(btnSetVisible, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 90, 30, 30));
 
-        jToggleButton1.setText("Exportar PDF");
-        jPanel1.add(jToggleButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(960, 230, -1, -1));
-
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1390, 650));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1400, 670));
 
         jMenu1.setText("Vendas Mês");
         jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -708,7 +704,6 @@ public class AllSales extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JToggleButton jToggleButton1;
     public static javax.swing.JLabel lblCancelada;
     public static javax.swing.JLabel lblCancelada1;
     public static javax.swing.JLabel lblCancelada2;

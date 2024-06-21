@@ -9,6 +9,7 @@ import static Model.Enums.Situation.CANCELED;
 import static Model.Enums.Situation.INSTALLED;
 import static Model.Enums.Situation.PROVISIONING;
 import Model.Sales;
+import Model.Vendedor;
 import Services.SaleService;
 import View.AllSales;
 import View.VendasAtual;
@@ -46,7 +47,7 @@ public class SalesController {
         Resultset rs = null;
 
         String sqlInjection = "INSERT INTO tbSales(idSeller,DateMade,customers,contacts,valueSale,"
-                + "package,idDateInstalation,origin,observation,cpf,idSituation) values (?,?,?,?,?,?,?,?,?,?,?)";
+                + "package,idDateInstalation,origin,observation,cpf,idSituation,priotize) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             ps = conn.prepareStatement(sqlInjection);
@@ -54,7 +55,10 @@ public class SalesController {
                 salesdao.insertDateMarked(sale.getInstallationMarked());
             }
             Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
-            ps.setInt(1, salesdao.returnIdSeller(sale.getSeller().getTr()));
+//se der erro futuramente, descomente a linha debaixo            
+//ps.setInt(1, salesdao.returnIdSeller(sale.getSeller().getTr()));
+            sale.setSeller(new Vendedor(salesdao.returnIdSeller(sale.getSeller().getTr())));
+            ps.setInt(1, sale.getSeller().getIdentificador());
             ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
             ps.setString(3, sale.getCustomers());
             ps.setString(4, sale.getContact());
@@ -65,11 +69,12 @@ public class SalesController {
             ps.setString(9, sale.getObservation());
             ps.setString(10, sale.getCpf());
             ps.setInt(11, SalesDAO.searchSituation(sale.getSituation().name()));
+            ps.setString(12, sale.getPrioritize().name());
             ps.executeUpdate();
 
             configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
-            returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(),sale.getInstallationMarked().toLocalDate());
-salesSer.insertSellExcel(sale);
+            returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(), sale.getInstallationMarked().toLocalDate());
+            salesSer.insertSellExcel(sale);
             JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
 
         } catch (SQLException ex) {
@@ -105,12 +110,12 @@ salesSer.insertSellExcel(sale);
                 salesdao.insertDateMarked(sale.getInstallationMarked());
             }
             Situation situ;
-                    if (sale.getSituation() == null) {
-                        situ = Situation.PROVISIONING;  //situation;
-                            
-                    }else{
-                        situ = sale.getSituation();
-                    }
+            if (sale.getSituation() == null) {
+                situ = Situation.PROVISIONING;  //situation;
+
+            } else {
+                situ = sale.getSituation();
+            }
             Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
             ps.setInt(1, sale.getSeller().getIdentificador());
             ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
@@ -124,7 +129,7 @@ salesSer.insertSellExcel(sale);
             ps.setString(10, sale.getCpf());
             ps.setInt(11, SalesDAO.searchSituation(situ.name()));
             ps.executeUpdate();
-            returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),sale.getInstallationMarked().toLocalDate(),sale.getInstallationMarked().toLocalDate());
+            returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(), sale.getInstallationMarked().toLocalDate());
 
             //configPriceSellingMonthController(Packages.fromString(sale.getPackages()));
             // JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -147,7 +152,7 @@ salesSer.insertSellExcel(sale);
     }
 
     public void returnData(char type, DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
-        List<Sales> data = SalesDAO.returnData(type,dateTimeInicial,dateTimeFinal);
+        List<Sales> data = SalesDAO.returnData(type, dateTimeInicial, dateTimeFinal);
         //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
         dtm.setRowCount(0);
 
@@ -194,12 +199,13 @@ salesSer.insertSellExcel(sale);
                 };
                 dtm.addRow(dados);
             }
-           //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+            //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         }
     }
-    public void returnDataBySituation(char type,Situation situ, DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
-        List<Sales> data = SalesDAO.returnDataBySituation(type,situ,dateTimeInicial,dateTimeFinal);
+
+    public void returnDataBySituation(char type, Situation situ, DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
+        List<Sales> data = SalesDAO.returnDataBySituation(type, situ, dateTimeInicial, dateTimeFinal);
         //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
         dtm.setRowCount(0);
 
@@ -246,13 +252,13 @@ salesSer.insertSellExcel(sale);
                 };
                 dtm.addRow(dados);
             }
-           //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+            //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         }
     }
-    
+
     public void returnDataByPrioriti(DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
-        List<Sales> data = SalesDAO.returnDataByPrioriti(dateTimeInicial,dateTimeFinal);
+        List<Sales> data = SalesDAO.returnDataByPrioriti(dateTimeInicial, dateTimeFinal);
         //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
         dtm.setRowCount(0);
 
@@ -299,12 +305,12 @@ salesSer.insertSellExcel(sale);
                 };
                 dtm.addRow(dados);
             }
-           //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+            //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         }
     }
 
-public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableModel dtm) {//c para  cpf n para nome
+    public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableModel dtm) {//c para  cpf n para nome
         List<Sales> data = SalesDAO.returnDataByCPForName(search, cpfOrName);
         //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
         dtm.setRowCount(0);
@@ -354,7 +360,6 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
             }
         }
     }
-
 
     public void fillingsPacksges(char time) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas 
 //Alerta de gasto de processamento, melhore no futuro colocando uma unica busca
@@ -469,7 +474,6 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
         VendasAtual.lblCanceladaTot1.setText(format.formatMoneyNumber((packcancell400 + packcancell600 + packcancell700) + "", 'M'));
         System.out.println("passou Aqui: ");
     }
-    
 
     public void setLabelText(JLabel label, int count, String message) {
         label.setText((count > 9)
@@ -481,7 +485,7 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
     public void updateSales(Sales sale) {
         salesdao.updateSalesDAO(sale);
         salesSer.updateValuesExcel(sale);
-       // fillingsPacksges('m'); comentei pois esta  usando  esse metodo  tamem no allSales
+        // fillingsPacksges('m'); comentei pois esta  usando  esse metodo  tamem no allSales
         //returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
     }
 
@@ -493,11 +497,17 @@ public void returnDataByCpfOrName(String search, char cpfOrName, DefaultTableMod
     public void configPriceSellingMonthController(Packages pack, Sales sales) {
         float valueLast = SalesDAO.returnLastValuePackage(pack);
         int sizeTable = VendasAtual.tblVendasRes.getRowCount();
-        if (valueLast != sales.getValuePackage() && sizeTable > 1) {
-            Map<String, Float> values = SaleService.returnValuesPlanService(SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm'), pack);
+        
+            int qtdInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm');
+            if (pack != Packages.I_400MB) {
+                pack = Packages.I_500MB;
+            }
+            Map<String, Float> values = SaleService.returnValuesPlanService(qtdInstalled, pack);
+        if (valueLast != values.get(pack.toString()) && sizeTable > 1) {
+
             SalesDAO.updateValuesPackageMonthDAO(values.get(pack.toString()), pack.toString(), sales.getInstallationMarked());
             pack = pack == Packages.I_400MB ? Packages.I_500MB : Packages.I_400MB;
-            Map<String, Float> values2 = SaleService.returnValuesPlanService(SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm'), pack);
+            Map<String, Float> values2 = SaleService.returnValuesPlanService(qtdInstalled, pack);
             SalesDAO.updateValuesPackageMonthDAO(values2.get(pack.toString()), pack.toString(), sales.getInstallationMarked());
 
         }

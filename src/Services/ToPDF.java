@@ -249,7 +249,7 @@ public class ToPDF {
 
         private Anchor downloadCPFs(List<Sales> sale, String msg) {
             FileWriter writer = null;
-            String reference = "C:\\CPFs.txt";
+            String reference = "C:\\Users\\mathe\\Desktop\\CPFs.txt";
             File file = new File(reference);
             if (!file.exists()) {
                 file.mkdir();
@@ -308,7 +308,7 @@ public class ToPDF {
 
     public void toExportPDFService(List<Sales> sales, List<MonthsYear> monthsYear, String path, int qtdTot, float valueTot) {
 
-        head(sales.get(0), monthsYear.reversed(), path, valueTot, qtdTot);
+        head(sales.get(0), monthsYear, path, valueTot, qtdTot);
         body(sales);
 
     }

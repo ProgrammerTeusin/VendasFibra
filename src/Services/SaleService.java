@@ -39,6 +39,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SaleService {
 
+    String pathInsertUpdateAndSearch = "D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\vendasFibra2024.xlsx";
+
     Formatting format = new Formatting();
     //SalesController sc = new SalesController();
 
@@ -128,7 +130,7 @@ public class SaleService {
         List<Sales> sales = new ArrayList<>();
 
         try {
-            File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibra2024.xlsx");
+            File file = new File(pathInsertUpdateAndSearch);
             FileInputStream filePlani = new FileInputStream(file);
 
             XSSFWorkbook workbook;
@@ -146,16 +148,20 @@ public class SaleService {
                 if (i > 0) {
 
                     System.out.println("Valor da linha " + i + ": " + next.getCell(0));
-                    //System.out.println("Valor da data : " + format.dateFormaterBankExcel(next.getCell(5) + ""));
-                    int seller;
+                    int seller = (int) (Float.parseFloat(next.getCell(12) + ""));
 
-                    String obs = next.getCell(9) + "";
-                    String obs2 = obs.toLowerCase();
-                    if (obs2.contains("trhigo") || obs2.contains("higor") || obs2.contains("tr797118")) {
-                        seller = 2;
-                    } else {
-                        seller = 1;
-                    }
+//                    String obs = next.getCell(9) + "";
+//                    String obs2 = obs.toLowerCase();
+//                    if (obs2.contains("trhigo") || obs2.contains("higor") || obs2.contains("tr797118")) {
+//                        seller = 2;
+//                        
+//                    } else {
+//                        seller = 1;
+//                    }
+//                    next.createCell(12).setCellValue(seller);
+//                     FileOutputStream outputStream = new FileOutputStream(file);
+//            workbook.write(outputStream);
+//            outputStream.close();
                     Period period = (next.getCell(7) + "").contains("Manh") ? Period.MORNING : Period.AFTERNOON;
                     LocalTime time;
                     if (period == Period.AFTERNOON) {
@@ -185,21 +191,21 @@ public class SaleService {
 
                     } catch (java.time.format.DateTimeParseException e) {
                         System.out.println("Erro: " + e);
-                        JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos", JOptionPane.ERROR_MESSAGE);
+                        //JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos", JOptionPane.ERROR_MESSAGE);
                         System.out.println("Erro: " + e);
-                        JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos", JOptionPane.ERROR_MESSAGE);
-
+                        //JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos", JOptionPane.ERROR_MESSAGE);
+//
                         dtInstalation = format.dateFormaterBank(next.getCell(6) + "") == null ? LocalDate.parse("2001-05-07") : format.dateFormaterBank(next.getCell(6) + "");
-                        JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
+                        //JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
                     }
                     LocalDateTime ldt;
                     try {
                         ldt = (next.getCell(5) + "").length() > 12 ? format.dateFormaterTimeBankExcel(next.getCell(5) + "") : format.dateFormaterTimeBankExcel(next.getCell(5) + " 13:00");
                     } catch (java.time.format.DateTimeParseException e) {
                         System.out.println("Erro: " + e);
-                        JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos data feita", JOptionPane.ERROR_MESSAGE);
+                        //JOptionPane.showMessageDialog(null, "erro " + e, "Dados incorretos data feita", JOptionPane.ERROR_MESSAGE);
                         ldt = (next.getCell(5) + "").length() > 12 ? format.dateTimeFormaterBank(next.getCell(5) + "") : format.dateTimeFormaterBank(next.getCell(5) + " 13:00");
-                        JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
+                        //JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
 
                     }
                     Situation situ;
@@ -274,7 +280,7 @@ public class SaleService {
                     c.setForeground(java.awt.Color.decode("#006100"));
                 } else if (ToPrioritize.YES.toString()
                         .equals((table.getValueAt(row, table.getColumnCount() - 1).toString()))) {
-                    c.setBackground(java.awt.Color.red);
+                    c.setBackground(java.awt.Color.decode("#3a2a18"));
                     c.setForeground(java.awt.Color.white);
                 } else {
                     c.setBackground(java.awt.Color.decode("#FFE699"));
@@ -299,7 +305,7 @@ public class SaleService {
     }
 
     public void insertSellExcel(Sales sale) {
-        File file = new File("C:\\Users\\mathe\\Desktop\\VendasFibra2024.xlsx");
+        File file = new File(pathInsertUpdateAndSearch);
         FileInputStream filePlani;
 
         try {
@@ -328,6 +334,7 @@ public class SaleService {
             newRow.createCell(9).setCellValue(sale.getObservation());
             newRow.createCell(10).setCellValue(sale.getOrigin().toString());
             newRow.createCell(11).setCellValue(sale.getPrioritize().toString());
+            newRow.createCell(12).setCellValue(sale.getSeller().getIdentificador());
 //CPF	Cliente	Contato	Pacote	Comissão	Data 	Data Instalação	Periodo	Situação	Obersavação	Origem
 
             // Escreva as alterações de volta para o arquivo
@@ -345,7 +352,7 @@ public class SaleService {
     }
 
     public void updateValuesExcel(Sales sale) {
-        File file = new File("C:\\Users\\mathe\\Desktop\\vendasFibra2024.xlsx");
+        File file = new File(pathInsertUpdateAndSearch);
         FileInputStream filePlani;
 
         try {
@@ -371,10 +378,18 @@ public class SaleService {
                         next.getCell(6).setCellValue(format.dateFormaterField(sale.getInstallationMarked().toLocalDate())); //Data Instalação	
                         next.getCell(7).setCellValue(sale.getPeriod().toString()); //Periodo
                         next.getCell(8).setCellValue(sale.getSituation().toString()); //Situação
-                        next.getCell(9).setCellValue(sale.getObservation()); //Obersavação
+                        try {
+                            next.getCell(9).setCellValue(sale.getObservation()); //Obersavação
+
+                        } catch (java.lang.NullPointerException e) {
+
+                            System.out.println("valor do eee alterado: " + sale.getObservation().trim());
+                            next.getCell(9).setCellValue(sale.getObservation().trim()); //Obersavação
+                        }
                         next.getCell(10).setCellValue(sale.getOrigin().toString()); //Origem
                         next.getCell(11).setCellValue(sale.getPrioritize().toString()); //Priorizar
-                        System.out.println("Dados Inseridos " + sale.getCustomers() + " " + sale.getContact() + " " + sale.getValuePackage() + " " + next.getCell(7) + " " + sale.getSituation().toString());
+                        next.getCell(12).setCellValue(sale.getSeller().getIdentificador()); //id tr
+                        //   System.out.println("Dados Inseridos " + sale.getCustomers() + " " + sale.getContact() + " " + sale.getValuePackage() + " " + next.getCell(7) + " " + sale.getSituation().toString());
 
                     }
                 }

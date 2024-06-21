@@ -111,7 +111,8 @@ public class AlterData extends javax.swing.JFrame {
             cpf = txtCPF.getText();
             trSell = txtTrVendida.getText();
             contacts = txtContato.getText();
-            observation = txaObs.getText()+"\n* Alterado em "+format.dateTimeFormaterField(LocalDateTime.now())+" *";
+           observation = txaObs.getText() =="" ||  txaObs.getText() == null ?  "* Alterado em " + format.dateTimeFormaterField(LocalDateTime.now())+" *"
+                    : txaObs.getText() + "\n* Alterado em " + format.dateTimeFormaterField(LocalDateTime.now())+" *";
 
             InsertPeriod();
 

@@ -119,7 +119,7 @@ public class SalesDAO {
                 } else {
                     period = Period.MORNING;
                 }
-                ToPrioritize prioriti = ToPrioritize.valueOf(rs.getString("s.priotize"));
+                ToPrioritize prioriti = rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"));
                 sales.add(new Sales(
                         rs.getInt("s.id"),
                         new Vendedor(rs.getString("v.tr")),
@@ -283,7 +283,7 @@ public class SalesDAO {
                         Origin.valueOf(rs.getString("s.origin")),
                         Situation.valueOf(rs.getString("situa.situation")),
                         rs.getString("s.observation"),
-                        ToPrioritize.valueOf(rs.getString("s.priotize"))));
+                       rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf( rs.getString("s.priotize") )));
 
             }
             return sales;
@@ -428,7 +428,7 @@ public class SalesDAO {
                         Origin.valueOf(rs.getString("s.origin")),
                         Situation.valueOf(rs.getString("situa.situation")),
                         rs.getString("s.observation"),
-                        ToPrioritize.valueOf(rs.getString("s.priotize"))));
+                       rs.getString("s.priotize") == null? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
 
             }
             return sales;
@@ -687,8 +687,11 @@ public class SalesDAO {
             if (!searchDate(sale.getInstallationMarked())) {
                 insertDateMarked(sale.getInstallationMarked());
             }
-            ps.setInt(1, returnIdSeller(sale.getSeller().getTr()));
-            ps.setString(2, sale.getCpf());
+sale.setSeller(new Vendedor(returnIdSeller(sale.getSeller().getTr())));
+            ps.setInt(1, sale.getSeller().getIdentificador());           
+// ps.setInt(1, returnIdSeller(sale.getSeller().getTr()));
+            
+           ps.setString(2, sale.getCpf());
             ps.setTimestamp(3, Timestamp.valueOf(sale.getSellDateHour()));
             ps.setString(4, sale.getCustomers());
             ps.setString(5, sale.getContact());

@@ -18,13 +18,13 @@ public enum Origin {
         return type;
     }
     
-     public static Origin fromString(String value) {
-        for (Origin origin : Origin.values()) {
-            if (origin.toString().equals(value)) {
-                return origin;
-            }
-        }
-        return null;
-    }
+        public static Origin fromString(String value) {
+           for (Origin origin : Origin.values()) {
+               if (origin.toString().equals(value)) {
+                   return origin;
+               }
+           }
+           return null;
+       }
     
 }

@@ -2,9 +2,11 @@ package Model.Enums;
 
 
 public enum ToPrioritize {
-    YES("SIM"),
-    NO("NÃO");
+//    YES("SIM"),
+//    NO("NÃO");
 
+    YES("S"),
+    NO("N");
     String value;
 
      private ToPrioritize(String value) {
