@@ -2,6 +2,7 @@ package Services;
 
 import Controller.Formatting;
 import Controller.SalesController;
+import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Period;
@@ -413,4 +414,67 @@ public class SaleService {
             Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    public void updateAllValuesExcel(float value, List<Integer> ids) {
+        File file = new File(pathInsertUpdateAndSearch);
+        FileInputStream filePlani;
+
+        try {
+            filePlani = new FileInputStream(file);
+            XSSFWorkbook workbook;
+
+            ///cria um workboo que e o mesmo que plailha com todas as abas
+            workbook = new XSSFWorkbook(filePlani);
+            ///recupernado uma aba da planilha
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
+            int i = 0;
+            int idPosition = 0;
+
+            ids.forEach(p -> {
+                Row row = sheet.getRow(p);
+                row.getCell(3).setCellValue(value); // Comissão
+                try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                    workbook.write(fileOut);
+
+                    fileOut.close();
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+            );
+
+//            while (rowIterator.hasNext()) {
+//                Row next = rowIterator.next();
+//                if (i > 0) {
+//                    if (idPosition < ids.size() && i == ids.get(idPosition)) {
+//                        next.getCell(4).setCellValue(value); // Comissão
+//                        System.out.println("ID: " + i + " ID lista: " + ids.get(idPosition) + " Tamanho: " + ids.size());/// + " Pacote: "+pack.toString());
+//                        idPosition++;
+//                       
+//                    }
+//                     try (FileOutputStream fileOut = new FileOutputStream(file)) {
+//                            workbook.write(fileOut);
+//
+//                            fileOut.close();
+//                        } catch (FileNotFoundException ex) {
+//                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+//                        } catch (IOException ex) {
+//                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+//                        }
+//                }
+//
+//                i++;
+//
+//            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }

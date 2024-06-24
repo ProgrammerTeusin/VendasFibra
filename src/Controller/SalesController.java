@@ -497,21 +497,45 @@ public class SalesController {
     public void configPriceSellingMonthController(Packages pack, Sales sales) {
         float valueLast = SalesDAO.returnLastValuePackage(pack);
         int sizeTable = VendasAtual.tblVendasRes.getRowCount();
-        
-            int qtdInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm');
-            if (pack != Packages.I_400MB) {
-                pack = Packages.I_500MB;
-            }
-            Map<String, Float> values = SaleService.returnValuesPlanService(qtdInstalled, pack);
+
+        int qtdInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm');
+        if (pack != Packages.I_400MB) {
+            pack = Packages.I_500MB;
+        }
+        Map<String, Float> values = SaleService.returnValuesPlanService(qtdInstalled, pack);
         if (valueLast != values.get(pack.toString()) && sizeTable > 1) {
 
-            SalesDAO.updateValuesPackageMonthDAO(values.get(pack.toString()), pack.toString(), sales.getInstallationMarked());
+            SalesDAO.updateValuesPackageMonthDAO(values.get(pack.toString()), pack, sales.getInstallationMarked());
+
+            List<Integer> ids = SalesDAO.returnIdsPackages(pack, sales.getInstallationMarked());
+            salesSer.updateAllValuesExcel(values.get(pack.toString()), ids);
+            ids.clear();
+
             pack = pack == Packages.I_400MB ? Packages.I_500MB : Packages.I_400MB;
             Map<String, Float> values2 = SaleService.returnValuesPlanService(qtdInstalled, pack);
-            SalesDAO.updateValuesPackageMonthDAO(values2.get(pack.toString()), pack.toString(), sales.getInstallationMarked());
+            SalesDAO.updateValuesPackageMonthDAO(values2.get(pack.toString()), pack, sales.getInstallationMarked());
+           
+            ids = SalesDAO.returnIdsPackages(pack, sales.getInstallationMarked());
+              salesSer.updateAllValuesExcel(values2.get(pack.toString()), ids);
 
         }
     }
+//    public void saveAllSalesByPackageExcel(Packages pack, Map<String, Float> values, LocalDateTime installationMarked) {
+//        if (pack != Packages.I_400MB) {
+//            Packages packExtra = pack;
+//            pack = Packages.I_500MB;
+//            SalesDAO.updateValuesPackageMonthDAO(values.get(pack.toString()), pack.toString(), installationMarked);
+//            List<Integer> ids = SalesDAO.returnIdsPackages(packExtra, installationMarked);
+//            salesSer.updateAllValuesExcel(values.get(pack.toString()), ids, packExtra);
+//
+//        } else {
+//            SalesDAO.updateValuesPackageMonthDAO(values.get(pack.toString()), pack.toString(), installationMarked);
+//
+//            List<Integer> ids2 = SalesDAO.returnIdsPackages(pack, installationMarked);
+//            salesSer.updateAllValuesExcel(values.get(pack.toString()), ids2, pack);
+//
+//        }
+//    }
 
     public void searchSellsPlanilhaController() {
         List<Sales> sal = salesSer.searchSellsPlanilhaService();
