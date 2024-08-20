@@ -7,6 +7,7 @@ import Model.Enums.Situation;
 import Model.Sales;
 import Services.ToPDF;
 import View.AllSales;
+import View.VendasAtual;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class AllSalesController {
 
@@ -105,5 +107,66 @@ public class AllSalesController {
         }
         pdf.toExportPDFService(sales, monthsYear, monthsYear.toString(), qtd, value);
     }
+    
+        public void returnData(DefaultTableModel dtm, LocalDate dateTimeInicial) {
+        List<Sales> data = AllSalesDao.returnSalesMadeToday(dateTimeInicial);
+        
+            if (data.size() > 0) {
+                
+            
+        dtm.setRowCount(0);
+
+        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
+                };
+                dtm.addRow(dados);
+            }
+            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        } else {
+            for (Sales sales : data) {
+
+                Object[] dados = {
+                    sales.getId(),
+                    sales.getSeller().getTr(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
+                };
+                dtm.addRow(dados);
+            }
+            
+        }
+            }else{
+                 JOptionPane.showMessageDialog(null, "Você não fez nenhuma Venda hoje MANO!!!!\nTRATE DE FAZER CARA!! VIAJA NAS CONTAS" , "ALERTA", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+    }
+
+    
 
 }

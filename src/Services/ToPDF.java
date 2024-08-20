@@ -249,7 +249,8 @@ public class ToPDF {
 
         private Anchor downloadCPFs(List<Sales> sale, String msg) {
             FileWriter writer = null;
-            String reference = "C:\\Users\\mathe\\Desktop\\CPFs.txt";
+            String reference = "C:\\Users\\mathe\\Downloads\\CPFs.txt";
+
             File file = new File(reference);
             if (!file.exists()) {
                 file.mkdir();
@@ -259,7 +260,8 @@ public class ToPDF {
                 writer = new FileWriter(reference);
                 int i = 1;
                 for (Sales values : sale) {
-                    writer.write("CPF " + i + ": " + values.getCpf() + "\n");
+                 //   writer.write("CPF " + i + ": " + values.getCpf() + "\n");
+                    writer.write(values.getCpf() + "\n");
                     i++;
                 }
             } catch (IOException ex) {

@@ -2,6 +2,7 @@ package Services;
 
 import Controller.Formatting;
 import Controller.SalesController;
+import DAO.ConnectionFactory;
 import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
@@ -40,7 +41,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SaleService {
 
-    String pathInsertUpdateAndSearch = "D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\vendasFibra2024.xlsx";
+    String sheet = ConnectionFactory.URL == "jdbc:mysql://localhost:3306/vendasFibraTest" ? "vendasFibra2024Test" : "vendasFibra2024";
+    String pathInsertUpdateAndSearch = "D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\"+sheet+".xlsx";
 
     Formatting format = new Formatting();
     //SalesController sc = new SalesController();
@@ -352,7 +354,7 @@ public class SaleService {
 
     }
 
-    public void updateValuesExcel(Sales sale) {
+        public void updateValuesExcel(Sales sale) {
         File file = new File(pathInsertUpdateAndSearch);
         FileInputStream filePlani;
 
@@ -431,45 +433,44 @@ public class SaleService {
             int i = 0;
             int idPosition = 0;
 
-            ids.forEach(p -> {
-                Row row = sheet.getRow(p);
-                row.getCell(3).setCellValue(value); // Comissão
-                try (FileOutputStream fileOut = new FileOutputStream(file)) {
-                    workbook.write(fileOut);
-
-                    fileOut.close();
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IOException ex) {
-                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            }
-            );
-
-//            while (rowIterator.hasNext()) {
-//                Row next = rowIterator.next();
-//                if (i > 0) {
-//                    if (idPosition < ids.size() && i == ids.get(idPosition)) {
-//                        next.getCell(4).setCellValue(value); // Comissão
-//                        System.out.println("ID: " + i + " ID lista: " + ids.get(idPosition) + " Tamanho: " + ids.size());/// + " Pacote: "+pack.toString());
-//                        idPosition++;
-//                       
-//                    }
-//                     try (FileOutputStream fileOut = new FileOutputStream(file)) {
-//                            workbook.write(fileOut);
+//            ids.forEach(p -> {
+//                Row row = sheet.getRow(p);
+//                row.getCell(3).setCellValue(value); // Comissão
+//                try (FileOutputStream fileOut = new FileOutputStream(file)) {
+//                    workbook.write(fileOut);
 //
-//                            fileOut.close();
-//                        } catch (FileNotFoundException ex) {
-//                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
-//                        } catch (IOException ex) {
-//                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
-//                        }
+//                    fileOut.close();
+//                } catch (FileNotFoundException ex) {
+//                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+//                } catch (IOException ex) {
+//                    Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
 //                }
 //
-//                i++;
-//
 //            }
+//            );
+
+            while (rowIterator.hasNext()) {
+                Row next = rowIterator.next();
+                if (i > 0) {
+                    if (idPosition < ids.size() && i == ids.get(idPosition)) {
+                        next.getCell(4).setCellValue(value); // Comissão
+                         idPosition++;
+                       
+                    }
+                     try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                            workbook.write(fileOut);
+
+                            fileOut.close();
+                        } catch (FileNotFoundException ex) {
+                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                }
+
+                i++;
+
+            }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {

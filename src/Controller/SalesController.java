@@ -39,6 +39,7 @@ public class SalesController {
     Formatting format = new Formatting();
     SalesDAO salesdao = new SalesDAO();
     SaleService salesSer = new SaleService();
+        
 
     public void saveSales(Sales sale) {
 
@@ -75,7 +76,7 @@ public class SalesController {
             configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
             returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(), sale.getInstallationMarked().toLocalDate());
             salesSer.insertSellExcel(sale);
-            JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Venda armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao salvar venda \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
@@ -159,21 +160,7 @@ public class SalesController {
         if (dtm == VendasAtual.tblVendasRes.getModel()) {
             for (Sales sales : data) {
 
-                Object[] dados = {
-                    sales.getId(),
-                    format.dateTimeFormaterField(sales.getSellDateHour()),
-                    sales.getCpf(),
-                    sales.getCustomers(),
-                    sales.getContact(),
-                    sales.getPackages(),
-                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
-                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                    sales.getPeriod().toString(),
-                    sales.getOrigin().toString(),
-                    sales.getSituation(),
-                    sales.getObservation(),
-                    sales.getPrioritize()
-                };
+                Object[] dados = tableSales(sales);
                 dtm.addRow(dados);
             }
             VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
@@ -199,8 +186,8 @@ public class SalesController {
                 };
                 dtm.addRow(dados);
             }
-            //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
+            //  AllSales.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
         }
     }
 
@@ -212,21 +199,7 @@ public class SalesController {
         if (dtm == VendasAtual.tblVendasRes.getModel()) {
             for (Sales sales : data) {
 
-                Object[] dados = {
-                    sales.getId(),
-                    format.dateTimeFormaterField(sales.getSellDateHour()),
-                    sales.getCpf(),
-                    sales.getCustomers(),
-                    sales.getContact(),
-                    sales.getPackages(),
-                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
-                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                    sales.getPeriod().toString(),
-                    sales.getOrigin().toString(),
-                    sales.getSituation(),
-                    sales.getObservation(),
-                    sales.getPrioritize()
-                };
+                Object[] dados = tableSales(sales);
                 dtm.addRow(dados);
             }
             VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
@@ -265,21 +238,7 @@ public class SalesController {
         if (dtm == VendasAtual.tblVendasRes.getModel()) {
             for (Sales sales : data) {
 
-                Object[] dados = {
-                    sales.getId(),
-                    format.dateTimeFormaterField(sales.getSellDateHour()),
-                    sales.getCpf(),
-                    sales.getCustomers(),
-                    sales.getContact(),
-                    sales.getPackages(),
-                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
-                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                    sales.getPeriod().toString(),
-                    sales.getOrigin().toString(),
-                    sales.getSituation(),
-                    sales.getObservation(),
-                    sales.getPrioritize()
-                };
+                Object[] dados = tableSales(sales);
                 dtm.addRow(dados);
             }
             VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
@@ -318,21 +277,7 @@ public class SalesController {
         if (dtm == VendasAtual.tblVendasRes.getModel()) {
             for (Sales sales : data) {
 
-                Object[] dados = {
-                    sales.getId(),
-                    format.dateTimeFormaterField(sales.getSellDateHour()),
-                    sales.getCpf(),
-                    sales.getCustomers(),
-                    sales.getContact(),
-                    sales.getPackages(),
-                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
-                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                    sales.getPeriod().toString(),
-                    sales.getOrigin().toString(),
-                    sales.getSituation(),
-                    sales.getObservation(),
-                    sales.getPrioritize()
-                };
+                Object[] dados = tableSales(sales);
                 dtm.addRow(dados);
             }
             VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
@@ -359,6 +304,64 @@ public class SalesController {
                 dtm.addRow(dados);
             }
         }
+    }
+    public void returnDataByWhats(String search, DefaultTableModel dtm) {//c para  cpf n para nome
+        List<Sales> data = SalesDAO.returnDataByWhats(search);
+        //DefaultTableModel dtm = (DefaultTableModel) VendasAtual.tblVendasRes.getModel();
+        dtm.setRowCount(0);
+
+        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+            for (Sales sales : data) {
+
+                Object[] dados = tableSales(sales);
+                dtm.addRow(dados);
+            }
+            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+        } else {
+            for (Sales sales : data) {
+
+                Object[] dados = tableAllSales(sales);
+                dtm.addRow(dados);
+            }
+        }
+    }
+    public Object[] tableSales(Sales sales) {
+        Object[] dados = {
+            sales.getId(),
+            format.dateTimeFormaterField(sales.getSellDateHour()),
+            sales.getCpf(),
+            sales.getCustomers(),
+            sales.getContact(),
+            sales.getPackages(),
+            format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+            format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+            sales.getPeriod().toString(),
+            sales.getOrigin().toString(),
+            sales.getSituation(),
+            sales.getObservation(),
+            sales.getPrioritize()
+        };
+        return dados;
+    }
+    public Object[] tableAllSales(Sales sales) {
+        Object[] dados = {
+            sales.getId(),
+                    sales.getSeller().getTr(),
+                    format.dateTimeFormaterField(sales.getSellDateHour()),
+                    sales.getCpf(),
+                    sales.getCustomers(),
+                    sales.getContact(),
+                    sales.getPackages(),
+                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
+                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
+                    sales.getPeriod().toString(),
+                    sales.getOrigin().toString(),
+                    sales.getSituation(),
+                    sales.getObservation(),
+                    sales.getPrioritize()
+        };
+        return dados;
     }
 
     public void fillingsPacksges(char time) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas 
@@ -482,12 +485,40 @@ public class SalesController {
                         : message.equals(" Em Apovisionamento") ? "Nenhuma" + message : "Nenhuma" + message.substring(0, message.length() - 1)));
     }
 
-    public void updateSales(Sales sale) {
-        salesdao.updateSalesDAO(sale);
-        salesSer.updateValuesExcel(sale);
-        // fillingsPacksges('m'); comentei pois esta  usando  esse metodo  tamem no allSales
-        //returnData('m', (DefaultTableModel) VendasAtual.tblVendasRes.getModel(),LocalDate.now(),LocalDate.now());
-    }
+  public void updateSales(Sales sale) {
+      
+    salesdao.updateSalesDAO(sale);
+    
+    Thread saveExcel = new Thread(() -> {
+        VendasAtual.lblSaveExcelMsh.setText("Salvando dados no Excel, favor aguarde!");
+        configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+        //salesSer.updateValuesExcel(sale);
+        
+        System.out.println("startou aqui UPDATE EXCEL");
+        VendasAtual.lblSaveExcelMsh.setText("");
+    });
+    
+    Thread time = new Thread(() -> {
+        try {
+            saveExcel.join(); // Aguarda a conclusão da thread saveExcel
+            for (int i = 2; i > 0; i--) {
+                VendasAtual.lblSaveExcelMsh.setText("Será necessário reiniciar a aplicação par  a trazer os valores atualizados em " + i + " segundos.");
+                Thread.sleep(1000); // Pausa por 1 segundo
+            }
+            
+            VendasAtual.getInstance().dispose();
+            new VendasAtual().show();
+            
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    });
+    
+    saveExcel.start();
+    time.start();
+}
+
+
 
     public void searchSellsPlanilha() {
 
@@ -514,9 +545,9 @@ public class SalesController {
             pack = pack == Packages.I_400MB ? Packages.I_500MB : Packages.I_400MB;
             Map<String, Float> values2 = SaleService.returnValuesPlanService(qtdInstalled, pack);
             SalesDAO.updateValuesPackageMonthDAO(values2.get(pack.toString()), pack, sales.getInstallationMarked());
-           
+
             ids = SalesDAO.returnIdsPackages(pack, sales.getInstallationMarked());
-              salesSer.updateAllValuesExcel(values2.get(pack.toString()), ids);
+            salesSer.updateAllValuesExcel(values2.get(pack.toString()), ids);
 
         }
     }

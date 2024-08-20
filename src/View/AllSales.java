@@ -32,31 +32,31 @@ public class AllSales extends javax.swing.JFrame {
 
     public AllSales() {
         initComponents();
- panelCanceled9.setBackground(java.awt.Color.decode("#FFE699"));
- panelCanceled10.setBackground(java.awt.Color.decode("#FFC7CE"));
- panelCanceled12.setBackground(java.awt.Color.decode("#FFC7CE"));
- panelCanceled15.setBackground(java.awt.Color.decode("#FFC7CE"));
- panelCanceled11.setBackground(java.awt.Color.decode("#C6EFCE"));
- panelCanceled13.setBackground(java.awt.Color.decode("#C6EFCE"));
- panelCanceled14.setBackground(java.awt.Color.decode("#C6EFCE"));
- 
- lblProvsingQtd.setForeground(java.awt.Color.decode("#9C5700"));
- lblProvsingvalue.setForeground(java.awt.Color.decode("#9C5700"));
- 
- lblCancelada.setForeground(java.awt.Color.decode("#9C0006"));
- lblCancelada1.setForeground(java.awt.Color.decode("#9C0006"));
- lblCanceladaValue1.setForeground(java.awt.Color.decode("#9C0006"));
- lblCanceladaValue2.setForeground(java.awt.Color.decode("#9C0006"));
- lblCancelada2.setForeground(java.awt.Color.decode("#9C0006"));
- lblCanceladaValue.setForeground(java.awt.Color.decode("#9C0006"));
- 
- lblInstaladas.setForeground(java.awt.Color.decode("#006100"));
- lblInstaladas1.setForeground(java.awt.Color.decode("#006100"));
- lblInstaladas2.setForeground(java.awt.Color.decode("#006100"));
- lblInstaladasValue.setForeground(java.awt.Color.decode("#006100"));
- lblInstaladasValue1.setForeground(java.awt.Color.decode("#006100"));
- lblInstaladasValue2.setForeground(java.awt.Color.decode("#006100"));
- 
+        panelCanceled9.setBackground(java.awt.Color.decode("#FFE699"));
+        panelCanceled10.setBackground(java.awt.Color.decode("#FFC7CE"));
+        panelCanceled12.setBackground(java.awt.Color.decode("#FFC7CE"));
+        panelCanceled15.setBackground(java.awt.Color.decode("#FFC7CE"));
+        panelCanceled11.setBackground(java.awt.Color.decode("#C6EFCE"));
+        panelCanceled13.setBackground(java.awt.Color.decode("#C6EFCE"));
+        panelCanceled14.setBackground(java.awt.Color.decode("#C6EFCE"));
+
+        lblProvsingQtd.setForeground(java.awt.Color.decode("#9C5700"));
+        lblProvsingvalue.setForeground(java.awt.Color.decode("#9C5700"));
+
+        lblCancelada.setForeground(java.awt.Color.decode("#9C0006"));
+        lblCancelada1.setForeground(java.awt.Color.decode("#9C0006"));
+        lblCanceladaValue1.setForeground(java.awt.Color.decode("#9C0006"));
+        lblCanceladaValue2.setForeground(java.awt.Color.decode("#9C0006"));
+        lblCancelada2.setForeground(java.awt.Color.decode("#9C0006"));
+        lblCanceladaValue.setForeground(java.awt.Color.decode("#9C0006"));
+
+        lblInstaladas.setForeground(java.awt.Color.decode("#006100"));
+        lblInstaladas1.setForeground(java.awt.Color.decode("#006100"));
+        lblInstaladas2.setForeground(java.awt.Color.decode("#006100"));
+        lblInstaladasValue.setForeground(java.awt.Color.decode("#006100"));
+        lblInstaladasValue1.setForeground(java.awt.Color.decode("#006100"));
+        lblInstaladasValue2.setForeground(java.awt.Color.decode("#006100"));
+
         setExtendedState(MAXIMIZED_BOTH);
         jPanel1.setSize(getMaximumSize());
         sc.returnData('a', (DefaultTableModel) tblRelatorioVendas.getModel(), LocalDate.now(), LocalDate.now());
@@ -79,7 +79,8 @@ public class AllSales extends javax.swing.JFrame {
         lastMonth("Mês Passado"),
         period("Perido"),
         cpf("CPF/CNPJ"),
-        name("Cliente");
+        name("Cliente"),
+        number("WhatsApp/Telefone");
 
         String type;
 
@@ -173,7 +174,7 @@ public class AllSales extends javax.swing.JFrame {
 
                     Map<String, Integer> values = returnPositionTable();
 // Exibir uma caixa de diálogo
-                        AlterData.idUpdate = Integer.parseInt(tblRelatorioVendas.getValueAt(row, 0).toString());
+                    AlterData.idUpdate = Integer.parseInt(tblRelatorioVendas.getValueAt(row, 0).toString());
                     int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja alterar a venda: "
                             + "\n Feita em: " + tblRelatorioVendas.getValueAt(row, values.get("dateMade")) + "\n "
                             + "Instalação marcada para " + tblRelatorioVendas.getValueAt(row, values.get("dateInstalation"))
@@ -192,7 +193,7 @@ public class AllSales extends javax.swing.JFrame {
                         AlterData.cbSituatiom.setSelectedItem((tblRelatorioVendas.getValueAt(row, values.get("situation"))));
                         AlterData.txaObs.setText(tblRelatorioVendas.getValueAt(row, values.get("obs")) + "");
                         AlterData.ldTSaleMade = format.dateTimeFormaterBank(tblRelatorioVendas.getValueAt(row, values.get("dateMade")) + "");
-                        AlterData.txtValue.setText(tblRelatorioVendas.getValueAt(row, values.get("value"))+"");
+                        AlterData.txtValue.setText(tblRelatorioVendas.getValueAt(row, values.get("value")) + "");
 
                     }
                 }
@@ -610,6 +611,9 @@ public class AllSales extends javax.swing.JFrame {
         } else if (cbChoose.getSelectedItem() == typeForSearch.name) {//nome
             sc.returnDataByCpfOrName(txtField1.getText(), 'n', (DefaultTableModel) tblRelatorioVendas.getModel());
 
+        }else if (cbChoose.getSelectedItem() == typeForSearch.number) {//nome
+            sc.returnDataByWhats(txtField1.getText(), (DefaultTableModel) tblRelatorioVendas.getModel());
+
         } else {
             JOptionPane.showMessageDialog(null, "Favor escolha uma opção\n ", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
@@ -647,6 +651,11 @@ public class AllSales extends javax.swing.JFrame {
             txtField1.requestFocus();
         } else if (cbChoose.getSelectedItem() == typeForSearch.name) {//nome
             fielEditable(txtField1, "Nome");
+            txtField1.setVisible(true);
+            txtField2.setVisible(false);
+            txtField1.requestFocus();
+        }else if (cbChoose.getSelectedItem() == typeForSearch.number) {//nome
+            fielEditable(txtField1, "WhatsApp/Telefone");
             txtField1.setVisible(true);
             txtField2.setVisible(false);
             txtField1.requestFocus();

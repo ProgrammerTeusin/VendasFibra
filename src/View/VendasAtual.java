@@ -6,6 +6,7 @@ import Controller.SalesController;
 import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
+import Model.Enums.PartnerShip;
 import Model.Enums.Period;
 import Model.Enums.Situation;
 import static Model.Enums.Situation.CANCELED;
@@ -22,12 +23,16 @@ import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -59,6 +64,11 @@ public class VendasAtual extends javax.swing.JFrame {
     boolean fieldsVisible = true;
     boolean searchInstaltionToday = false;
     ToPrioritize priotize;
+    Formatting format = new Formatting();
+    SalesController sc = new SalesController();
+    Map<String, Object> dataBeforeUpdate = new HashMap<>();
+    Map<String, Object> dataafterUpdate = new HashMap<>();
+    private final String tomorrowDay = format.dateFormaterField(LocalDate.now().plusDays(1));
 
     private int searchQtdSituationTable(Situation situation) {
         int col = findColumnByName("Situação");
@@ -76,6 +86,39 @@ public class VendasAtual extends javax.swing.JFrame {
         }
 
         return qtd;
+    }
+
+    private String uptadesObservation() {
+        StringBuilder msgObs = new StringBuilder();
+        setDatasUpdateBeforeOrAfter(dataafterUpdate);
+        dataBeforeUpdate.forEach((key, value) -> {
+            if (dataafterUpdate.containsKey(key)) {
+                if (wasThereUpadteInFilds(value, dataafterUpdate.get(key))) {
+                    if (key.equals("dateInstalation")) {
+
+                        msgObs.append("Remarcado de ")
+                                .append(value)
+                                .append(" na parte da ")
+                                .append(dataBeforeUpdate.get("period"))
+                                .append(" Para ")
+                                .append(dataafterUpdate.get(key))
+                                .append(" Na parte da ")
+                                .append(dataafterUpdate.get("period"))
+                                .append("\n");
+                    } else {
+                        msgObs.append(key + " mudou de ").append(value).append(" Para ").append(dataafterUpdate.get(key)).append("\n");
+
+                    }
+                }
+//                
+            }
+        });
+        return msgObs.toString();
+    }
+
+    private boolean wasThereUpadteInFilds(Object value1, Object value2) {
+        return !value1.equals(value2);
+
     }
 
     private enum TypeBank {
@@ -110,9 +153,11 @@ public class VendasAtual extends javax.swing.JFrame {
         cbPeriodo.setModel(new DefaultComboBoxModel(Period.values()));
         cbOrigem.setModel(new DefaultComboBoxModel(Origin.values()));
         cbSeachSelingsBy.setModel(new DefaultComboBoxModel(Situation.values()));
+        cbPartnerShip.setModel(new DefaultComboBoxModel(PartnerShip.values()));
+
         cbSeachSelingsBy.addItem("Priorizadas");
         cbSituatiom.setModel(new DefaultComboBoxModel(Situation.values()));
-        txtDataInstalacao.setText(format.dateFormaterField(LocalDate.now().plusDays(1)));
+        txtDataInstalacao.setText(tomorrowDay);
         txtTrVendida.setText("799118");
         txaObs.setText("Sem Ligação");
         ss.tableFormatColors(tblVendasRes);
@@ -124,7 +169,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
         lblDateMade.setText("");
         fillingsValuesPacksges();
-   
+
         // sc.fillingsValuesPacksges(returnPositionTable());
 //        txtCPF.setText("621354848464");
 //        txtCliente.setText("Jao de barro");
@@ -140,8 +185,14 @@ public class VendasAtual extends javax.swing.JFrame {
 
         int qtdIn = returnSellingsDoToday();
         lblFeitasHoje.setText(qtdIn > 0 ? qtdIn + "" : "Nenhuma");
+        if (tblVendasRes.getRowCount() > 0) {
+            jButton1.setVisible(false);
+        } else {
 
-        //jButton1.setVisible(false);
+            jButton1.setVisible(true);
+        }
+        lblSaveExcelMsh.setText("");
+        brnRestartSystem.setVisible(false);
     }
 
     private int returnSellingsDoToday() {
@@ -186,6 +237,9 @@ public class VendasAtual extends javax.swing.JFrame {
         lblInstaladaTot.setVisible(toActive);
         lblInstaladaTot1.setVisible(toActive);
         lblQtSellsTable.setVisible(toActive);
+        lblEstimativa.setVisible(toActive);
+        jPanel5.setVisible(toActive);
+        jPanel9.setVisible(toActive);
         if (toActive) {
 
             btnSetVisible.setIcon(new ImageIcon(getClass().getResource("/IconsImages/eyeOpen.png")));
@@ -260,9 +314,9 @@ public class VendasAtual extends javax.swing.JFrame {
 
             contacts = txtContato.getText();
 
-            observation = txaObs.getText() == "" || txaObs.getText() == null ? "* Alterado em " + format.dateTimeFormaterField(LocalDateTime.now()) + " *"
-                    : txaObs.getText() + "\n* Alterado em " + format.dateTimeFormaterField(LocalDateTime.now()) + " *";
-
+            observation = txaObs.getText();
+            observation = (observation != null && !observation.trim().isEmpty()) ? observation+="\n"+uptadesObservation() : uptadesObservation();
+                    
             InsertPeriod();
 
             fillingPackage();
@@ -282,9 +336,6 @@ public class VendasAtual extends javax.swing.JFrame {
         }
 
     }
-
-    Formatting format = new Formatting();
-    SalesController sc = new SalesController();
 
     private void triggerToChage(boolean active) {
         if (active) {
@@ -316,6 +367,18 @@ public class VendasAtual extends javax.swing.JFrame {
 
         }
 
+    }
+
+    public void setDatasUpdateBeforeOrAfter(Map<String, Object> values) {
+        values.put("cpf", txtCPF.getText());
+        values.put("custormes", txtCliente.getText());
+        values.put("contact", txtContato.getText());
+        values.put("package", Packages.fromString(cbPacote.getSelectedItem() + ""));
+        values.put("dateInstalation", txtDataInstalacao.getText());
+        values.put("period", Period.fromString(cbPeriodo.getSelectedItem() + ""));
+        values.put("origin", (Origin.fromString(cbOrigem.getSelectedItem() + "")));
+        values.put("situation", situation.fromString(cbSituatiom.getSelectedItem() + ""));
+        values.put("obs", txtCliente.getText());
     }
 
     private void Saling() {
@@ -377,10 +440,22 @@ public class VendasAtual extends javax.swing.JFrame {
         fillingPacksValuesIntaledToday(returnPositionTable());
 
     }
+    private static VendasAtual instance;
+
+    public static VendasAtual getInstance() {
+        if (instance == null) {
+            instance = new VendasAtual();
+        }
+        return instance;
+    }
+
+    public void restarApplication() {
+        new VendasAtual().show();
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+    }
 
     public void fillingsValuesPacksges() {
         Map<String, Integer> position = returnPositionTable();
-
         double packProvisig400 = 0;
         double packInstalled400 = 0;
         double packcancell400 = 0;
@@ -515,6 +590,9 @@ public class VendasAtual extends javax.swing.JFrame {
         txtCPF.requestFocus();
         lblDateMade.setText("");
         cboxPriorizar.setSelected(false);
+        txtDataInstalacao.setText(tomorrowDay);
+        dataBeforeUpdate.clear();
+        dataafterUpdate.clear();
     }
 
     private String fielWithoutFielling() {
@@ -564,6 +642,7 @@ public class VendasAtual extends javax.swing.JFrame {
     }
 
     private double returnValueSitationMonth(int qtd) {
+
         Calendar calendar = Calendar.getInstance();
         int daysToToday = LocalDate.now().getDayOfMonth();
         int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -709,6 +788,7 @@ public class VendasAtual extends javax.swing.JFrame {
                         if (priotize == priotize.YES) {
                             cboxPriorizar.setSelected(true);
                         }
+                        setDatasUpdateBeforeOrAfter(dataBeforeUpdate);
                     }
                 }
             }
@@ -767,10 +847,11 @@ public class VendasAtual extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txaObs = new javax.swing.JTextArea();
         btnSale = new javax.swing.JButton();
-        btnCancell = new javax.swing.JButton();
         cbSituatiom = new javax.swing.JComboBox<>();
         lblDateMade = new javax.swing.JLabel();
         cboxPriorizar = new javax.swing.JCheckBox();
+        cbPartnerShip = new javax.swing.JComboBox<>();
+        btnCancell = new javax.swing.JButton();
         jPanel10 = new javax.swing.JPanel();
         jPanel15 = new javax.swing.JPanel();
         panelCanceled4 = new javax.swing.JPanel();
@@ -823,12 +904,15 @@ public class VendasAtual extends javax.swing.JFrame {
         lblValuePlan = new javax.swing.JLabel();
         cbSeachSelingsBy = new javax.swing.JComboBox<>();
         lblpro = new javax.swing.JLabel();
+        lblSaveExcelMsh = new javax.swing.JLabel();
+        brnRestartSystem = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu3 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
+        jMenu1 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Vendas Fibra");
@@ -885,7 +969,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblCanceladaTot.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblCanceladaTot.setForeground(java.awt.Color.decode("#9C0006"));
         lblCanceladaTot.setText("Cancelada");
-        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 0, -1, -1));
+        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -1035,7 +1119,7 @@ public class VendasAtual extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(txaObs);
 
-        jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 850, 60));
+        jPanel6.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 730, 60));
 
         btnSale.setBackground(new java.awt.Color(0, 204, 0));
         btnSale.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
@@ -1052,18 +1136,6 @@ public class VendasAtual extends javax.swing.JFrame {
             }
         });
         jPanel6.add(btnSale, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 90, 120, 40));
-
-        btnCancell.setBackground(new java.awt.Color(255, 51, 51));
-        btnCancell.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
-        btnCancell.setForeground(new java.awt.Color(255, 255, 255));
-        btnCancell.setText("Cancelar");
-        btnCancell.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, null, new java.awt.Color(255, 0, 0), null, null));
-        btnCancell.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnCancellActionPerformed(evt);
-            }
-        });
-        jPanel6.add(btnCancell, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 40, 120, 40));
 
         cbSituatiom.setBackground(new java.awt.Color(255, 255, 255));
         cbSituatiom.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "Situação", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
@@ -1090,7 +1162,33 @@ public class VendasAtual extends javax.swing.JFrame {
                 cboxPriorizarActionPerformed(evt);
             }
         });
-        jPanel6.add(cboxPriorizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 100, -1, -1));
+        jPanel6.add(cboxPriorizar, new org.netbeans.lib.awtextra.AbsoluteConstraints(880, 100, -1, -1));
+
+        cbPartnerShip.setBackground(new java.awt.Color(255, 255, 255));
+        cbPartnerShip.setBorder(javax.swing.BorderFactory.createTitledBorder("Parceira"));
+        cbPartnerShip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbPartnerShipActionPerformed(evt);
+            }
+        });
+        cbPartnerShip.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cbPartnerShipKeyPressed(evt);
+            }
+        });
+        jPanel6.add(cbPartnerShip, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 90, 110, 40));
+
+        btnCancell.setBackground(new java.awt.Color(255, 51, 51));
+        btnCancell.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
+        btnCancell.setForeground(new java.awt.Color(255, 255, 255));
+        btnCancell.setText("Cancelar");
+        btnCancell.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, null, new java.awt.Color(255, 0, 0), null, null));
+        btnCancell.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancellActionPerformed(evt);
+            }
+        });
+        jPanel6.add(btnCancell, new org.netbeans.lib.awtextra.AbsoluteConstraints(1140, 40, 120, 40));
 
         jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 300, 1270, 160));
 
@@ -1153,7 +1251,7 @@ public class VendasAtual extends javax.swing.JFrame {
         lblCancelada400.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblCancelada400.setForeground(java.awt.Color.decode("#9C0006"));
         lblCancelada400.setText("Cancelada");
-        panelCanceled1.add(lblCancelada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
+        panelCanceled1.add(lblCancelada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
 
         panelCanceled7.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled7.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -1336,6 +1434,11 @@ public class VendasAtual extends javax.swing.JFrame {
 
         jPanel9.setBackground(new java.awt.Color(102, 204, 0));
         jPanel9.setForeground(new java.awt.Color(255, 0, 0));
+        jPanel9.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jPanel9MouseClicked(evt);
+            }
+        });
         jPanel9.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblFeitasHoje.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 1, 18)); // NOI18N
@@ -1358,7 +1461,7 @@ public class VendasAtual extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, true, false
+                false, false, true, true, true, false, false, false, false, false, false, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -1438,6 +1541,23 @@ public class VendasAtual extends javax.swing.JFrame {
         jPanel1.add(cbSeachSelingsBy, new org.netbeans.lib.awtextra.AbsoluteConstraints(1100, 460, 110, 40));
         jPanel1.add(lblpro, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 270, 200, 20));
 
+        lblSaveExcelMsh.setFont(new java.awt.Font("Serif", 1, 18)); // NOI18N
+        lblSaveExcelMsh.setForeground(java.awt.Color.decode("#9C0006"));
+        lblSaveExcelMsh.setText("Cancelada");
+        jPanel1.add(lblSaveExcelMsh, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 270, -1, -1));
+
+        brnRestartSystem.setBackground(new java.awt.Color(255, 51, 51));
+        brnRestartSystem.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
+        brnRestartSystem.setForeground(new java.awt.Color(255, 255, 255));
+        brnRestartSystem.setText("Reiniciar SO");
+        brnRestartSystem.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, null, new java.awt.Color(255, 0, 0), null, null));
+        brnRestartSystem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                brnRestartSystemActionPerformed(evt);
+            }
+        });
+        jPanel1.add(brnRestartSystem, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 260, 120, 40));
+
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1530, 700));
 
         jMenu3.setText("Relatorio de Vendas");
@@ -1480,6 +1600,19 @@ public class VendasAtual extends javax.swing.JFrame {
         jMenu2.add(jMenuItem3);
 
         jMenuBar1.add(jMenu2);
+
+        jMenu1.setText("Retirar numeros");
+        jMenu1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenu1MouseClicked(evt);
+            }
+        });
+        jMenu1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu1ActionPerformed(evt);
+            }
+        });
+        jMenuBar1.add(jMenu1);
 
         setJMenuBar(jMenuBar1);
 
@@ -1574,16 +1707,15 @@ public class VendasAtual extends javax.swing.JFrame {
             ss.tableFormatColors(tblVendasRes);
         }
 
-        returnPacksInstalledsAndValuesLBL();
-        if (searchInstaltionToday) {
-            sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
-            fillingsValuesPacksges();
-            sc.returnData('d', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
-        } else {
-            sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
-            fillingsValuesPacksges();
-        }
-
+//        returnPacksInstalledsAndValuesLBL();
+//        if (searchInstaltionToday) {
+//            sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+//            fillingsValuesPacksges();
+//            sc.returnData('d', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+//        } else {
+//            sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+//            fillingsValuesPacksges();
+//        }
     }//GEN-LAST:event_btnSaleActionPerformed
 
     private void txaObsKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txaObsKeyPressed
@@ -1591,7 +1723,7 @@ public class VendasAtual extends javax.swing.JFrame {
 
             observation = txaObs.getText();
             if (type == TypeBank.INSERT) {
-                btnSale.requestFocus();
+                cbPartnerShip.requestFocus();
             } else {
                 cbSituatiom.requestFocus();
             }
@@ -1748,6 +1880,40 @@ public class VendasAtual extends javax.swing.JFrame {
 
     }//GEN-LAST:event_cboxPriorizarActionPerformed
 
+    private void cbPartnerShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPartnerShipActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbPartnerShipActionPerformed
+
+    private void cbPartnerShipKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPartnerShipKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            cboxPriorizar.requestFocus();
+
+        }
+    }//GEN-LAST:event_cbPartnerShipKeyPressed
+
+    private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
+        new RemoveNumbers().show();
+    }//GEN-LAST:event_jMenu1ActionPerformed
+
+    private void jMenu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MouseClicked
+        new RemoveNumbers().show();
+    }//GEN-LAST:event_jMenu1MouseClicked
+
+    private void jPanel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel9MouseClicked
+        asc.returnData((DefaultTableModel) tblVendasRes.getModel(), LocalDate.now());
+    }//GEN-LAST:event_jPanel9MouseClicked
+
+    private void brnRestartSystemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_brnRestartSystemActionPerformed
+        int dialogResult = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja Reinicao o PC??", "ALERTA!", JOptionPane.YES_NO_OPTION);
+        if (dialogResult == JOptionPane.YES_OPTION) {
+            try {
+                Runtime.getRuntime().exec("shutdown -s -t 0");
+            } catch (IOException ex) {
+                Logger.getLogger(VendasAtual.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_brnRestartSystemActionPerformed
+
     public static void main(String args[]) {
 
 
@@ -1761,12 +1927,14 @@ public class VendasAtual extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton brnRestartSystem;
     private javax.swing.JButton btnCancell;
     private javax.swing.JButton btnSale;
     private javax.swing.JToggleButton btnSearchIntaltion;
     private javax.swing.JButton btnSetVisible;
     private javax.swing.JComboBox<String> cbOrigem;
     private javax.swing.JComboBox<String> cbPacote;
+    private javax.swing.JComboBox<String> cbPartnerShip;
     private javax.swing.JComboBox<String> cbPeriodo;
     private javax.swing.JComboBox<String> cbSeachSelingsBy;
     private javax.swing.JComboBox<String> cbSituatiom;
@@ -1779,6 +1947,7 @@ public class VendasAtual extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
@@ -1827,6 +1996,7 @@ public class VendasAtual extends javax.swing.JFrame {
     public static javax.swing.JLabel lblInstaladaTot;
     public static javax.swing.JLabel lblInstaladaTot1;
     public static javax.swing.JLabel lblQtSellsTable;
+    public static javax.swing.JLabel lblSaveExcelMsh;
     public static javax.swing.JLabel lblValuePlan;
     private javax.swing.JLabel lblpro;
     private javax.swing.JPanel paneValue;

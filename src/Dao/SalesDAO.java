@@ -37,7 +37,6 @@ public class SalesDAO {
         ResultSet rs = null;
 
         String sql;
-        List<Sales> sales = new ArrayList<>();
         Formatting format = new Formatting();
         Sales sale;
         try {
@@ -107,44 +106,53 @@ public class SalesDAO {
             LocalDateTime dateMade;
             Period period;
 
-            while (rs.next()) {
-                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
-                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
-
-                dateInstalation = timestampIns.toLocalDateTime();
-                dateMade = timestampMa.toLocalDateTime();
-
-                if (dateInstalation.getHour() > 8) {
-                    period = Period.AFTERNOON;
-                } else {
-                    period = Period.MORNING;
-                }
-                ToPrioritize prioriti = rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"));
-                sales.add(new Sales(
-                        rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
-                        dateMade,
-                        rs.getString("s.cpf"),
-                        rs.getString("s.customers"),
-                        rs.getString("s.contacts"),
-                        rs.getString("s.package"),
-                        rs.getFloat("s.valueSale"),
-                        dateInstalation,
-                        period,
-                        Origin.valueOf(rs.getString("s.origin")),
-                        Situation.valueOf(rs.getString("situa.situation")),
-                        rs.getString("s.observation"),
-                        prioriti
-                ));
-
-            }
-            return sales;
+            
+            return returnSearch(rs);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
 
         return null;
+    }
+
+    public static List<Sales> returnSearch(ResultSet rs) throws SQLException {
+        LocalDateTime dateInstalation;
+        LocalDateTime dateMade;
+        Period period;
+        List<Sales> sales = new ArrayList<Sales>();
+        while (rs.next()) {
+            Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+            Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+            
+            dateInstalation = timestampIns.toLocalDateTime();
+            dateMade = timestampMa.toLocalDateTime();
+            
+            if (dateInstalation.getHour() > 8) {
+                period = Period.AFTERNOON;
+            } else {
+                period = Period.MORNING;
+            }
+            ToPrioritize prioriti = rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"));
+            sales.add(new Sales(
+                    rs.getInt("s.id"),
+                    new Vendedor(rs.getString("v.tr")),
+                    dateMade,
+                    rs.getString("s.cpf"),
+                    rs.getString("s.customers"),
+                    rs.getString("s.contacts"),
+                    rs.getString("s.package"),
+                    rs.getFloat("s.valueSale"),
+                    dateInstalation,
+                    period,
+                    Origin.valueOf(rs.getString("s.origin")),
+                    Situation.valueOf(rs.getString("situa.situation")),
+                    rs.getString("s.observation"),
+                    prioriti
+            ));
+           
+        }
+         return sales;
     }
 
     public static List<Sales> returnDataBySituation(char type, Situation situation, LocalDate dateInitial, LocalDate dateFinal) {//c de chosse - para escolha de datas m- para vendas do mes 'a' para all de todas as vendas . l para lastMonth
@@ -439,6 +447,71 @@ public class SalesDAO {
 
         return null;
     }
+    
+    public static List<Sales> returnDataByWhats(String search) {
+        PreparedStatement ps = null;
+        Connection con = ConnectionFactory.getConnection();
+        ResultSet rs = null;
+
+        String sql;
+        List<Sales> sales = new ArrayList<>();
+        try {
+            Timestamp dateTimeInitial;
+            Timestamp dateTimeFinal;
+
+            LocalDateTime dateInstalation;
+            LocalDateTime dateMade;
+            Period period;
+            
+                sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                        + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
+                        + "from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id "
+                        + "join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id  "
+                        + "where contacts LIKE ? order by d.dateIntalation desc";
+            
+            ps = con.prepareCall(sql);
+            ps.setString(1, "%" + search + "%");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+
+                dateInstalation = timestampIns.toLocalDateTime();
+                dateMade = timestampMa.toLocalDateTime();
+
+                if (dateInstalation.getHour() > 8) {
+                    period = Period.AFTERNOON;
+                } else {
+                    period = Period.MORNING;
+                }
+
+                sales.add(new Sales(
+                        rs.getInt("s.id"),
+                        new Vendedor(rs.getString("v.tr")),
+                        dateMade,
+                        rs.getString("s.cpf"),
+                        rs.getString("s.customers"),
+                        rs.getString("s.contacts"),
+                        rs.getString("s.package"),
+                        rs.getFloat("s.valueSale"),
+                        dateInstalation,
+                        period,
+                        Origin.valueOf(rs.getString("s.origin")),
+                        Situation.valueOf(rs.getString("situa.situation")),
+                        rs.getString("s.observation"),
+                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
+
+            }
+            return sales;
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+        return null;
+    }
+    
     public static List<Sales> returnDataByID(int id, char cpfOrName) {//c para  cpf n para nome
         PreparedStatement ps = null;
         Connection con = ConnectionFactory.getConnection();
@@ -775,9 +848,7 @@ public class SalesDAO {
                     + sale.getOrigin().name() + "\n"
                     + sale.getObservation() + "\n"
                     + sale.getId(), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-            SalesController sc = new SalesController();
-
-            sc.configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+           
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao alterar venda \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
         } finally {

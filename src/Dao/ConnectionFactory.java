@@ -9,7 +9,8 @@ import javax.swing.JOptionPane;
 public class ConnectionFactory {
 
     private static final String Driver = "com.mysql.cj.jdbc.Driver";
-    private static final String URL = "jdbc:mysql://localhost:3306/vendasFibra";
+   public static final String URL = "jdbc:mysql://localhost:3306/vendasFibraTest";
+    //public static final String URL = "jdbc:mysql://localhost:3306/vendasFibra";
     private static final String user = "root";
     private static final String senha = "";
 
