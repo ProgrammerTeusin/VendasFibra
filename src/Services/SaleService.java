@@ -42,7 +42,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class SaleService {
 
     String sheet = ConnectionFactory.URL == "jdbc:mysql://localhost:3306/vendasFibraTest" ? "vendasFibra2024Test" : "vendasFibra2024";
-    String pathInsertUpdateAndSearch = "D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\"+sheet+".xlsx";
+    String pathInsertUpdateAndSearch = "D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\" + sheet + ".xlsx";
 
     Formatting format = new Formatting();
     //SalesController sc = new SalesController();
@@ -264,48 +264,7 @@ public class SaleService {
         return sales;
     }
 
-    public void tableFormatColors(JTable table) {
-        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                super.setHorizontalAlignment(JLabel.CENTER); // Adicione esta linha para centralizar o texto
-                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-                // Suponha que a coluna que contém o valor "instalada" seja a penúltima coluna
-                int columnIndex = table.getColumnCount() - 3; // Ajuste este valor conforme necessário
-                String cellValue = (table.getValueAt(row, columnIndex).toString());
-
-                if ("Cancelada".equals(cellValue)) {
-                    c.setBackground(java.awt.Color.decode("#FFC7CE"));
-                    c.setForeground(java.awt.Color.decode("#9C0006"));
-                } else if ("Instalada".equals(cellValue)) {
-                    c.setBackground(java.awt.Color.decode("#C6EFCE"));
-                    c.setForeground(java.awt.Color.decode("#006100"));
-                } else if (ToPrioritize.YES.toString()
-                        .equals((table.getValueAt(row, table.getColumnCount() - 1).toString()))) {
-                    c.setBackground(java.awt.Color.decode("#3a2a18"));
-                    c.setForeground(java.awt.Color.white);
-                } else {
-                    c.setBackground(java.awt.Color.decode("#FFE699"));
-                    c.setForeground(java.awt.Color.decode("#9C5700"));
-                }
-
-                return c;
-            }
-        });
-        JTableHeader header = table.getTableHeader();
-        header.setDefaultRenderer(new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setBackground(java.awt.Color.decode("#7E5685"));
-                setForeground(java.awt.Color.white);
-                setHorizontalAlignment(JLabel.CENTER); // Adicione esta linha para centralizar o texto
-                return this;
-            }
-        });
-
-    }
+   
 
     public void insertSellExcel(Sales sale) {
         File file = new File(pathInsertUpdateAndSearch);
@@ -353,8 +312,89 @@ public class SaleService {
         }
 
     }
+    int o = 1;
 
-        public void updateValuesExcel(Sales sale) {
+    public  void insertAllorManySellExcel(List<Sales> sales) {
+        File file = new File(pathInsertUpdateAndSearch);
+        FileInputStream filePlani = null;
+        XSSFWorkbook workbook = null;
+        FileOutputStream outputStream = null;
+
+        try {
+            filePlani = new FileInputStream(file);
+            workbook = new XSSFWorkbook(filePlani);
+            XSSFSheet sheet = workbook.getSheetAt(0);
+
+           // int lastRowNum = sheet.getLastRowNum();
+             int lastRowNum = 1;
+
+            for (Sales sale : sales) {
+                XSSFRow newRow = sheet.createRow(++lastRowNum);
+
+                // Adicione células à nova linha conforme necessário
+                newRow.createCell(0).setCellValue(sale.getCpf() + "");
+                newRow.createCell(1).setCellValue(sale.getCustomers() + "");
+// Limpeza do campo contact, removendo caracteres que não são números, espaços ou barras
+String contact = sale.getContact().replaceAll("[^\\d/\\s]", "");
+                newRow.createCell(2).setCellValue(contact);
+
+                newRow.createCell(3).setCellValue(sale.getPackages() + "");
+                newRow.createCell(4).setCellValue(sale.getValuePackage() + "");
+                newRow.createCell(5).setCellValue(format.dateTimeFormaterField(sale.getSellDateHour()) + "");
+                newRow.createCell(6).setCellValue(format.dateFormaterField(sale.getInstallationMarked().toLocalDate()) + "");
+                newRow.createCell(7).setCellValue(sale.getPeriod().toString());
+                newRow.createCell(8).setCellValue(sale.getSituation().toString());
+                newRow.createCell(9).setCellValue(sale.getObservation());
+                newRow.createCell(10).setCellValue(sale.getOrigin().toString());
+                newRow.createCell(11).setCellValue(sale.getPrioritize().toString());
+                newRow.createCell(12).setCellValue(sale.getSeller().getIdentificador());
+
+                System.out.println("Inserindo dados " + o + ":  na linha: " + newRow.getRowNum() + "\n    # "
+                        + sale.getCpf() + "  "
+                        + sale.getCustomers() + "  "
+                        + sale.getContact() + "  "
+                        + sale.getPackages() + "  "
+                        + sale.getValuePackage() + "  "
+                        + format.dateTimeFormaterField(sale.getSellDateHour()) + "  "
+                        + format.dateFormaterField(sale.getInstallationMarked().toLocalDate()) + "  "
+                        + sale.getPeriod().toString() + "  "
+                        + sale.getSituation().toString() + "  "
+                        + sale.getObservation() + "  "
+                        + sale.getOrigin().toString() + "  "
+                        + sale.getPrioritize().toString() + "  "
+                        + sale.getSeller().getIdentificador()
+                );
+                o++;
+            }
+
+            // Escreva as alterações de volta para o arquivo
+            outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+
+        } catch (FileNotFoundException ex) {
+            JOptionPane.showMessageDialog(null, "Arquivo excel não encontrado\nFavor cole o PATH do arquivo!", "Aviso", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, ex, "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Erro: " + ex);
+
+        } finally {
+            try {
+                if (filePlani != null) {
+                    filePlani.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+                if (workbook != null) {
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateValuesExcel(Sales sale) {
         File file = new File(pathInsertUpdateAndSearch);
         FileInputStream filePlani;
 
@@ -448,24 +488,23 @@ public class SaleService {
 //
 //            }
 //            );
-
             while (rowIterator.hasNext()) {
                 Row next = rowIterator.next();
                 if (i > 0) {
                     if (idPosition < ids.size() && i == ids.get(idPosition)) {
                         next.getCell(4).setCellValue(value); // Comissão
-                         idPosition++;
-                       
-                    }
-                     try (FileOutputStream fileOut = new FileOutputStream(file)) {
-                            workbook.write(fileOut);
+                        idPosition++;
 
-                            fileOut.close();
-                        } catch (FileNotFoundException ex) {
-                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
-                        } catch (IOException ex) {
-                            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                    }
+                    try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                        workbook.write(fileOut);
+
+                        fileOut.close();
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
 
                 i++;

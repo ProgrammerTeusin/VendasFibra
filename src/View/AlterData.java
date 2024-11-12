@@ -11,12 +11,15 @@ import Model.Enums.Situation;
 import Model.Enums.ToPrioritize;
 import Model.Sales;
 import Model.Vendedor;
+import Services.JTablesFormatting;
 import Services.SaleService;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -44,6 +47,7 @@ public class AlterData extends javax.swing.JFrame {
     SaleService ss = new SaleService();
     AllSalesController asc = new AllSalesController();
 
+     Map<String, Object> dataAfterUpdate = new HashMap<>();
     public AlterData() {
 
         initComponents();
@@ -71,7 +75,9 @@ public class AlterData extends javax.swing.JFrame {
 
         }
         Packages[] pack = {Packages.ALL};
-        valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm'), packgeSelected);
+     
+     
+        valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm',ldTSaleMarked), packgeSelected);
         txtDataInstalacao.requestFocus();
     }
 
@@ -111,8 +117,9 @@ public class AlterData extends javax.swing.JFrame {
             cpf = txtCPF.getText();
             trSell = txtTrVendida.getText();
             contacts = txtContato.getText();
-           observation = txaObs.getText() =="" ||  txaObs.getText() == null ?  "* Alterado em " + format.dateTimeFormaterField(LocalDateTime.now())+" *"
-                    : txaObs.getText() + "\n* Alterado em " + format.dateTimeFormaterField(LocalDateTime.now())+" *";
+            
+            AllSales.setDatasUpdateBeforeOrAfter(AllSales.dataAfterUpdate);
+           observation = txaObs.getText()+"   "+new AllSales().uptadesObservation();
 
             InsertPeriod();
 
@@ -152,6 +159,7 @@ public class AlterData extends javax.swing.JFrame {
     }
 
     private void update() {
+        
         SalesController sc = new SalesController();
         sc.updateSales(new Sales(idUpdate, new Vendedor(trSell),
                 ldTSaleMade, cpf, cliente,
@@ -159,9 +167,9 @@ public class AlterData extends javax.swing.JFrame {
                 valuePackage, ldTSaleMarked, periodInstalation,
                 originSell, situation, observation,ToPrioritize.NO));
 
-        ss.tableFormatColors(AllSales.tblRelatorioVendas);
+        JTablesFormatting.tableFormatColors(AllSales.tblRelatorioVendas);
 
-        sc.fillingsPacksges('m');
+        sc.fillingsPacksges('m',ldTSaleMarked);
         sc.returnData('a', (DefaultTableModel) AllSales.tblRelatorioVendas.getModel(), LocalDate.MIN, LocalDate.MIN);
         dispose();
     }

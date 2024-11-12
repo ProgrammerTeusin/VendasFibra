@@ -177,7 +177,7 @@ public class AllSalesDao {
             Timestamp dateTimeInitial = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(0, 0)));
             Timestamp dateTimeFinal = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(23, 59)));
 
-            String sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+            String sql = "SELECT s.id,s.priotize,v.tr,v.id,situa.situation,s.customers,s.origin,s.observation,"
                     + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,"
                     + "d.dateIntalation from tbSales s join tbDateInstalation d on "
                     + "s.idDateInstalation = d.id join tbSeller v on "

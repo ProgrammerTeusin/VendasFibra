@@ -7,7 +7,7 @@ import Model.Enums.Situation;
 import Model.Sales;
 import Services.ToPDF;
 import View.AllSales;
-import View.VendasAtual;
+import View.CurrentSales;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,7 +116,7 @@ public class AllSalesController {
             
         dtm.setRowCount(0);
 
-        if (dtm == VendasAtual.tblVendasRes.getModel()) {
+        if (dtm == CurrentSales.tblVendasRes.getModel()) {
             for (Sales sales : data) {
 
                 Object[] dados = {
@@ -136,7 +136,7 @@ public class AllSalesController {
                 };
                 dtm.addRow(dados);
             }
-            VendasAtual.lblQtSellsTable.setText((VendasAtual.tblVendasRes.getRowCount() > 9 ? VendasAtual.tblVendasRes.getRowCount() : "0" + VendasAtual.tblVendasRes.getRowCount()) + " Registros de Vendas");
+            CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         } else {
             for (Sales sales : data) {

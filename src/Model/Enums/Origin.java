@@ -3,6 +3,7 @@ package Model.Enums;
 public enum Origin {
       SELECT("Selecione"),
     BASE("Base"),
+    BASE_SIP("Base URA"),
     CHAT("Chat"),
     INDICATION("Indicação"),;
     

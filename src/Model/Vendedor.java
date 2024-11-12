@@ -21,6 +21,11 @@ public class Vendedor {
     public Vendedor(int  identificador){
          this.identificador = identificador;
     }
+
+    public Vendedor(int identificador, String tr) {
+        this.identificador = identificador;
+        this.tr = tr;
+    }
     
     public Vendedor(String  tr){
          this.tr = tr;

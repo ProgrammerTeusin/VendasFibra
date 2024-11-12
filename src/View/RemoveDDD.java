@@ -82,12 +82,15 @@ public class RemoveDDD extends javax.swing.JFrame {
             String[] values = txaNumbers.getText().split("\n");
             int alter = 0;
 
-            for (int i = values.length - 1; i > (-1); i--) {
-                if (values[i].trim().length() > 11) {
-                    alter++;
-                    values[i] = values[i].substring(2, values[i].length());
-                }
-                    txaNumberWhithout.setText(values[i] + "\n" + txaNumberWhithout.getText() + "\n");
+            for (int i = 0; i < values.length; i++) {
+//                            for (int i = values.length - 1; i > (-1); i--) {
+
+//                if (values[i].trim().length() > 11) {
+//                    alter++;
+//                    values[i] = values[i].substring(2, values[i].length());
+//                }
+                    txaNumberWhithout.setText(txaNumberWhithout.getText() + "\n"+(i+1) +" "+values[i] );
+            
             }
 
             lbl1.setText(values.length + " Numeros inseridos");

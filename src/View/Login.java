@@ -164,15 +164,15 @@ public class Login extends javax.swing.JFrame {
 
     private void btnAcessoKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_btnAcessoKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-           // new VendasAtual().show();
-           new VendasAtual().show();
+           // new CurrentSales().show();
+           new CurrentSales().show();
            this.dispose();
         }
     }//GEN-LAST:event_btnAcessoKeyPressed
 
     private void btnAcessoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAcessoActionPerformed
-           new VendasAtual().show();
-        //new VendasAtual().show();
+           new CurrentSales().show();
+        //new CurrentSales().show();
         this.dispose();
     }//GEN-LAST:event_btnAcessoActionPerformed
 

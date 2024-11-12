@@ -9,8 +9,8 @@ import javax.swing.JOptionPane;
 public class ConnectionFactory {
 
     private static final String Driver = "com.mysql.cj.jdbc.Driver";
-   public static final String URL = "jdbc:mysql://localhost:3306/vendasFibraTest";
-    //public static final String URL = "jdbc:mysql://localhost:3306/vendasFibra";
+    // public static final String URL = "jdbc:mysql://localhost:3306/vendasFibraTest";
+  public static final String URL = "jdbc:mysql://localhost:3306/vendasFibra";
     private static final String user = "root";
     private static final String senha = "";
 
@@ -22,7 +22,7 @@ public class ConnectionFactory {
             return DriverManager.getConnection(URL, user, senha);
         
         } catch (ClassNotFoundException | SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro na conexão com o Banco de Dados:\n"+ex, "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Erro na conexão com o Banco de Dados:\n"+ex, "Erro", JOptionPane.ERROR_MESSAGE);
             System.out.println("Erro na conexão com o Banco de Dados:\n"+ex);           
         }catch(RuntimeException ex){
             JOptionPane.showMessageDialog(null, "Erro na conexão com o Banco de Dados:\n"+ ex);

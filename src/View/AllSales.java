@@ -6,6 +6,9 @@ import Controller.SalesController;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
 import Model.Enums.Period;
+import Model.Enums.Situation;
+import Services.JTablesFormatting;
+import Services.OptionsWindow;
 import Services.SaleService;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -23,12 +26,16 @@ import javax.swing.border.SoftBevelBorder;
 import javax.swing.table.DefaultTableModel;
 
 public class AllSales extends javax.swing.JFrame {
-
+public static AllSales allSalesWindow = new AllSales();
+    
     SaleService ss = new SaleService();
     SalesController sc = new SalesController();
     Formatting format = new Formatting();
     AllSalesController asc = new AllSalesController();
     boolean fieldsVisible = true;
+    public static Map<String, Object> dataBeforeUpdate = new HashMap<>();
+    public static Map<String, Object> dataAfterUpdate = new HashMap<>();
+    int row;
 
     public AllSales() {
         initComponents();
@@ -60,7 +67,7 @@ public class AllSales extends javax.swing.JFrame {
         setExtendedState(MAXIMIZED_BOTH);
         jPanel1.setSize(getMaximumSize());
         sc.returnData('a', (DefaultTableModel) tblRelatorioVendas.getModel(), LocalDate.now(), LocalDate.now());
-        ss.tableFormatColors(tblRelatorioVendas);
+        JTablesFormatting.tableFormatColors(tblRelatorioVendas);
         lblQtSellsTable.setText((tblRelatorioVendas.getRowCount() > 9 ? tblRelatorioVendas.getRowCount() : "0" + tblRelatorioVendas.getRowCount()) + " Registros de Vendas");
         // fielEditable(txtCPF,"Data"); 
         txtField1.setVisible(false);
@@ -71,6 +78,8 @@ public class AllSales extends javax.swing.JFrame {
         asc.qtdSituationMonth();
         ocultFields(fieldsVisible);
         actionMouseRight();
+                OptionsWindow.CloseWindow(this);
+
     }
 
     enum typeForSearch {
@@ -166,7 +175,7 @@ public class AllSales extends javax.swing.JFrame {
                 if (SwingUtilities.isRightMouseButton(e)) {
 
 // Obter a linha e a coluna na qual o usuário clicou
-                    int row = tblRelatorioVendas.rowAtPoint(e.getPoint());
+                     row = tblRelatorioVendas.rowAtPoint(e.getPoint());
                     int column = tblRelatorioVendas.columnAtPoint(e.getPoint());
 
                     // Selecionar a célula como se o botão esquerdo tivesse sido pressionado
@@ -185,8 +194,10 @@ public class AllSales extends javax.swing.JFrame {
                         AlterData.txtTrVendida.setText(tblRelatorioVendas.getValueAt(row, values.get("tr")) + "");
                         AlterData.txtCliente.setText(tblRelatorioVendas.getValueAt(row, values.get("custormes")) + "");
                         AlterData.txtContato.setText(tblRelatorioVendas.getValueAt(row, values.get("contact")) + "");
-                        AlterData.cbPacote.setSelectedItem(Packages.fromString(tblRelatorioVendas.getValueAt(row, values.get("package")) + ""));
                         AlterData.txtDataInstalacao.setText(tblRelatorioVendas.getValueAt(row, values.get("dateInstalation")) + "");
+                        
+                        System.out.println("DATA INSSS: "+values.get("dateInstalation"));
+                      
                         AlterData.cbPeriodo.setSelectedItem(Period.fromString(tblRelatorioVendas.getValueAt(row, values.get("period")) + ""));
                         // txtTrVendida.setText(tblVendasRes.getValueAt(row, 7)+"");
                         AlterData.cbOrigem.setSelectedItem((Origin.fromString(tblRelatorioVendas.getValueAt(row, values.get("origin")) + "")));
@@ -194,11 +205,60 @@ public class AllSales extends javax.swing.JFrame {
                         AlterData.txaObs.setText(tblRelatorioVendas.getValueAt(row, values.get("obs")) + "");
                         AlterData.ldTSaleMade = format.dateTimeFormaterBank(tblRelatorioVendas.getValueAt(row, values.get("dateMade")) + "");
                         AlterData.txtValue.setText(tblRelatorioVendas.getValueAt(row, values.get("value")) + "");
-
+                        AlterData.cbPacote.setSelectedItem(Packages.fromString(tblRelatorioVendas.getValueAt(row, values.get("package")) + ""));
+                        
+                         setDatasUpdateBeforeOrAfter(dataBeforeUpdate);
                     }
                 }
             }
         });
+
+    }
+    public static void setDatasUpdateBeforeOrAfter(Map<String, Object> values) {
+        values.put("cpf", AlterData.txtCPF.getText());
+        values.put("tr", AlterData.txtTrVendida.getText());
+        values.put("custormes", AlterData.txtCliente.getText());
+        values.put("contact", AlterData.txtContato.getText());
+        values.put("package", Packages.fromString(AlterData.cbPacote.getSelectedItem() + ""));
+        values.put("dateInstalation", AlterData.txtDataInstalacao.getText());
+        values.put("period", Period.fromString(AlterData.cbPeriodo.getSelectedItem() + ""));
+        values.put("origin", (Origin.fromString(AlterData.cbOrigem.getSelectedItem() + "")));
+        values.put("situation", Situation.fromString(AlterData.cbSituatiom.getSelectedItem() + ""));
+        values.put("obs", AlterData.txaObs.getText());
+        
+    }
+    
+     public String uptadesObservation() {
+        StringBuilder msgObs = new StringBuilder();
+        setDatasUpdateBeforeOrAfter(dataAfterUpdate);
+        dataBeforeUpdate.forEach((key, value) -> {
+            if (dataAfterUpdate.containsKey(key)) {
+                if (wasThereUpadteInFilds(value, dataAfterUpdate.get(key))) {
+                    if (key.equals("dateInstalation")) {
+
+                        msgObs.append("Remarcado de ")
+                                .append(value)
+                                .append(" na parte da ")
+                                .append(dataBeforeUpdate.get("period"))
+                                .append(" Para ")
+                                .append(dataAfterUpdate.get(key))
+                                .append(" Na parte da ")
+                                .append(dataAfterUpdate.get("period"))
+                                .append("\n");
+                    } else if(!key.equals("situation")){
+                        msgObs.append(key + " mudou de ").append(value).append(" Para ").append(dataAfterUpdate.get(key)).append("\n");
+                    }else{
+                        System.out.println("Apenas instalação mufou");
+                    }
+                }
+//                
+            }
+        });
+        return msgObs.toString();
+    }
+
+    private boolean wasThereUpadteInFilds(Object value1, Object value2) {
+        return !value1.equals(value2);
 
     }
 
@@ -383,7 +443,7 @@ public class AllSales extends javax.swing.JFrame {
         lblProvsingvalue.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblProvsingvalue.setForeground(new java.awt.Color(255, 153, 0));
         lblProvsingvalue.setText("Provising");
-        panelCanceled9.add(lblProvsingvalue, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, -1, -1));
+        panelCanceled9.add(lblProvsingvalue, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 10, -1, -1));
 
         jPanel4.add(panelCanceled9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 370, 40));
 
@@ -399,7 +459,7 @@ public class AllSales extends javax.swing.JFrame {
         lblCanceladaValue1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblCanceladaValue1.setForeground(new java.awt.Color(255, 0, 51));
         lblCanceladaValue1.setText("Canceladas");
-        panelCanceled10.add(lblCanceladaValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, 80, 20));
+        panelCanceled10.add(lblCanceladaValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 10, 80, 20));
 
         jPanel4.add(panelCanceled10, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 60, 370, 40));
 
@@ -410,7 +470,7 @@ public class AllSales extends javax.swing.JFrame {
         lblInstaladasValue1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblInstaladasValue1.setForeground(new java.awt.Color(0, 153, 0));
         lblInstaladasValue1.setText("Instaladas");
-        panelCanceled11.add(lblInstaladasValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 10, -1, -1));
+        panelCanceled11.add(lblInstaladasValue1, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 10, -1, -1));
 
         lblInstaladas1.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblInstaladas1.setForeground(new java.awt.Color(0, 153, 0));
@@ -436,7 +496,7 @@ public class AllSales extends javax.swing.JFrame {
         lblInstaladasValue2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblInstaladasValue2.setForeground(new java.awt.Color(0, 153, 0));
         lblInstaladasValue2.setText("Instaladas");
-        panelCanceled14.add(lblInstaladasValue2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 20, -1, -1));
+        panelCanceled14.add(lblInstaladasValue2, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 20, -1, -1));
 
         panelCanceled15.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled15.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -450,7 +510,7 @@ public class AllSales extends javax.swing.JFrame {
         lblCanceladaValue2.setFont(new java.awt.Font("Franklin Gothic Medium", 0, 18)); // NOI18N
         lblCanceladaValue2.setForeground(new java.awt.Color(255, 0, 51));
         lblCanceladaValue2.setText("Canceladas");
-        panelCanceled15.add(lblCanceladaValue2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 10, -1, 20));
+        panelCanceled15.add(lblCanceladaValue2, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 10, -1, 20));
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -573,13 +633,11 @@ public class AllSales extends javax.swing.JFrame {
     }//GEN-LAST:event_tblRelatorioVendasMousePressed
 
     private void jMenu1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu1MouseClicked
-        new VendasAtual().show();
-        dispose();
+        OptionsWindow.permissionToOpenWindow("Principal de Vendas",  CurrentSales.mainScreen);
     }//GEN-LAST:event_jMenu1MouseClicked
 
     private void jMenu1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu1ActionPerformed
-        new VendasAtual().show();
-        dispose();
+     
     }//GEN-LAST:event_jMenu1ActionPerformed
 
     private void txtField2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtField2KeyPressed

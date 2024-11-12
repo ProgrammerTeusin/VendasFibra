@@ -18,7 +18,6 @@ import com.lowagie.text.Font;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
-import com.lowagie.text.html.simpleparser.StyleSheet;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -248,37 +247,32 @@ public class ToPDF {
     }
 
         private Anchor downloadCPFs(List<Sales> sale, String msg) {
-            FileWriter writer = null;
-            String reference = "C:\\Users\\mathe\\Downloads\\CPFs.txt";
-
-            File file = new File(reference);
-            if (!file.exists()) {
-                file.mkdir();
-            }
-          //  reference += "/CPFs.txt";
+    FileWriter writer = null;
+    String reference = System.getProperty("user.home") + "\\Downloads\\CPFs.txt";
+            System.out.println("REFE: "+reference);
+    File file = new File(reference);
+    try {
+        writer = new FileWriter(file);
+        int i = 1;
+        for (Sales values : sale) {
+            writer.write(values.getCpf() + "\n");
+            i++;
+        }
+    } catch (IOException ex) {
+        Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
+    } finally {
+        if (writer != null) {
             try {
-                writer = new FileWriter(reference);
-                int i = 1;
-                for (Sales values : sale) {
-                 //   writer.write("CPF " + i + ": " + values.getCpf() + "\n");
-                    writer.write(values.getCpf() + "\n");
-                    i++;
-                }
+                writer.close();
             } catch (IOException ex) {
                 Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                if (writer != null) {
-                    try {
-                        writer.close();
-                    } catch (IOException ex) {
-                        Logger.getLogger(ToPDF.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
             }
-            Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
-            anchorTarget.setReference(reference);
-            return anchorTarget;
         }
+    }
+    Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
+    anchorTarget.setReference(reference);
+    return anchorTarget;
+}
 
     private Paragraph insertColumFormatedParagraph(String value, int sizeLetter, int style, Color color, Color colorForeground) {
         Paragraph cell = new Paragraph(new Phrase(

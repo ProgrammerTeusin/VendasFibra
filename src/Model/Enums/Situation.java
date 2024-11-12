@@ -5,7 +5,9 @@ public enum Situation {
     ALL("Todos"),
     PROVISIONING("Aprovisionamento"),
     INSTALLED("Instalada"),
-    CANCELED("Cancelada");
+    BLOCKED("Parcial/Bloqueada"),
+    CANCELED("Cancelada"),
+    DAY("Dia");
 
     String value;
 

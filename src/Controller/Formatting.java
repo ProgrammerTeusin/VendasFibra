@@ -34,6 +34,9 @@ public class Formatting {
     public LocalDateTime dateTimeFormaterBank(String date){
         return LocalDateTime.parse(date, dtfComplete);
     }
+    public static LocalDateTime dateTimeFormaterBank2(String date){
+        return LocalDateTime.parse(date,  DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
     public String dateTimeFormaterField(LocalDateTime date){
         return dtfComplete.format(date);
     }
