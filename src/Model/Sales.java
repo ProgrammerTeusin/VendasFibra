@@ -1,6 +1,7 @@
 package Model;
 
 import Model.Enums.Origin;
+import Model.Enums.PartnerShip;
 import Model.Enums.Period;
 import Model.Enums.Situation;
 import Model.Enums.ToPrioritize;
@@ -8,15 +9,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 public class Sales {
-    
+
     private int id;
-    private Vendedor seller;
+    private Seller seller;
     private LocalDateTime sellDateHour;
-        private String customers; //cliente 
-    private String contact;  
-    private String cpf;  
+    private String customers; //cliente 
+    private String contact;
+    private String cpf;
     private String packages;
     private LocalDateTime installationMarked; //instalacao marcada
     private Period period;
@@ -25,24 +25,25 @@ public class Sales {
     private String observation;
     private ToPrioritize prioritize;
     private float valuePackage;
+    private PartnerShip partnetship;
 
-    public Sales(){
-        
+    public Sales() {
+
     }
-    
-     public Sales(Vendedor seller, 
-             LocalDateTime sellDateHour, 
-             String cpf, 
-             String customers, 
-             String contact, 
-             String packages, 
-             float valuePackage,
-             LocalDateTime installationMarked, 
-             Period period, 
-             Origin origin, 
-             Situation situation,
-             String observation,
-             ToPrioritize prioritize) {
+
+    public Sales(Seller seller,
+            LocalDateTime sellDateHour,
+            String cpf,
+            String customers,
+            String contact,
+            String packages,
+            float valuePackage,
+            LocalDateTime installationMarked,
+            Period period,
+            Origin origin,
+            Situation situation,
+            String observation,
+            ToPrioritize prioritize) {
         this.seller = seller;
         this.sellDateHour = sellDateHour;
         this.customers = customers;
@@ -57,8 +58,21 @@ public class Sales {
         this.situation = situation;
         this.prioritize = prioritize;
     }
-    
-     public Sales(int id, Vendedor seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage,LocalDateTime installationMarked, Period period, Origin origin, Situation situation,String observation,ToPrioritize prioritize) {
+
+    public Sales(Seller seller,
+            LocalDateTime sellDateHour,
+            String cpf,
+            String customers,
+            String contact,
+            String packages,
+            float valuePackage,
+            LocalDateTime installationMarked,
+            Period period,
+            Origin origin,
+            Situation situation,
+            PartnerShip partnetship,
+            String observation,
+            ToPrioritize prioritize) {
         this.seller = seller;
         this.sellDateHour = sellDateHour;
         this.customers = customers;
@@ -71,11 +85,45 @@ public class Sales {
         this.cpf = cpf;
         this.valuePackage = valuePackage;
         this.situation = situation;
+        this.partnetship = partnetship;
+        this.prioritize = prioritize;
+    }
+
+    public Sales(int id, Seller seller, LocalDateTime sellDateHour, String cpf, String customers, String contact, String packages, float valuePackage, LocalDateTime installationMarked, Period period, Origin origin, Situation situation, PartnerShip partnetship, String observation, ToPrioritize prioritize) {
+        this.seller = seller;
+        this.sellDateHour = sellDateHour;
+        this.customers = customers;
+        this.contact = contact;
+        this.packages = packages;
+        this.installationMarked = installationMarked;
+        this.period = period;
+        this.origin = origin;
+        this.observation = observation;
+        this.cpf = cpf;
+        this.valuePackage = valuePackage;
+        this.situation = situation;
+        this.partnetship = partnetship;
         this.id = id;
         this.prioritize = prioritize;
-       
+
     }
-   
+
+    public Sales(int id, Situation situation, String observation, LocalDateTime installationMarked) {
+        this.observation = observation;
+        this.installationMarked = installationMarked;
+
+        this.situation = situation;
+        this.id = id;
+
+    }
+
+    public PartnerShip getPartnetship() {
+        return partnetship;
+    }
+
+    public void setPartnetship(PartnerShip partnetship) {
+        this.partnetship = partnetship;
+    }
 
     public int getId() {
         return id;
@@ -84,13 +132,12 @@ public class Sales {
     public void setId(int id) {
         this.id = id;
     }
-    
 
-    public Vendedor getSeller() {
+    public Seller getSeller() {
         return seller;
     }
 
-    public void setSeller(Vendedor seller) {
+    public void setSeller(Seller seller) {
         this.seller = seller;
     }
 
@@ -190,9 +237,4 @@ public class Sales {
         this.prioritize = prioritize;
     }
 
-    
-    
-    
-    
-    
 }

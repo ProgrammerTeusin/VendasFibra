@@ -3,7 +3,7 @@ package Controller;
 import Dao.SalesDAO;
 import Dao.SellerDAO;
 import Model.Sales;
-import Model.Vendedor;
+import Model.Seller;
 import Services.FormsTables;
 import View.CurrentSales;
 import java.time.LocalTime;
@@ -19,20 +19,28 @@ public class SellerController {
     FormsTables ftService = new FormsTables();
     SellerDAO dao = new SellerDAO();
 
-    public boolean isFirstAccess(Vendedor seller) {
+    public boolean isFirstAccess(Seller seller) {
         return SellerDAO.returnAccessQtdDAO(seller) < 1;
     }
-    public int qtdAccess(Vendedor seller) {
+    public int qtdAccess(Seller seller) {
         return SellerDAO.returnAccessQtdDAO(seller);
     }
 
-    public void insertAccess(Vendedor seller) {
+    public void insertAccess(Seller seller) {
 
         dao.insertAccessQtd(seller);
 
     }
+    public void insertSellerController(Seller seller) {
 
-    public void welcome(Vendedor seller) {
+        dao.insertSeller(seller);
+
+    }
+    public List<Seller> returnAllSeller(){
+     return dao.returnSellers();
+    }
+
+    public void welcome(Seller seller) {
         if (isFirstAccess(seller)) {
             PlaySound play = new PlaySound();
             try {

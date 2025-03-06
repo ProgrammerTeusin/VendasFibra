@@ -2,17 +2,15 @@ package Dao;
 
 import Controller.Formatting;
 import Controller.SalesController;
-import DAO.ConnectionFactory;
+import DAO.ConnectFactory;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
+import Model.Enums.PartnerShip;
 import Model.Enums.Period;
 import Model.Enums.Situation;
 import Model.Enums.ToPrioritize;
 import Model.Sales;
-import Model.Vendedor;
-import Services.SaleService;
-import View.CurrentSales;
-import com.mysql.cj.MysqlType;
+import Model.Seller;
 import com.mysql.cj.protocol.Resultset;
 import java.awt.HeadlessException;
 import java.sql.Connection;
@@ -37,7 +35,7 @@ public class SalesDAO {
 
     public static List<Sales> returnData(char type, LocalDate dateInitial, LocalDate dateFinal) {//c de chosse - para escolha de datas m- para vendas do mes 'a' para all de todas as vendas . l para lastMonth
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -50,8 +48,15 @@ public class SalesDAO {
                 case 'c':
 
                     //   sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    sql = "SELECT s.id,s.priotize,v.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by s.id desc";
-                    ps = con.prepareCall(sql);
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.id,v.tr,situa.situation,s.customers,"
+                            + "s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, "
+                            + "s.valueSale,d.dateIntalation from tbSales s "
+                            + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + "join tbSeller v on s.idSeller = v.id "
+                            + "join tbSituation situa on s.idSituation = situa.id "
+                            + "join tbPartnerShip par on par.id = s.idPartnerShip "
+                            + "where d.dateIntalation >= ? AND d.dateIntalation <= ? order by s.id desc";
+                    ps = con.prepareStatement(sql);
                     ps.setDate(1, Date.valueOf(dateInitial + ""));
                     ps.setDate(2, Date.valueOf(dateFinal + ""));
                     rs = ps.executeQuery();
@@ -61,14 +66,15 @@ public class SalesDAO {
                     dateTimeFinal = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(23, 59)));
 
                     //   sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    sql = "SELECT s.id,s.priotize,v.id,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.id,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                             + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,"
                             + "d.dateIntalation from tbSales s join tbDateInstalation d on "
                             + "s.idDateInstalation = d.id join tbSeller v on "
                             + "s.idSeller = v.id join tbSituation situa on "
                             + "s.idSituation = situa.id "
+                            + "join tbPartnerShip par on par.id = s.idPartnerShip "
                             + "where d.dateIntalation >= ? AND d.dateIntalation <= ? order by s.id desc";
-                    ps = con.prepareCall(sql);
+                    ps = con.prepareStatement(sql);
                     ps.setTimestamp(1, dateTimeInitial);
                     ps.setTimestamp(2, dateTimeFinal);
                     rs = ps.executeQuery();
@@ -78,27 +84,49 @@ public class SalesDAO {
                     dateTimeInitial = Timestamp.valueOf(now.with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
                     dateTimeFinal = Timestamp.valueOf(now.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
                     // sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    sql = "SELECT s.id,s.priotize,v.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by s.DateMade desc";
-                    ps = con.prepareCall(sql);
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.id,v.tr,situa.situation,s.customers,"
+                            + "s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, "
+                            + "s.valueSale,d.dateIntalation from tbSales s "
+                            + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + "join tbPartnerShip par on par.id = s.idPartnerShip "
+                            + "join tbSeller v on s.idSeller = v.id "
+                            + "join tbSituation situa on s.idSituation = situa.id "
+                            + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
+                            + "order by s.DateMade desc";
+                    ps = con.prepareStatement(sql);
                     ps.setTimestamp(1, dateTimeInitial);
                     ps.setTimestamp(2, dateTimeFinal);
                     rs = ps.executeQuery();
                     break;
-                case 'l':
+                case 'l'://l para lastMonth
 
 //                    dateTimeInitial = Timestamp.valueOf(LocalDateTime.of(dateInitial, LocalTime.MIN).with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
                     //                  dateTimeFinal = Timestamp.valueOf(LocalDateTime.of(dateFinal, LocalTime.MIN).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
                     dateTimeInitial = Timestamp.valueOf(LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
                     dateTimeFinal = Timestamp.valueOf(LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
-                    sql = "SELECT s.id,v.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    ps = con.prepareCall(sql);
+                    sql = "SELECT s.id,v.id,s.priotize,v.tr,situa.situation,s.customers,"
+                            + "s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,"
+                            + "par.partnerShip,"
+                            + "d.dateIntalation from tbSales s "
+                            + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + "join tbPartnerShip par on par.id = s.idPartnerShip "
+                            + "join tbSeller v on s.idSeller = v.id "
+                            + "join tbSituation situa on s.idSituation = situa.id "
+                            + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
+                            + "order by d.dateIntalation desc";
+                    ps = con.prepareStatement(sql);
                     ps.setTimestamp(1, dateTimeInitial);
                     ps.setTimestamp(2, dateTimeFinal);
                     rs = ps.executeQuery();
                     break;
                 case 'a':
-                    sql = "SELECT s.id,s.priotize,v.tr,v.id,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id order by s.id desc";
-                    ps = con.prepareCall(sql);
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,v.id,situa.situation,s.customers,"
+                            + "s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, "
+                            + "s.valueSale,d.dateIntalation from tbSales s "
+                            + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + "join tbPartnerShip par on par.id = s.idPartnerShip "
+                            + "join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id order by s.id desc";
+                    ps = con.prepareStatement(sql);
                     rs = ps.executeQuery();
                     break;
                 default:
@@ -114,7 +142,7 @@ public class SalesDAO {
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-            System.out.println("Erro ao buscar vendas"+ex);
+            System.out.println("Erro ao buscar vendas" + ex.getMessage());
         }
 
         return null;
@@ -124,7 +152,7 @@ public class SalesDAO {
         LocalDateTime dateInstalation;
         LocalDateTime dateMade;
         Period period;
-        List<Sales> sales = new ArrayList<Sales>();
+        List<Sales> sales = new ArrayList<>();
         while (rs.next()) {
             Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
             Timestamp timestampMa = rs.getTimestamp("s.DateMade");
@@ -140,7 +168,8 @@ public class SalesDAO {
             ToPrioritize prioriti = rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"));
             sales.add(new Sales(
                     rs.getInt("s.id"),
-                    new Vendedor(rs.getInt("v.id"),rs.getString("v.tr")),
+                    // new Seller(rs.getInt("v.id") , rs.getString("v.tr")),
+                    new Seller(rs.getString("v.tr")),
                     dateMade,
                     rs.getString("s.cpf"),
                     rs.getString("s.customers"),
@@ -151,6 +180,7 @@ public class SalesDAO {
                     period,
                     Origin.valueOf(rs.getString("s.origin")),
                     Situation.valueOf(rs.getString("situa.situation")),
+                    PartnerShip.valueOf(rs.getString("par.partnerShip")),
                     rs.getString("s.observation"),
                     prioriti
             ));
@@ -161,7 +191,7 @@ public class SalesDAO {
 
     public static List<Sales> returnDataBySituation(char type, Situation situation, LocalDate dateInitial, LocalDate dateFinal) {//c de chosse - para escolha de datas m- para vendas do mes 'a' para all de todas as vendas . l para lastMonth
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -175,15 +205,16 @@ public class SalesDAO {
                 case 'c':
 
                     //   sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,"
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,"
                             + "s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s "
                             + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + " join tbPartnerShip par on par.id = s.idPartnerShip "
                             + "join tbSeller v on s.idSeller = v.id "
                             + "join tbSituation situa on s.idSituation = situa.id "
                             + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
                             + "AND situa.situation = ?"
                             + "order by s.dateMade desc";
-                    ps = con.prepareCall(sql);
+                    ps = con.prepareStatement(sql);
                     ps.setDate(1, Date.valueOf(dateInitial + ""));
                     ps.setDate(2, Date.valueOf(dateFinal + ""));
                     ps.setString(3, situation.toString());
@@ -194,15 +225,16 @@ public class SalesDAO {
                     dateTimeFinal = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(23, 59)));
 
                     //   sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                             + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,"
                             + "d.dateIntalation from tbSales s join tbDateInstalation d on "
                             + "s.idDateInstalation = d.id join tbSeller v on "
+                            + " join tbPartnerShip par on par.id = s.idPartnerShip "
                             + "s.idSeller = v.id join tbSituation situa on "
                             + "s.idSituation = situa.id "
                             + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
                             + "AND situa.situation = ? order by s.dateMade desc";
-                    ps = con.prepareCall(sql);
+                    ps = con.prepareStatement(sql);
                     ps.setTimestamp(1, dateTimeInitial);
                     ps.setTimestamp(2, dateTimeFinal);
                     ps.setString(3, situation.name());
@@ -213,16 +245,17 @@ public class SalesDAO {
                     dateTimeInitial = Timestamp.valueOf(now.with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
                     dateTimeFinal = Timestamp.valueOf(now.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
                     // sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-                    sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,"
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.id,v.tr,situa.situation,s.customers,s.origin,"
                             + "s.observation,s.contacts,s.DateMade, s.cpf, s.package, "
                             + "s.valueSale,d.dateIntalation from tbSales s "
                             + "join tbDateInstalation d on s.idDateInstalation = d.id "
                             + "join tbSeller v on s.idSeller = v.id "
+                            + " join tbPartnerShip par on par.id = s.idPartnerShip "
                             + "join tbSituation situa on s.idSituation = situa.id "
                             + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
-                            + "AND situa.situation = ?"
+                            + "AND situa.situation = ? "
                             + "order by s.DateMade desc";
-                    ps = con.prepareCall(sql);
+                    ps = con.prepareStatement(sql);
                     ps.setTimestamp(1, dateTimeInitial);
                     ps.setTimestamp(2, dateTimeFinal);
                     ps.setString(3, situation.name());
@@ -234,28 +267,30 @@ public class SalesDAO {
                     //                  dateTimeFinal = Timestamp.valueOf(LocalDateTime.of(dateFinal, LocalTime.MIN).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
                     dateTimeInitial = Timestamp.valueOf(LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
                     dateTimeFinal = Timestamp.valueOf(LocalDateTime.now().minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
-                    sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                             + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
                             + "from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + " join tbPartnerShip par on par.id = s.idPartnerShip "
                             + "join tbSeller v on s.idSeller = v.id "
                             + "join tbSituation situa on s.idSituation = situa.id "
                             + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
                             + "order by d.dateMade desc";
-                    ps = con.prepareCall(sql);
+                    ps = con.prepareStatement(sql);
                     ps.setTimestamp(1, dateTimeInitial);
                     ps.setTimestamp(2, dateTimeFinal);
                     ps.setString(3, situation.name());
                     rs = ps.executeQuery();
                     break;
                 case 'a':
-                    sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,"
+                    sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,"
                             + "s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
                             + "from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id "
+                            + " join tbPartnerShip par on par.id = s.idPartnerShip "
                             + "join tbSeller v on s.idSeller = v.id "
                             + "join tbSituation situa on s.idSituation = situa.id "
                             + "where situa.situation = ?"
                             + "order by s.dateMade desc";
-                    ps = con.prepareCall(sql);
+                    ps = con.prepareStatement(sql);
                     ps.setString(1, situation.name());
                     rs = ps.executeQuery();
                     break;
@@ -267,38 +302,38 @@ public class SalesDAO {
             LocalDateTime dateInstalation;
             LocalDateTime dateMade;
             Period period;
-
-            while (rs.next()) {
-                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
-                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
-
-                dateInstalation = timestampIns.toLocalDateTime();
-                dateMade = timestampMa.toLocalDateTime();
-
-                if (dateInstalation.getHour() > 8) {
-                    period = Period.AFTERNOON;
-                } else {
-                    period = Period.MORNING;
-                }
-
-                sales.add(new Sales(
-                        rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
-                        dateMade,
-                        rs.getString("s.cpf"),
-                        rs.getString("s.customers"),
-                        rs.getString("s.contacts"),
-                        rs.getString("s.package"),
-                        rs.getFloat("s.valueSale"),
-                        dateInstalation,
-                        period,
-                        Origin.valueOf(rs.getString("s.origin")),
-                        Situation.valueOf(rs.getString("situa.situation")),
-                        rs.getString("s.observation"),
-                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
-
-            }
-            return sales;
+//
+//            while (rs.next()) {
+//                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+//                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+//
+//                dateInstalation = timestampIns.toLocalDateTime();
+//                dateMade = timestampMa.toLocalDateTime();
+//
+//                if (dateInstalation.getHour() > 8) {
+//                    period = Period.AFTERNOON;
+//                } else {
+//                    period = Period.MORNING;
+//                }
+//
+//                sales.add(new Sales(
+//                        rs.getInt("s.id"),
+//                        new Seller(rs.getString("v.tr")),
+//                        dateMade,
+//                        rs.getString("s.cpf"),
+//                        rs.getString("s.customers"),
+//                        rs.getString("s.contacts"),
+//                        rs.getString("s.package"),
+//                        rs.getFloat("s.valueSale"),
+//                        dateInstalation,
+//                        period,
+//                        Origin.valueOf(rs.getString("s.origin")),
+//                        Situation.valueOf(rs.getString("situa.situation")),
+//                        rs.getString("s.observation"),
+//                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
+//
+//            }
+            return returnSearch(rs);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -309,7 +344,7 @@ public class SalesDAO {
 
     public static List<Sales> returnDataByPrioriti(LocalDate dateInitial, LocalDate dateFinal) {//c de chosse - para escolha de datas m- para vendas do mes 'a' para all de todas as vendas . l para lastMonth
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -324,56 +359,57 @@ public class SalesDAO {
             dateTimeInitial = Timestamp.valueOf(now.with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
             dateTimeFinal = Timestamp.valueOf(now.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
             // sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-            sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,"
+            sql = "SELECT s.id,par.partnerShip,s.priotize,v.id,v.tr,situa.situation,s.customers,s.origin,"
                     + "s.observation,s.contacts,s.DateMade, s.cpf, s.package, "
                     + "s.valueSale,d.dateIntalation from tbSales s "
                     + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                    + " join tbPartnerShip par on par.id = s.idPartnerShip "
                     + "join tbSeller v on s.idSeller = v.id "
                     + "join tbSituation situa on s.idSituation = situa.id "
                     + "where d.dateIntalation >= ? AND d.dateIntalation <= ? "
                     + "AND s.priotize = ?"
                     + "order by s.DateMade desc";
-            ps = con.prepareCall(sql);
+            ps = con.prepareStatement(sql);
             ps.setTimestamp(1, dateTimeInitial);
             ps.setTimestamp(2, dateTimeFinal);
             ps.setString(3, ToPrioritize.YES.name());
             rs = ps.executeQuery();
 
-            LocalDateTime dateInstalation;
-            LocalDateTime dateMade;
-            Period period;
-
-            while (rs.next()) {
-                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
-                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
-
-                dateInstalation = timestampIns.toLocalDateTime();
-                dateMade = timestampMa.toLocalDateTime();
-
-                if (dateInstalation.getHour() > 8) {
-                    period = Period.AFTERNOON;
-                } else {
-                    period = Period.MORNING;
-                }
-
-                sales.add(new Sales(
-                        rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
-                        dateMade,
-                        rs.getString("s.cpf"),
-                        rs.getString("s.customers"),
-                        rs.getString("s.contacts"),
-                        rs.getString("s.package"),
-                        rs.getFloat("s.valueSale"),
-                        dateInstalation,
-                        period,
-                        Origin.valueOf(rs.getString("s.origin")),
-                        Situation.valueOf(rs.getString("situa.situation")),
-                        rs.getString("s.observation"),
-                        ToPrioritize.valueOf(rs.getString("s.priotize"))));
-
-            }
-            return sales;
+//            LocalDateTime dateInstalation;
+//            LocalDateTime dateMade;
+//            Period period;
+//
+//            while (rs.next()) {
+//                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+//                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+//
+//                dateInstalation = timestampIns.toLocalDateTime();
+//                dateMade = timestampMa.toLocalDateTime();
+//
+//                if (dateInstalation.getHour() > 8) {
+//                    period = Period.AFTERNOON;
+//                } else {
+//                    period = Period.MORNING;
+//                }
+//
+//                sales.add(new Sales(
+//                        rs.getInt("s.id"),
+//                        new Seller(rs.getString("v.tr")),
+//                        dateMade,
+//                        rs.getString("s.cpf"),
+//                        rs.getString("s.customers"),
+//                        rs.getString("s.contacts"),
+//                        rs.getString("s.package"),
+//                        rs.getFloat("s.valueSale"),
+//                        dateInstalation,
+//                        period,
+//                        Origin.valueOf(rs.getString("s.origin")),
+//                        Situation.valueOf(rs.getString("situa.situation")),
+//                        rs.getString("s.observation"),
+//                        ToPrioritize.valueOf(rs.getString("s.priotize"))));
+//
+//            }
+            return returnSearch(rs);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -381,9 +417,10 @@ public class SalesDAO {
 
         return null;
     }
+
     public static List<Sales> returnDataByDay(LocalDateTime dateInitial, Situation situ) {//c de chosse - para escolha de datas m- para vendas do mes 'a' para all de todas as vendas . l para lastMonth
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -398,12 +435,13 @@ public class SalesDAO {
             dateTimeInitial = Timestamp.valueOf(dateInitial.with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
             dateTimeFinal = Timestamp.valueOf(dateInitial.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
             // sql = "SELECT s.id,v.tr,situa.situation,s.customers,s.origin,s.observation,s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id where d.dateIntalation >= ? AND d.dateIntalation <= ? order by d.dateIntalation desc";
-            sql = "select s.id, d.dateIntalation, st.situation from tbsales s " +
-"join tbDateInstalation d on s.idDateInstalation = d.id " +
-"join tbSituation st on st.id = s.idSituation " +
-"where d.dateIntalation >= ? and d.dateIntalation <= ?" +
-"and st.situation = ? group by day(d.dateIntalation) order by d.dateIntalation desc";
-            ps = con.prepareCall(sql);
+            sql = "select s.id,par.partnerShip, d.dateIntalation, st.situation from tbsales s "
+                    + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                    + " join tbPartnerShip par on par.id = s.idPartnerShip "
+                    + "join tbSituation st on st.id = s.idSituation "
+                    + "where d.dateIntalation >= ? and d.dateIntalation <= ?"
+                    + "and st.situation = ? group by day(d.dateIntalation) order by d.dateIntalation desc";
+            ps = con.prepareStatement(sql);
             ps.setTimestamp(1, dateTimeInitial);
             ps.setTimestamp(2, dateTimeFinal);
             ps.setString(3, situ.name());
@@ -423,8 +461,8 @@ public class SalesDAO {
                 } else {
                     period = Period.MORNING;
                 }
-Sales salem = new Sales();
-salem.setInstallationMarked(dateInstalation);
+                Sales salem = new Sales();
+                salem.setInstallationMarked(dateInstalation);
                 sales.add(salem);
 
             }
@@ -439,7 +477,7 @@ salem.setInstallationMarked(dateInstalation);
 
     public static List<Sales> returnDataByCPForName(String search, char cpfOrName) {//c para  cpf n para nome
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -452,53 +490,57 @@ salem.setInstallationMarked(dateInstalation);
             LocalDateTime dateMade;
             Period period;
             if (cpfOrName == 'c') {
-                sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                         + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
                         + "from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id "
-                        + "join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id  "
+                        + " join tbPartnerShip par on par.id = s.idPartnerShip "
+                        + "join tbSeller v on s.idSeller = v.id "
+                        + "join tbSituation situa on s.idSituation = situa.id  "
                         + "where cpf LIKE ? order by d.dateIntalation desc";
             } else {
-                sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+                sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                         + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
                         + "from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id "
-                        + "join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id  "
+                        + " join tbPartnerShip par on par.id = s.idPartnerShip "
+                        + "join tbSeller v on s.idSeller = v.id "
+                        + "join tbSituation situa on s.idSituation = situa.id  "
                         + "where customers LIKE ? order by d.dateIntalation desc";
             }
-            ps = con.prepareCall(sql);
+            ps = con.prepareStatement(sql);
             ps.setString(1, "%" + search + "%");
             rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
-                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
-
-                dateInstalation = timestampIns.toLocalDateTime();
-                dateMade = timestampMa.toLocalDateTime();
-
-                if (dateInstalation.getHour() > 8) {
-                    period = Period.AFTERNOON;
-                } else {
-                    period = Period.MORNING;
-                }
-
-                sales.add(new Sales(
-                        rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
-                        dateMade,
-                        rs.getString("s.cpf"),
-                        rs.getString("s.customers"),
-                        rs.getString("s.contacts"),
-                        rs.getString("s.package"),
-                        rs.getFloat("s.valueSale"),
-                        dateInstalation,
-                        period,
-                        Origin.valueOf(rs.getString("s.origin")),
-                        Situation.valueOf(rs.getString("situa.situation")),
-                        rs.getString("s.observation"),
-                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
-
-            }
-            return sales;
+//            while (rs.next()) {
+//                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+//                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+//
+//                dateInstalation = timestampIns.toLocalDateTime();
+//                dateMade = timestampMa.toLocalDateTime();
+//
+//                if (dateInstalation.getHour() > 8) {
+//                    period = Period.AFTERNOON;
+//                } else {
+//                    period = Period.MORNING;
+//                }
+//
+//                sales.add(new Sales(
+//                        rs.getInt("s.id"),
+//                        new Seller(rs.getString("v.tr")),
+//                        dateMade,
+//                        rs.getString("s.cpf"),
+//                        rs.getString("s.customers"),
+//                        rs.getString("s.contacts"),
+//                        rs.getString("s.package"),
+//                        rs.getFloat("s.valueSale"),
+//                        dateInstalation,
+//                        period,
+//                        Origin.valueOf(rs.getString("s.origin")),
+//                        Situation.valueOf(rs.getString("situa.situation")),
+//                        rs.getString("s.observation"),
+//                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
+//
+//            }
+            return returnSearch(rs);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -509,7 +551,7 @@ salem.setInstallationMarked(dateInstalation);
 
     public static List<Sales> returnDataByWhats(String search) {
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -522,47 +564,48 @@ salem.setInstallationMarked(dateInstalation);
             LocalDateTime dateMade;
             Period period;
 
-            sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+            sql = "SELECT s.id,s.priotize,par.partnerShip,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                     + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
                     + "from tbSales s join tbDateInstalation d on s.idDateInstalation = d.id "
+                    + " join tbPartnerShip par on par.id = s.idPartnerShip "
                     + "join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id  "
                     + "where contacts LIKE ? order by d.dateIntalation desc";
 
-            ps = con.prepareCall(sql);
+            ps = con.prepareStatement(sql);
             ps.setString(1, "%" + search + "%");
             rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
-                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
-
-                dateInstalation = timestampIns.toLocalDateTime();
-                dateMade = timestampMa.toLocalDateTime();
-
-                if (dateInstalation.getHour() > 8) {
-                    period = Period.AFTERNOON;
-                } else {
-                    period = Period.MORNING;
-                }
-
-                sales.add(new Sales(
-                        rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
-                        dateMade,
-                        rs.getString("s.cpf"),
-                        rs.getString("s.customers"),
-                        rs.getString("s.contacts"),
-                        rs.getString("s.package"),
-                        rs.getFloat("s.valueSale"),
-                        dateInstalation,
-                        period,
-                        Origin.valueOf(rs.getString("s.origin")),
-                        Situation.valueOf(rs.getString("situa.situation")),
-                        rs.getString("s.observation"),
-                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
-
-            }
-            return sales;
+//            while (rs.next()) {
+//                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+//                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+//
+//                dateInstalation = timestampIns.toLocalDateTime();
+//                dateMade = timestampMa.toLocalDateTime();
+//
+//                if (dateInstalation.getHour() > 8) {
+//                    period = Period.AFTERNOON;
+//                } else {
+//                    period = Period.MORNING;
+//                }
+//
+//                sales.add(new Sales(
+//                        rs.getInt("s.id"),
+//                        new Seller(rs.getString("v.tr")),
+//                        dateMade,
+//                        rs.getString("s.cpf"),
+//                        rs.getString("s.customers"),
+//                        rs.getString("s.contacts"),
+//                        rs.getString("s.package"),
+//                        rs.getFloat("s.valueSale"),
+//                        dateInstalation,
+//                        period,
+//                        Origin.valueOf(rs.getString("s.origin")),
+//                        Situation.valueOf(rs.getString("situa.situation")),
+//                        rs.getString("s.observation"),
+//                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
+//
+//            }
+            return returnSearch(rs);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -570,9 +613,10 @@ salem.setInstallationMarked(dateInstalation);
 
         return null;
     }
+
     public static List<Sales> returnDataByDelayedInstalations(LocalTime time) {//instalações atrasadas
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -585,17 +629,18 @@ salem.setInstallationMarked(dateInstalation);
             LocalDateTime dateMade;
             Period period;
 
-            sql = "SELECT s.id,s.priotize,v.tr,situa.situation,s.customers,s.origin,s.observation,"
+            sql = "SELECT s.id,s.priotize,par.partnerShip,v.tr,situa.situation,s.customers,s.origin,s.observation,"
                     + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,d.dateIntalation "
                     + "from tbSales s "
                     + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                    + " join tbPartnerShip par on par.id = s.idPartnerShip "
                     + "join tbSeller v on s.idSeller = v.id "
                     + "join tbSituation situa on s.idSituation = situa.id  "
                     + "where d.dateIntalation < ? and situa.situation = ? order by d.dateIntalation desc";
 
-            ps = con.prepareCall(sql);
+            ps = con.prepareStatement(sql);
             ps.setTimestamp(1, Timestamp.valueOf(LocalDate.now().atTime(time)));
-            ps.setString(2,Situation.PROVISIONING.name());
+            ps.setString(2, Situation.PROVISIONING.name());
             rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -613,7 +658,7 @@ salem.setInstallationMarked(dateInstalation);
 
                 sales.add(new Sales(
                         rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
+                        new Seller(rs.getString("v.tr")),
                         dateMade,
                         rs.getString("s.cpf"),
                         rs.getString("s.customers"),
@@ -624,6 +669,7 @@ salem.setInstallationMarked(dateInstalation);
                         period,
                         Origin.valueOf(rs.getString("s.origin")),
                         Situation.valueOf(rs.getString("situa.situation")),
+                        PartnerShip.valueOf(rs.getString("par.partnerShip")),
                         rs.getString("s.observation"),
                         rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
 
@@ -639,7 +685,7 @@ salem.setInstallationMarked(dateInstalation);
 
     public static List<Sales> returnDataByID(int id, char cpfOrName) {//c para  cpf n para nome
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         String sql;
@@ -657,41 +703,41 @@ salem.setInstallationMarked(dateInstalation);
                     + "join tbSeller v on s.idSeller = v.id join tbSituation situa on s.idSituation = situa.id  "
                     + "where s.id = ? order by d.dateIntalation desc";
 
-            ps = con.prepareCall(sql);
+            ps = con.prepareStatement(sql);
             ps.setInt(1, id);
             rs = ps.executeQuery();
 
-            while (rs.next()) {
-                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
-                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
-
-                dateInstalation = timestampIns.toLocalDateTime();
-                dateMade = timestampMa.toLocalDateTime();
-
-                if (dateInstalation.getHour() > 8) {
-                    period = Period.AFTERNOON;
-                } else {
-                    period = Period.MORNING;
-                }
-
-                sales.add(new Sales(
-                        rs.getInt("s.id"),
-                        new Vendedor(rs.getString("v.tr")),
-                        dateMade,
-                        rs.getString("s.cpf"),
-                        rs.getString("s.customers"),
-                        rs.getString("s.contacts"),
-                        rs.getString("s.package"),
-                        rs.getFloat("s.valueSale"),
-                        dateInstalation,
-                        period,
-                        Origin.valueOf(rs.getString("s.origin")),
-                        Situation.valueOf(rs.getString("situa.situation")),
-                        rs.getString("s.observation"),
-                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
-
-            }
-            return sales;
+//            while (rs.next()) {
+//                Timestamp timestampIns = rs.getTimestamp("d.dateIntalation");
+//                Timestamp timestampMa = rs.getTimestamp("s.DateMade");
+//
+//                dateInstalation = timestampIns.toLocalDateTime();
+//                dateMade = timestampMa.toLocalDateTime();
+//
+//                if (dateInstalation.getHour() > 8) {
+//                    period = Period.AFTERNOON;
+//                } else {
+//                    period = Period.MORNING;
+//                }
+//
+//                sales.add(new Sales(
+//                        rs.getInt("s.id"),
+//                        new Seller(rs.getString("v.tr")),
+//                        dateMade,
+//                        rs.getString("s.cpf"),
+//                        rs.getString("s.customers"),
+//                        rs.getString("s.contacts"),
+//                        rs.getString("s.package"),
+//                        rs.getFloat("s.valueSale"),
+//                        dateInstalation,
+//                        period,
+//                        Origin.valueOf(rs.getString("s.origin")),
+//                        Situation.valueOf(rs.getString("situa.situation")),
+//                        rs.getString("s.observation"),
+//                        rs.getString("s.priotize") == null ? ToPrioritize.NO : ToPrioritize.valueOf(rs.getString("s.priotize"))));
+//
+//            }
+            return returnSearch(rs);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -701,7 +747,7 @@ salem.setInstallationMarked(dateInstalation);
     }
 
     public static int searchSituation(String situation) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -736,11 +782,14 @@ salem.setInstallationMarked(dateInstalation);
         return 0;  // A data não foi encontrada
     }
 
-    public static int returnQtdPackgeInstalled(Packages[] packag, Situation situation, char time, LocalDateTime dateTime) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas
+    public static int returnQtdPackgeInstalled(Packages[] packag, Situation situation, char time, PartnerShip partnerS, LocalDateTime dateTime) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
-
+        String searchPartnerShi = "";
+        if (!partnerS.equals(PartnerShip.BOTH)) {
+            searchPartnerShi = "AND s.idPartnerShip = ? ";
+        }
         try {
             int id = searchSituation(situation.name());
             String sql = "";
@@ -752,50 +801,75 @@ salem.setInstallationMarked(dateInstalation);
                     //sql = "SELECT count(package) as packages from tbSales where (package = ? or package = ?) and idSituation = ? and ";
                     sql = "SELECT count(package) as packages FROM tbSales s"
                             + " JOIN tbDateInstalation d ON s.idDateInstalation = d.id"
-                            + " WHERE (package = ? or package = ?) AND s.idSituation = ? AND d.dateIntalation >= ? AND d.dateIntalation <= ?";
+                            + " WHERE (package = ? or package = ?) AND s.idSituation = ?  AND d.dateIntalation >= ? AND d.dateIntalation <= ? " + searchPartnerShi;
                     ps = conection.prepareStatement(sql);
                     ps.setString(1, packag[0].toString());
                     ps.setString(2, packag[1].toString());
                     ps.setInt(3, id);
                     ps.setTimestamp(4, dateInitial);
                     ps.setTimestamp(5, dateFinal);
+                    if (!searchPartnerShi.equals("")) {
+                        ps.setInt(6, searchIdFrom(partnerS.name(), "tbPartnerShip", "partnerShip"));
+
+                    }
                 } else if (packag[0] == Packages.ALL) {
                     // sql = "SELECT count(package) as packages from tbSales where idSituation = ?";
                     sql = "SELECT count(package) as packages FROM tbSales s"
                             + " JOIN tbDateInstalation d ON s.idDateInstalation = d.id"
-                            + " WHERE s.idSituation = ? AND d.dateIntalation >= ? AND d.dateIntalation <= ?";
+                            + " WHERE s.idSituation = ? AND d.dateIntalation >= ? AND d.dateIntalation <= ? " + searchPartnerShi;
                     ps = conection.prepareStatement(sql);
                     ps.setInt(1, id);
                     ps.setTimestamp(2, dateInitial);
                     ps.setTimestamp(3, dateFinal);
+                    if (!searchPartnerShi.equals("")) {
+                        ps.setInt(4, searchIdFrom(partnerS.name(), "tbPartnerShip", "partnerShip"));
+                        System.out.println("passaata aqui");
+
+                    }
                 } else {
                     //sql = "SELECT count(package) as packages from tbSales where package = ? and idSituation = ?";
                     sql = "SELECT count(package) as packages FROM tbSales s"
                             + " JOIN tbDateInstalation d ON s.idDateInstalation = d.id"
-                            + " WHERE package = ?  AND s.idSituation = ? AND d.dateIntalation >= ? AND d.dateIntalation <= ?";
+                            + " WHERE package = ?  AND s.idSituation = ? AND d.dateIntalation >= ? AND d.dateIntalation <= ? " + searchPartnerShi;
                     ps = conection.prepareStatement(sql);
                     ps.setString(1, packag[0].toString());
                     ps.setInt(2, id);
                     ps.setTimestamp(3, dateInitial);
                     ps.setTimestamp(4, dateFinal);
+                    if (!searchPartnerShi.equals("")) {
+                        ps.setInt(5, searchIdFrom(partnerS.name(), "tbPartnerShip", "partnerShip"));
+
+                    }
                 }
             } else {
 
                 if (packag.length > 1) {
-                    sql = "SELECT count(package) as packages from tbSales where (package = ? or package = ?) and idSituation = ?";
+                    sql = "SELECT count(package) as packages from tbSales where (package = ? or package = ?) and idSituation = ? " + searchPartnerShi;
                     ps = conection.prepareStatement(sql);
                     ps.setString(1, packag[0].toString());
                     ps.setString(2, packag[1].toString());
                     ps.setInt(3, id);
+                    if (!searchPartnerShi.equals("")) {
+                        ps.setInt(4, searchIdFrom(partnerS.name(), "tbPartnerShip", "partnerShip"));
+
+                    }
                 } else if (packag[0] == Packages.ALL) {
-                    sql = "SELECT count(package) as packages from tbSales where idSituation = ?";
+                    sql = "SELECT count(package) as packages from tbSales where idSituation = ? " + searchPartnerShi;
                     ps = conection.prepareStatement(sql);
                     ps.setInt(1, id);
+                    if (!searchPartnerShi.equals("")) {
+                        ps.setInt(2, searchIdFrom(partnerS.name(), "tbPartnerShip", "partnerShip"));
+
+                    }
                 } else {
-                    sql = "SELECT count(package) as packages from tbSales where package = ? and idSituation = ?";
+                    sql = "SELECT count(package) as packages from tbSales where package = ?  and idSituation = ? " + searchPartnerShi;
                     ps = conection.prepareStatement(sql);
                     ps.setString(1, packag[0].toString());
                     ps.setInt(2, id);
+                    if (!searchPartnerShi.equals("")) {
+                        ps.setInt(3, searchIdFrom(partnerS.name(), "tbPartnerShip", "partnerShip"));
+
+                    }
                 }
             }
             rs = ps.executeQuery();
@@ -808,23 +882,24 @@ salem.setInstallationMarked(dateInstalation);
         }
         return 0;
     }
-        public static int returnQtdDelayedInstalations(LocalTime time) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas
+
+    public static int returnQtdDelayedInstalations(LocalTime time) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
-            
-            String sql =  "SELECT count(cpf) as instalations from tbSales s "
+
+            String sql = "SELECT count(cpf) as instalations from tbSales s "
                     + "join tbDateInstalation d on s.idDateInstalation = d.id "
                     + "join tbSituation situ on s.idSituation = situ.id "
                     + "where d.dateIntalation < ? and situ.situation = ?";
-          
-                    ps = conection.prepareStatement(sql);
-                    ps.setTimestamp(1, Timestamp.valueOf(LocalDate.now().atTime(time)));
-                    ps.setString(2, Situation.PROVISIONING.name());
-           
-                        rs = ps.executeQuery();
+
+            ps = conection.prepareStatement(sql);
+            ps.setTimestamp(1, Timestamp.valueOf(LocalDate.now().atTime(time)));
+            ps.setString(2, Situation.PROVISIONING.name());
+
+            rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt("instalations");
             }
@@ -836,7 +911,7 @@ salem.setInstallationMarked(dateInstalation);
     }
 
     public void insertDateMarked(LocalDateTime date) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -852,7 +927,7 @@ salem.setInstallationMarked(dateInstalation);
     }
 
     public boolean searchDate(LocalDateTime date) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -888,7 +963,7 @@ salem.setInstallationMarked(dateInstalation);
     }
 
     public int searchDate2(LocalDateTime date) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -923,22 +998,42 @@ salem.setInstallationMarked(dateInstalation);
         return 0;  // A data não foi encontrada
     }
 
-    
+    public static int searchIdFrom(String valueSearch, String table, String column) {
+        PreparedStatement ps = null;
+        Connection conection = ConnectFactory.getConnection();
+        ResultSet rs = null;
+
+        try {
+            String sql = String.format("SELECT id, %s FROM %s WHERE %s = ?", column, table, column);
+
+            ps = conection.prepareStatement(sql);
+            ps.setString(1, valueSearch);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao buscar cliente" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Erro ao buscar cliente" + ex);
+        }
+        return 0;
+    }
+
     public void updateSalesDAO(Sales sale) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         Resultset rs = null;
 
         String sqlInjection = "update tbSales set idSeller =  ?, cpf = ? ,DateMade = ?, customers = ?, "
                 + "contacts = ?, package = ?, valueSale = ?, idDateInstalation = ?, idSituation  = ?, "
-                + "origin = ?, observation = ?, priotize = ?  where id = ?";
+                + "origin = ?, observation = ?, priotize = ?, idPartnerShip  = ?  where id = ?";
 
         try {
             ps = conn.prepareStatement(sqlInjection);
             if (!searchDate(sale.getInstallationMarked())) {
                 insertDateMarked(sale.getInstallationMarked());
             }
-            sale.setSeller(new Vendedor(new SellerDAO().returnIdSeller(sale.getSeller().getTr())));
+            sale.setSeller(new Seller(new SellerDAO().returnIdSeller(sale.getSeller().getTr())));
             ps.setInt(1, sale.getSeller().getIdentificador());
 // ps.setInt(1, returnIdSeller(sale.getSeller().getTr()));
 
@@ -953,7 +1048,8 @@ salem.setInstallationMarked(dateInstalation);
             ps.setString(10, sale.getOrigin().name());
             ps.setString(11, sale.getObservation());
             ps.setString(12, sale.getPrioritize().name());
-            ps.setInt(13, sale.getId());
+            ps.setInt(13, searchIdFrom(sale.getPartnetship().name(), "tbPartnerShip", "partnerShip"));
+            ps.setInt(14, sale.getId());
             int rowsAffected = ps.executeUpdate();
 
 //            JOptionPane.showMessageDialog(null, "Venda alterada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour())
@@ -980,12 +1076,51 @@ salem.setInstallationMarked(dateInstalation);
         }
     }
 
+    public void updateSeveralSales(List<Sales> sales) {
+        Connection conn = ConnectFactory.getConnection();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        String sqlInjection = "UPDATE tbSales SET idSituation = ?, observation = ? WHERE id = ?";
+
+        try {
+            ps = conn.prepareStatement(sqlInjection);
+            for (Sales sale : sales) {
+                int situationId = SalesDAO.searchSituation(sale.getSituation().name());
+                ps.setInt(1, situationId);
+                ps.setString(2, sale.getObservation());
+                ps.setInt(3, sale.getId());
+
+                int rowsAffected = ps.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Venda ID " + sale.getId() + " atualizada com sucesso.");
+                } else {
+                    System.out.println("Nenhuma linha afetada para Venda ID " + sale.getId());
+                }
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao alterar venda \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     public static void updateValuesPackageMonthDAO(Float value, Packages pack, LocalDateTime dateInstallationMarked) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
 
         if (dateInstallationMarked.getMonth() != LocalDateTime.now().getMonth()) {
-            
+
         }
         Timestamp dateInitial = Timestamp.valueOf(dateInstallationMarked.with(TemporalAdjusters.firstDayOfMonth()).withHour(00).withMinute(00));
         Timestamp dateFinal = Timestamp.valueOf(dateInstallationMarked.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
@@ -997,13 +1132,21 @@ salem.setInstallationMarked(dateInstalation);
             conn.prepareStatement("SET SQL_SAFE_UPDATES = 0;");
             //tava comentada
             if (pack == Packages.I_400MB) {
-                sqlInjection = "UPDATE tbSales SET valueSale = ? WHERE dateMade >= ? AND dateMade <= ? and package = ?";
-                sqlInjection = "UPDATE tbSales s JOIN tbDateInstalation d ON s.idDateInstalation = d.id SET s.valueSale = ? WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? and s.package = ?";
+                //sqlInjection = "UPDATE tbSales SET valueSale = ? WHERE dateMade >= ? AND dateMade <= ? and package = ?";
+                sqlInjection = "UPDATE tbSales s "
+                        + " join tbPartnerShip par on par.id = s.idPartnerShip "
+                        + "JOIN tbDateInstalation d ON s.idDateInstalation = d.id "
+                        + "SET s.valueSale = ? WHERE d.dateIntalation >= ? "
+                        + "AND d.dateIntalation <= ? and s.package = ? AND par.partnerShip = ?";
 
             } else {
                 pack = Packages.I_400MB;
                 //sqlInjection = "UPDATE tbSales SET valueSale = ? WHERE dateMade >= ? AND dateMade <= ? and package != ?";
-                sqlInjection = "UPDATE tbSales s JOIN tbDateInstalation d ON s.idDateInstalation = d.id SET s.valueSale = ? WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? and s.package !=  ?";
+                sqlInjection = "UPDATE tbSales s "
+                        + " join tbPartnerShip par on par.id = s.idPartnerShip "
+                        + "JOIN tbDateInstalation d ON s.idDateInstalation = d.id SET s.valueSale = ? "
+                        + "WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? "
+                        + "and s.package !=  ? AND par.partnerShip = ?";
 
             }
 
@@ -1012,6 +1155,7 @@ salem.setInstallationMarked(dateInstalation);
             ps.setTimestamp(2, dateInitial);
             ps.setTimestamp(3, dateFinal);
             ps.setString(4, pack.toString());
+            ps.setString(5, PartnerShip.OI.name());
 
             int rowsAffected = ps.executeUpdate();
 
@@ -1034,7 +1178,7 @@ salem.setInstallationMarked(dateInstalation);
 
     public static float returnLastValuePackage(Packages packag) {
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
@@ -1061,23 +1205,40 @@ salem.setInstallationMarked(dateInstalation);
     }
 
     public static List<Integer> returnIdsPackages(Packages packag, LocalDateTime dateInstalled) {
-        try (Connection connection = ConnectionFactory.getConnection()) {
+        try (Connection connection = ConnectFactory.getConnection()) {
             List<Integer> values = new ArrayList<>();
             Timestamp dateInitial = Timestamp.valueOf(dateInstalled.with(TemporalAdjusters.firstDayOfMonth()).withHour(0).withMinute(0));
             Timestamp dateFinal = Timestamp.valueOf(dateInstalled.with(TemporalAdjusters.lastDayOfMonth()).withHour(23).withMinute(59));
-            String sql;
-            if (packag == Packages.I_400MB) {
-                sql = "SELECT s.id FROM tbSales s JOIN tbDateInstalation d ON s.idDateInstalation = d.id WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? AND s.package = ?";
+//            String sql;
 
-            } else {
-                packag = Packages.I_400MB;
-                sql = "SELECT s.id FROM tbSales s JOIN tbDateInstalation d ON s.idDateInstalation = d.id WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? AND s.package != ?";
+//            if (packag == Packages.I_400MB) {
+//                sql = "SELECT s.id FROM tbSales s "
+//                        + "JOIN tbDateInstalation d ON s.idDateInstalation = d.id "
+//                        + " join tbPartnerShip par on par.id = s.idPartnerShip "
+//                        + "WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? "
+//                        + "AND s.package = ? AND par.partnerShip = ?";
+//
+//            } else {
+//                packag = Packages.I_400MB;
+//                sql = "SELECT s.id FROM tbSales s "
+//                        + "JOIN tbDateInstalation d ON s.idDateInstalation = d.id "
+//                        + " join tbPartnerShip par on par.id = s.idPartnerShip "
+//                        + "WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? "
+//                        + "AND s.package != ? AND par.partnerShip = ?";
+//
+//            }
+            String sql = "SELECT s.id FROM tbSales s "
+                    + "JOIN tbDateInstalation d ON s.idDateInstalation = d.id "
+                    + "JOIN tbPartnerShip par ON par.id = s.idPartnerShip "
+                    + "WHERE d.dateIntalation >= ? AND d.dateIntalation <= ? "
+                    + "AND par.partnerShip = ? "
+                    + "AND s.package " + (packag == Packages.I_400MB ? "= ?" : "!= ?");
 
-            }
             try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setTimestamp(1, dateInitial);
                 ps.setTimestamp(2, dateFinal);
-                ps.setString(3, packag.toString());
+                ps.setString(3, PartnerShip.OI.name());
+                ps.setString(4, packag.toString());
 
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
@@ -1093,13 +1254,13 @@ salem.setInstallationMarked(dateInstalation);
     }
 
     public void InsertSales(Sales sale) throws HeadlessException {
-  
-        Connection conn = ConnectionFactory.getConnection();
+
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         Resultset rs = null;
 
         String sqlInjection = "INSERT INTO tbSales(idSeller,DateMade,customers,contacts,valueSale,"
-                + "package,idDateInstalation,origin,observation,cpf,idSituation,priotize) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+                + "package,idDateInstalation,origin,observation,cpf,idSituation,priotize,idPartnerShip) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             ps = conn.prepareStatement(sqlInjection);
@@ -1109,7 +1270,7 @@ salem.setInstallationMarked(dateInstalation);
             Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
 //se der erro futuramente, descomente a linha debaixo            
 //ps.setInt(1, salesdao.returnIdSeller(sale.getSeller().getTr()));
-            sale.setSeller(new Vendedor(new SellerDAO().returnIdSeller(sale.getSeller().getTr())));
+            sale.setSeller(new Seller(new SellerDAO().returnIdSeller(sale.getSeller().getTr())));
             ps.setInt(1, sale.getSeller().getIdentificador());
             ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
             ps.setString(3, sale.getCustomers());
@@ -1122,9 +1283,10 @@ salem.setInstallationMarked(dateInstalation);
             ps.setString(10, sale.getCpf());
             ps.setInt(11, SalesDAO.searchSituation(sale.getSituation().name()));
             ps.setString(12, sale.getPrioritize().name());
+            ps.setInt(13, searchIdFrom(sale.getPartnetship().name(), "tbPartnerShip", "partnerShip"));
             ps.executeUpdate();
 
-           JOptionPane.showMessageDialog(null, "Venda armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Venda armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Erro ao salvar venda \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);

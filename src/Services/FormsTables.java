@@ -10,6 +10,7 @@ public class FormsTables {
     public Object[] tableSales(Sales sales) {
         Object[] dados = {
             sales.getId(),
+            sales.getPartnetship(),
             format.dateTimeFormaterField(sales.getSellDateHour()),
             sales.getCpf(),
             sales.getCustomers(),
@@ -30,6 +31,7 @@ public class FormsTables {
         Object[] dados = {
             sales.getId(),
             sales.getSeller().getTr(),
+            sales.getPartnetship(),
             format.dateTimeFormaterField(sales.getSellDateHour()),
             sales.getCpf(),
             sales.getCustomers(),

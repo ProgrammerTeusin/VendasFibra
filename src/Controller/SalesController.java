@@ -1,22 +1,24 @@
 package Controller;
 
 import sounds.PlaySound;
-import DAO.ConnectionFactory;
+import DAO.ConnectFactory;
 import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
+import Model.Enums.PartnerShip;
 import Model.Enums.Situation;
 import static Model.Enums.Situation.CANCELED;
 import static Model.Enums.Situation.INSTALLED;
 import static Model.Enums.Situation.PROVISIONING;
 import Model.Sales;
-import Model.Vendedor;
+import Model.Seller;
 import Services.FormsTables;
 import Services.SaleService;
 import View.AllSales;
 import View.Loading;
 import View.CurrentSales;
 import com.mysql.cj.protocol.Resultset;
+import java.awt.Font;
 import java.awt.HeadlessException;
 import java.io.IOException;
 import java.sql.Connection;
@@ -47,6 +49,18 @@ public class SalesController {
     SaleService salesSer = new SaleService();
     FormsTables ftService = new FormsTables();
     Loading load = new Loading();
+    private int count400Provisioning;
+    private int count400Installed;
+    private int count400Canceled;
+    private int count500600Installed;
+    private int count500600Canceled;
+    private int count500600Provisioning;
+    private int count7001GBProvisioning;
+    private int count7001GBInstalled;
+    private int count7001GBCanceled;
+    private int totCannncell;
+    private int totProvisig;
+    private int totInstalled;
 
     public void saveSales(Sales sale) {
 
@@ -54,7 +68,11 @@ public class SalesController {
             load.lblMessage.setText("Aguarde! Salvando no banco e atualizando valores");
             load.show();
             salesdao.InsertSales(sale);
-            configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+            if (sale.getPartnetship().equals(PartnerShip.OI)) {
+                configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+            } else {
+
+            }
 
         });
         Thread postSalesExcel = new Thread(() -> {
@@ -80,7 +98,10 @@ public class SalesController {
             salesdao.updateSalesDAO(sale);
             load.show();
             load.lblMessage.setText("Aguarde! Atualizando valores");
-            configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+            if (sale.getPartnetship().equals(PartnerShip.OI)) {
+                configPriceSellingMonthController(Packages.fromString(sale.getPackages()), sale);
+            }
+            returnData('m', (DefaultTableModel) CurrentSales.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(), sale.getInstallationMarked().toLocalDate());
 
             System.out.println("passou aqui sem thread");
         });
@@ -101,14 +122,43 @@ public class SalesController {
         saveExcel.start();
     }
 
-    public void saveSalesExcel(Sales sale) {
+    public void updateSeveralSales(List<Sales> sale) {
 
-        Connection conn = ConnectionFactory.getConnection();
+        Thread updateValues = new Thread(() -> {
+            load.lblMessage.setText("Aguarde! Salvando no banco e atualizando valores");
+            salesdao.updateSeveralSales(sale);
+            load.show();
+            load.lblMessage.setText("Aguarde! Atualizando valores");
+            returnData('m', (DefaultTableModel) CurrentSales.tblVendasRes.getModel(), sale.get(0).getInstallationMarked().toLocalDate(), sale.get(0).getInstallationMarked().toLocalDate());
+
+            //configPriceSellingMonthController(Packages.I_600MB, sale.get(0));
+            System.out.println("passou aqui sem thread");
+        });
+
+        Thread saveExcel = new Thread(() -> {
+            try {
+                updateValues.join();
+                load.lblMessage.setText("Aguarde! Salvando no Excel e atualizando valores");
+                System.out.println("passou aqui ThreadsaveExcel");
+                salesSer.updateSeveralSalesExcel(sale);
+                load.dispose();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(SalesController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+
+        updateValues.start();
+        saveExcel.start();
+    }
+
+    public void saveSalesExcelToBank(Sales sale) {
+
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
-        Resultset rs = null;
+        ResultSet rs = null;
 
         String sqlInjection = "INSERT INTO tbSales(idSeller,DateMade,customers,contacts,valueSale,"
-                + "package,idDateInstalation,origin,observation,cpf,idSituation) values (?,?,?,?,?,?,?,?,?,?,?)";
+                + "package,idDateInstalation,origin,observation,cpf,idSituation,idPartnerShip) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try {
             ps = conn.prepareStatement(sqlInjection);
@@ -122,8 +172,15 @@ public class SalesController {
             } else {
                 situ = sale.getSituation();
             }
+            PartnerShip partnership;
+            if (sale.getPartnetship() == null) {
+                partnership = PartnerShip.OI;  //situation;
+                sale.setPartnetship(PartnerShip.OI);
+            } else {
+                partnership = sale.getPartnetship();
+            }
             Origin ori = sale.getOrigin() != null ? Origin.fromString(sale.getOrigin() + "") : Origin.CHAT;
-            ps.setInt(1, sale.getSeller().getIdentificador());
+            ps.setInt(1, sale.getSeller().getIdentificador() == 0 ? 2 : sale.getSeller().getIdentificador());
             ps.setTimestamp(2, Timestamp.valueOf(sale.getSellDateHour()));
             ps.setString(3, sale.getCustomers());
             ps.setString(4, sale.getContact());
@@ -134,14 +191,15 @@ public class SalesController {
             ps.setString(9, sale.getObservation());
             ps.setString(10, sale.getCpf());
             ps.setInt(11, SalesDAO.searchSituation(situ.name()));
+            ps.setInt(12, SalesDAO.searchIdFrom(partnership.name() + "", "tbPartnerShip", "partnerShip"));
             ps.executeUpdate();
-            returnData('m', (DefaultTableModel) CurrentSales.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(), sale.getInstallationMarked().toLocalDate());
+            //returnData('m', (DefaultTableModel) CurrentSales.tblVendasRes.getModel(), sale.getInstallationMarked().toLocalDate(), sale.getInstallationMarked().toLocalDate());
 
             //configPriceSellingMonthController(Packages.fromString(sale.getPackages()));
             // JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as " + format.dateTimeFormaterField(sale.getSellDateHour()), "Erro", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao salvar venda \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
-
+            JOptionPane.showMessageDialog(null, "Erro ao salvar venda5555 \n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Erro ao salvar venda5555 \n" + ex);
         } finally {
             try {
                 if (ps != null) {
@@ -162,23 +220,32 @@ public class SalesController {
         //DefaultTableModel dtm = (DefaultTableModel) CurrentSales.tblVendasRes.getModel();
         dtm.setRowCount(0);
 
-        if (dtm == CurrentSales.tblVendasRes.getModel()) {
-            for (Sales sales : data) {
+        for (Sales sales : data) {
 
-                Object[] dados = ftService.tableSales(sales);
-                dtm.addRow(dados);
-            }
+            Object[] dados = ftService.tableAllSales(sales);
+            dtm.addRow(dados);
+        }
+        if (dtm == CurrentSales.tblVendasRes.getModel()) {
+
             CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
-        } else {
-            for (Sales sales : data) {
-
-                Object[] dados = ftService.tableAllSales(sales);
-                dtm.addRow(dados);
-            }
-
-            //  AllSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
         }
+//        if (dtm == CurrentSales.tblVendasRes.getModel()) {
+//            for (Sales sales : data) {
+//
+//                Object[] dados = ftService.tableSales(sales);
+//                dtm.addRow(dados);
+//            }
+//            CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
+//
+//        } else {
+//            for (Sales sales : data) {
+//
+//                Object[] dados = ftService.tableAllSales(sales);
+//                dtm.addRow(dados);
+//            }
+//
+//        }
     }
 
     public void returnDataBySituation(char type, Situation situ, DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
@@ -189,32 +256,24 @@ public class SalesController {
         if (dtm == CurrentSales.tblVendasRes.getModel()) {
             for (Sales sales : data) {
 
-                Object[] dados = ftService.tableSales(sales);
+                Object[] dados = ftService.tableAllSales(sales);
                 dtm.addRow(dados);
             }
             CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
-        } else {
-            for (Sales sales : data) {
-
-                Object[] dados = ftService.tableAllSales(sales);
-                dtm.addRow(dados);
-            }
-            //  AllSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
-
         }
     }
-   
+
     public List<Integer> returnDataByDay(LocalDateTime dateTimeInicial, Situation situ) {
-   
+
         List<Integer> values = new ArrayList<>();
-        List<Sales> data = SalesDAO.returnDataByDay(dateTimeInicial ,situ);
+        List<Sales> data = SalesDAO.returnDataByDay(dateTimeInicial, situ);
         for (Sales sales : data) {
             values.add(sales.getInstallationMarked().getDayOfMonth());
         }
         return values;
     }
-    
+
     public void returnDataByDelayedInstalations(DefaultTableModel dtm) {
         LocalTime time = getTime();
 
@@ -222,23 +281,29 @@ public class SalesController {
         //DefaultTableModel dtm = (DefaultTableModel) CurrentSales.tblVendasRes.getModel();
         dtm.setRowCount(0);
 
-        if (dtm == CurrentSales.tblVendasRes.getModel()) {
-            for (Sales sales : data) {
+        for (Sales sales : data) {
 
-                Object[] dados = ftService.tableSales(sales);
-                dtm.addRow(dados);
-            }
-            CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
-
-        } else {
-            for (Sales sales : data) {
-
-                Object[] dados = ftService.tableAllSales(sales);
-                dtm.addRow(dados);
-            }
-            //  AllSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
-
+            Object[] dados = ftService.tableAllSales(sales);
+            dtm.addRow(dados);
         }
+        CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
+//        if (dtm == CurrentSales.tblVendasRes.getModel()) {
+//            for (Sales sales : data) {
+//
+//                Object[] dados = ftService.tableSales(sales);
+//                dtm.addRow(dados);
+//            }
+//            CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
+//
+//        } else {
+//            for (Sales sales : data) {
+//
+//                Object[] dados = ftService.tableAllSales(sales);
+//                dtm.addRow(dados);
+//            }
+//            //  AllSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
+//
+//        }
     }
 
     public LocalTime getTime() {
@@ -262,7 +327,7 @@ public class SalesController {
     int numberSalesDelayed = 0;
     int vez = 0;
     PlaySound play = new PlaySound();
-    
+
     private Thread alertThread;
     private Thread tocThread;
     private Thread timeThread;
@@ -274,25 +339,25 @@ public class SalesController {
     }
 
     private Thread iniciarAlertThread() {
-       Thread threadAlert = new Thread(() -> {
+        Thread threadAlert = new Thread(() -> {
             try {
                 play.run("delayedInstalation.mp3");
             } catch (InterruptedException ex) {
                 Logger.getLogger(SalesController.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-       return threadAlert;
+        return threadAlert;
     }
 
     private Thread TocThreads() {
-       Thread threadToc = new Thread(() -> {
+        Thread threadToc = new Thread(() -> {
             try {
                 new PlaySound().run("sound.mp3");
             } catch (InterruptedException ex) {
                 Logger.getLogger(SalesController.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
-       return threadToc;
+        return threadToc;
     }
 
     private void iniciarTimeThread() {
@@ -307,7 +372,7 @@ public class SalesController {
                         int qtd = qtdSalesDelayedInstalations();
                         if (qtd > 0) {
                             if (tocThread != null && !tocThread.isAlive()) {
-                                
+
                                 tocThread = TocThreads();
                                 tocThread.start();
                             }
@@ -332,8 +397,6 @@ public class SalesController {
         }
     }
 
-    
-    
     public void returnDataByPrioriti(DefaultTableModel dtm, LocalDate dateTimeInicial, LocalDate dateTimeFinal) {
         List<Sales> data = SalesDAO.returnDataByPrioriti(dateTimeInicial, dateTimeFinal);
         //DefaultTableModel dtm = (DefaultTableModel) CurrentSales.tblVendasRes.getModel();
@@ -403,39 +466,72 @@ public class SalesController {
     }
 
     public void fillingsPacksges(char time, LocalDateTime dateTime) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas 
-//Alerta de gasto de processamento, melhore no futuro colocando uma unica busca
 
         Packages[] pack = {Packages.I_400MB};
-        int count400Provisioning = SalesDAO.returnQtdPackgeInstalled(pack, Situation.PROVISIONING, time, dateTime);
-        int count400Installed = SalesDAO.returnQtdPackgeInstalled(pack, Situation.INSTALLED, time, dateTime);
-        int count400Canceled = SalesDAO.returnQtdPackgeInstalled(pack, Situation.CANCELED, time, dateTime);
+        count400Provisioning = SalesDAO.returnQtdPackgeInstalled(pack, Situation.PROVISIONING, time, PartnerShip.OI, dateTime);
+        count400Installed = SalesDAO.returnQtdPackgeInstalled(pack, Situation.INSTALLED, time, PartnerShip.OI, dateTime);
+        count400Canceled = SalesDAO.returnQtdPackgeInstalled(pack, Situation.CANCELED, time, PartnerShip.OI, dateTime);
 
-        int count500600Provisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.PROVISIONING, time, dateTime);
-        int count500600Installed = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.INSTALLED, time, dateTime);
-        int count500600Canceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.CANCELED, time, dateTime);
+        count500600Provisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.PROVISIONING, time, PartnerShip.OI, dateTime);
+        count500600Installed = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.INSTALLED, time, PartnerShip.OI, dateTime);
+        count500600Canceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.CANCELED, time, PartnerShip.OI, dateTime);
 
-        int count7001GBProvisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.PROVISIONING, time, dateTime);
-        int count7001GBInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.INSTALLED, time, dateTime);
-        int count7001GBCanceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.CANCELED, time, dateTime);
+        count7001GBProvisioning = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.PROVISIONING, time, PartnerShip.OI, dateTime);
+        count7001GBInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.INSTALLED, time, PartnerShip.OI, dateTime);
+        count7001GBCanceled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.CANCELED, time, PartnerShip.OI, dateTime);
 
-        setLabelText(CurrentSales.lblAprovisionamento400, count400Provisioning, " Em Aprovisionamento");
-        setLabelText(CurrentSales.lblAprovisionamento600, count500600Provisioning, " Em Aprovisionamento");
-        setLabelText(CurrentSales.lblAprovisionamento700, count7001GBProvisioning, " Em Aprovisionamento");
+        totCannncell = (count7001GBCanceled + count500600Canceled + count400Canceled);
+        totProvisig = (count7001GBProvisioning + count500600Provisioning + count400Provisioning);
+        totInstalled = (count7001GBInstalled + count500600Installed + count400Installed);
+        fillingsPacksgesSKY(time, dateTime);
 
-        setLabelText(CurrentSales.lblInstalada400, count400Installed, "  Instaladas");
-        setLabelText(CurrentSales.lblInstalada600, count500600Installed, "  Instaladas");
-        setLabelText(CurrentSales.lblInstalada700, count7001GBInstalled, "  Instaladas");
+    }
 
-        setLabelText(CurrentSales.lblCancelada400, count400Canceled, "  Canceladas");
-        setLabelText(CurrentSales.lblCancelada600, count500600Canceled, "  Canceladas");
-        setLabelText(CurrentSales.lblCancelada700, count7001GBCanceled, "  Canceladas");
+    public void fillingsPacksgesSKY(char time, LocalDateTime dateTime) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas 
 
-        int totCannncell = (count7001GBCanceled + count500600Canceled + count400Canceled);
-        int totProvisig = (count7001GBProvisioning + count500600Provisioning + count400Provisioning);
-        int totInstalled = (count7001GBInstalled + count500600Installed + count400Installed);
-        setLabelText(CurrentSales.lblAprovisionamentoTot, totProvisig, " Em Apovisionamento");
-        setLabelText(CurrentSales.lblInstaladaTot, totInstalled, " Instaladas");
-        setLabelText(CurrentSales.lblCanceladaTot, totCannncell, " Canceladas");
+        Packages[] pack = {Packages.I_400MB};
+        int count400ProvisioningSKY = SalesDAO.returnQtdPackgeInstalled(pack, Situation.PROVISIONING, time, PartnerShip.SKY, dateTime);
+        int count400InstalledSKY = SalesDAO.returnQtdPackgeInstalled(pack, Situation.INSTALLED, time, PartnerShip.SKY, dateTime);
+        int count400CanceledSKY = SalesDAO.returnQtdPackgeInstalled(pack, Situation.CANCELED, time, PartnerShip.SKY, dateTime);
+
+        int count500600ProvisioningSKY = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.PROVISIONING, time, PartnerShip.SKY, dateTime);
+        int count500600InstalledSKY = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.INSTALLED, time, PartnerShip.SKY, dateTime);
+        int count500600CanceledSKY = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_500MB, Packages.I_600MB}, Situation.CANCELED, time, PartnerShip.SKY, dateTime);
+
+        int count7001GBProvisioningSKY = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.PROVISIONING, time, PartnerShip.SKY, dateTime);
+        int count7001GBInstalledSKY = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.INSTALLED, time, PartnerShip.SKY, dateTime);
+        int count7001GBCanceledSKY = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.I_700MB, Packages.I_1GB}, Situation.CANCELED, time, PartnerShip.SKY, dateTime);
+
+        setLabelText(CurrentSales.lblAprovisionamento400, count400Provisioning, (count400ProvisioningSKY > 0 ? " Em Aprovisionamento<br>" + count400ProvisioningSKY + " SKY Em Aprovisionamento<html>" : " Em Aprovisionamento <html>"));
+        setLabelText(CurrentSales.lblAprovisionamento600, count500600Provisioning, (count500600ProvisioningSKY > 0 ? " Em Aprovisionamento<br>" + count500600ProvisioningSKY + " SKY Em Aprovisionamento<html>" : " Em Aprovisionamento <html>"));
+        setLabelText(CurrentSales.lblAprovisionamento700, count7001GBProvisioning, (count7001GBProvisioningSKY > 0 ? " Em Aprovisionamento<br>" + count7001GBProvisioningSKY + " SKY Em Aprovisionamento<html>" : " Em Aprovisionamento <html>"));
+
+        setLabelText(CurrentSales.lblInstalada400, count400Installed, " Oi " + (count400InstalledSKY > 0 ? " Instalada(s)<br>" + count400InstalledSKY + " SKY Instalada(s)<html>" : " Instaladas(s) <html>"));
+        setLabelText(CurrentSales.lblInstalada600, count500600Installed, " Oi " + (count500600InstalledSKY > 0 ? " Instalada(s)<br>" + count500600InstalledSKY + " SKY Instalada(s)<html>" : " Instalada(s) <html>"));
+        setLabelText(CurrentSales.lblInstalada700, count7001GBInstalled, " Oi " + (count7001GBInstalledSKY > 0 ? " Instalada(s)<br>" + count7001GBInstalledSKY + " SKY Instalada(s)<html>" : " Instalada(s) <html>"));
+
+        setLabelText(CurrentSales.lblCancelada400, count400Canceled, " Oi " + (count400CanceledSKY > 0 ? " Cancelada(s)<br>" + count400CanceledSKY + " SKY Canceladas(s)<html>" : " Canceladas(s) <html>"));
+        setLabelText(CurrentSales.lblCancelada600, count500600Canceled, " Oi " + (count500600CanceledSKY > 0 ? " Cancelada(s)<br>" + count500600CanceledSKY + " SKY Canceladas(s)<html>" : " Canceladas(s) <html>"));
+        setLabelText(CurrentSales.lblCancelada700, count7001GBCanceled, " Oi " + (count7001GBCanceledSKY > 0 ? " Cancelada(s)<br>" + count7001GBCanceledSKY + " SKY Canceladas(s)<html>" : " Canceladas(s) <html>"));
+
+        int totCannncellSKY = (count7001GBCanceledSKY + count500600CanceledSKY + count400CanceledSKY);
+        int totProvisigSKY = (count7001GBProvisioningSKY + count500600ProvisioningSKY + count400ProvisioningSKY);
+        int totInstalledSKY = (count7001GBInstalledSKY + count500600InstalledSKY + count400InstalledSKY);
+        setLabelText(CurrentSales.lblAprovisionamentoTot, (totProvisig + totProvisigSKY), " Em Apovisionamento");
+
+        CurrentSales.panelCanceled8.remove(CurrentSales.lblInstaladaTot);
+        if (totInstalledSKY > 0) {
+            CurrentSales.panelCanceled8.add(CurrentSales.lblInstaladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, -1, -1));
+            CurrentSales.lblInstaladaTot.setFont((new Font("Serif", 1, 23)));
+            CurrentSales.lblInstaladaTot.setText(totInstalled + " Oi Fibra Instaladas" + format.returnQtdSpaces(5) + "&" + format.returnQtdSpaces(5) + totInstalledSKY + " SKY Instalada(s)");
+
+        } else {
+            CurrentSales.panelCanceled8.add(CurrentSales.lblInstaladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 0, -1, -1));
+            setLabelText(CurrentSales.lblInstaladaTot, (totInstalled + totInstalledSKY), " Instaladas");
+
+        }
+
+        setLabelText(CurrentSales.lblCanceladaTot, (totCannncell + totCannncellSKY), " Canceladas");
 
     }
 
@@ -517,9 +613,9 @@ public class SalesController {
 
     public void setLabelText(JLabel label, int count, String message) {
         label.setText((count > 9)
-                ? (String.valueOf(count) + message)
-                : (count > 0 ? ("0" + count + message)
-                        : message.equals(" Em Apovisionamento") ? "Nenhuma" + message : "Nenhuma" + message.substring(0, message.length() - 1)));
+                ? "<html> " + (String.valueOf(count) + message)
+                : "<html> " + (count > 0 ? ("0" + count + message)
+                        : message.contains("Apovisionamento") ? "Nenhuma" + message : "Nenhuma" + message.substring(0, message.length() - 1)));
     }
 
     public void searchSellsPlanilha() {
@@ -531,7 +627,7 @@ public class SalesController {
         float valueLast = SalesDAO.returnLastValuePackage(pack);
         int sizeTable = CurrentSales.tblVendasRes.getRowCount();
 
-        int qtdInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm', sales.getInstallationMarked());
+        int qtdInstalled = SalesDAO.returnQtdPackgeInstalled(new Packages[]{Packages.ALL}, Situation.INSTALLED, 'm', PartnerShip.OI, sales.getInstallationMarked());
         if (pack != Packages.I_400MB) {
             pack = Packages.I_500MB;
         }
@@ -552,22 +648,23 @@ public class SalesController {
 
             ids = SalesDAO.returnIdsPackages(pack, sales.getInstallationMarked());
             salesSer.updateAllValuesExcel(values2.get(pack.toString()), ids);
-            System.out.println("passou Aqui: ");
 
         }
     }
-
 
     public void searchSellsPlanilhaController() {
         List<Sales> sal = salesSer.searchSellsPlanilhaService();
+        int i = 1;
         for (Sales sales : sal) {
-            saveSalesExcel(sales);
+            saveSalesExcelToBank(sales);
+            System.out.println("linha: " + i + "  ID ven: " + sales.getSeller().getIdentificador() + " Patrociona: " + sales.getPartnetship().name());
+            i++;
         }
-        JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as ", "Erro", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Vendas armazenada com sucesso as ", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
     }
-    
-    public void insertAllorManySellExcel(){
+
+    public void insertAllorManySellExcel() {
         List<Sales> data = SalesDAO.returnData('a', LocalDate.now(), LocalDate.now());
         salesSer.insertAllorManySellExcel(data);
     }

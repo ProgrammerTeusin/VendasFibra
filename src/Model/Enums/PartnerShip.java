@@ -3,7 +3,8 @@ package Model.Enums;
 public enum PartnerShip {
     SELECT("Selecione"),
     OI("Oi Fibra"),
-    SKY("SKY");
+    SKY("SKY"),
+    BOTH("Ambos");
 
     String value;
 

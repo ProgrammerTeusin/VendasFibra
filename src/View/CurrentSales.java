@@ -15,7 +15,7 @@ import static Model.Enums.Situation.INSTALLED;
 import static Model.Enums.Situation.PROVISIONING;
 import Model.Enums.ToPrioritize;
 import Model.Sales;
-import Model.Vendedor;
+import Model.Seller;
 import Services.JTablesFormatting;
 import Services.OptionsWindow;
 import Services.OptionsWindow;
@@ -24,9 +24,16 @@ import Services.ToPDF;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -34,6 +41,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +57,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.lib.awtextra.AbsoluteConstraints;
 import sounds.PlaySound;
@@ -86,8 +98,12 @@ public class CurrentSales extends javax.swing.JFrame {
     SellerController sellerControl = new SellerController();
     Map<String, Object> dataBeforeUpdate = new HashMap<>();
     Map<String, Object> dataafterUpdate = new HashMap<>();
-    private final String tomorrowDay = format.dateFormaterField(LocalDate.now().plusDays(1));
-    Vendedor seller;
+    private final String tomorrowDay = LocalDate.now().getDayOfWeek() != DayOfWeek.SATURDAY
+            ? format.dateFormaterField(LocalDate.now().plusDays(1))
+            : format.dateFormaterField(LocalDate.now().plusDays(2));
+    List<Sales> severelSales = new ArrayList<>();
+    Seller seller;
+    PartnerShip partnerShip;
 
     List<JRadioButton> rd = new ArrayList<>();
 
@@ -102,7 +118,6 @@ public class CurrentSales extends javax.swing.JFrame {
         filingComoBoxValues();
         txtCPF.requestFocus();
         txtDataInstalacao.setText(tomorrowDay);
-        txtTrVendida.setText("799118");
         // txaObs.setText("Sem Ligação");
         JTablesFormatting.tableFormatColors(tblVendasRes);
 
@@ -119,16 +134,20 @@ public class CurrentSales extends javax.swing.JFrame {
 
             jButton1.setVisible(true);
         }
-        brnRestartSystem.setVisible(false);
-        seller = new Vendedor(txtTrVendida.getText());
+        seller = new Seller(cbTR.getSelectedItem() + "");
         sellerControl.welcome(seller);
         sellerControl.insertAccess(seller);
         lblAccessQtd.setText("Você esta acessando pela " + sellerControl.qtdAccess(seller) + "° Vez");
         cboxUpdateDateMade.setVisible(false);
+        txtDateMadeUpdate.setVisible(false);
 
         jButton2.setVisible(false);
 
         mouseAndCloseOption();
+        applyWidthsFromFile();
+        applyInsertWidths();
+        
+        cbTR.setSelectedIndex(2);
 
     }
 
@@ -142,7 +161,7 @@ public class CurrentSales extends javax.swing.JFrame {
         OptionsWindow.mouseOpt(btnSearchIntaltion);
         OptionsWindow.mouseOpt(lblFeitasHoje);
         OptionsWindow.mouseOpt(jPanel9);
-        OptionsWindow.mouseOpt(brnRestartSystem);
+        //OptionsWindow.mouseOpt(brnRestartSystem);
     }
 
     public void fillingsAllComponentsUpdated() {
@@ -162,6 +181,12 @@ public class CurrentSales extends javax.swing.JFrame {
         cbOrigem.setModel(new DefaultComboBoxModel(Origin.values()));
         cbSeachSelingsBy.setModel(new DefaultComboBoxModel(Situation.values()));
         cbPartnerShip.setModel(new DefaultComboBoxModel(PartnerShip.values()));
+
+        List<Seller> sellers = new SellerController().returnAllSeller();
+        for (Seller seller : sellers) {
+
+            cbTR.addItem(seller.getTr());
+        }
         cbSeachSelingsBy.addItem("Priorizadas");
 
         cbSituatiom.setModel(new DefaultComboBoxModel(Situation.values()));
@@ -280,10 +305,10 @@ public class CurrentSales extends javax.swing.JFrame {
             gloria.start();
 
         }
-        if (dataafterUpdate.get("situation").equals(Situation.CANCELED)) {
-            Thread no = playSound("ohno.mp3");
-            no.start();
-        }
+//        if (dataafterUpdate.get("situation").equals(Situation.CANCELED)) {
+//            Thread no = playSound("ohno.mp3");
+//            no.start();
+//        }
         // }
     }
 
@@ -314,7 +339,8 @@ public class CurrentSales extends javax.swing.JFrame {
         Map<String, Integer> position = returnPositionTable();
         for (int i = 0; i < tblVendasRes.getRowCount(); i++) {
             int day = format.dateTimeFormaterBank(tblVendasRes.getValueAt(i, position.get("dateMade")) + "").getDayOfMonth();
-            if (day == LocalDate.now().getDayOfMonth()) {
+            int month = format.dateTimeFormaterBank(tblVendasRes.getValueAt(i, position.get("dateMade")) + "").getMonthValue();
+            if (day == LocalDate.now().getDayOfMonth() && month == LocalDate.now().getMonthValue()) {
                 count++;
             }
         }
@@ -370,9 +396,9 @@ public class CurrentSales extends javax.swing.JFrame {
             if (cliente == null) {
                 cliente = txtCliente.getText();
             }
-            if (trSell == null) {
-                trSell = txtTrVendida.getText();
-            }
+            //   if (trSell == null) {
+            trSell = cbTR.getSelectedItem() + "";
+            //}
 
             if (cpf == null) {
                 cpf = txtCPF.getText();
@@ -422,7 +448,7 @@ public class CurrentSales extends javax.swing.JFrame {
 
             cliente = txtCliente.getText();
 
-            trSell = txtTrVendida.getText();
+            trSell = cbTR.getSelectedItem() + "";
 
             cpf = txtCPF.getText();
 
@@ -430,6 +456,8 @@ public class CurrentSales extends javax.swing.JFrame {
 
             //observation = (observation != null || !observation.trim().isEmpty()) ? observation+  + uptadesObservation() : uptadesObservation();
             setDatasUpdateBeforeOrAfter(dataafterUpdate);
+
+            ldTSaleMade = format.dateTimeFormaterBank(txtDateMadeUpdate.getText());
             String ob = uptadesObservation();
             observation = txaObs.getText() + ob;
 //            observation = dataafterUpdate.get("obs").toString().length() > dataBeforeUpdate.get("obs").toString().length()
@@ -501,7 +529,7 @@ public class CurrentSales extends javax.swing.JFrame {
         values.put("situation", situation.fromString(cbSituatiom.getSelectedItem() + ""));
         values.put("obs", txtCliente.getText());
         if (cboxUpdateDateMade.isSelected()) {
-            values.put("dateMade", "Data Feita: " + format.dateTimeFormaterField(LocalDateTime.now()));
+            values.put("dateMade", txtDateMadeUpdate.getText());
         } else {
             values.put("dateMade", lblDateMade.getText());
 
@@ -516,12 +544,12 @@ public class CurrentSales extends javax.swing.JFrame {
 
         } else {
             sc.saveSales(new Sales(
-                    // new Vendedor(1),
-                    new Vendedor(txtTrVendida.getText()),
+                    // new Seller(1),
+                    new Seller(trSell),
                     ldTSaleMade, cpf, cliente,
                     contacts, packgeSelected.toString(),
                     valuePackage, ldTSaleMarked, periodInstalation,
-                    originSell, Situation.PROVISIONING, observation, priotize));
+                    originSell, Situation.PROVISIONING, partnerShip, observation, priotize));
 
             lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
             int qtdIn = returnSellingsDoToday();
@@ -535,11 +563,11 @@ public class CurrentSales extends javax.swing.JFrame {
     private void update() {
         SalesController sc = new SalesController();
 
-        sc.updateSales(new Sales(id, new Vendedor(trSell),
+        sc.updateSales(new Sales(id, new Seller(trSell),
                 ldTSaleMade, cpf, cliente,
                 contacts, packgeSelected.toString(),
                 valuePackage, ldTSaleMarked, periodInstalation,
-                originSell, situation, observation, priotize));
+                originSell, situation, partnerShip, observation, priotize));
 
         sc.fillingsPacksges('m', ldTSaleMarked);
 
@@ -569,16 +597,23 @@ public class CurrentSales extends javax.swing.JFrame {
         double packProvisig700 = 0;
         double packInstalled700 = 0;
         double packcancell700 = 0;
+        double packSKY = 0;
         int j = 0;
         float val = 0;
         for (int i = 0; i < tblVendasRes.getRowCount(); i++) {
             Packages pack = Packages.fromString(tblVendasRes.getValueAt(i, position.get("package")) + "");
             Situation situation = Situation.fromString(tblVendasRes.getValueAt(i, position.get("situation")) + "");
+            PartnerShip partnerShip = PartnerShip.fromString(tblVendasRes.getValueAt(i, position.get("partnerShip")) + "");
             double valuePerPack = Double.parseDouble(format.formatMoneyNumber(tblVendasRes.getValueAt(i, position.get("value")) + "", 'N'));
 
             if (situation == Situation.INSTALLED) {
                 j++;
-                val += valuePerPack;
+
+                if (partnerShip == PartnerShip.SKY) {
+                    packSKY += valuePerPack;
+                } else {
+                    val += valuePerPack;
+                }
 
             }
 
@@ -635,10 +670,20 @@ public class CurrentSales extends javax.swing.JFrame {
 
         }
         lblAprovisionamentoTot1.setText(format.formatMoneyNumber((packProvisig400 + packProvisig600 + packProvisig700) + "", 'M'));
-        //lblInstaladaTot1.setText(format.formatMoneyNumber((packInstalled400 + packInstalled600 + packInstalled700) + "", 'M'));
-        lblInstaladaTot1.setText(format.formatMoneyNumber(val + "", 'M'));
         lblCanceladaTot1.setText(format.formatMoneyNumber((packcancell400 + packcancell600 + packcancell700) + "", 'M'));
 
+        panelCanceled8.remove(CurrentSales.lblInstaladaTot1);
+        if (packSKY > 0) {
+            panelCanceled8.add(lblInstaladaTot1, new AbsoluteConstraints(70, 40, -1, -1));
+            lblInstaladaTot1.setFont((new Font("Serif", 1, 24)));
+            lblInstaladaTot1.setText(format.formatMoneyNumber((val) + "", 'M')
+                    + format.returnQtdSpaces(25) + format.formatMoneyNumber((packSKY) + "", 'M'));
+
+        } else {
+            panelCanceled8.add(lblInstaladaTot1, new AbsoluteConstraints(210, 40, -1, -1));
+            lblInstaladaTot1.setText(val + " Fibra Instaladas");
+            lblInstaladaTot1.setText(format.formatMoneyNumber((val) + "", 'M'));
+        }
     }
 
     //caso coloque as colunas desordenadas, esse metodo ira buscar os valores
@@ -655,6 +700,8 @@ public class CurrentSales extends javax.swing.JFrame {
 
         Map<String, Integer> posicoes = new HashMap<>();
         posicoes.put("cpf", findColumnByName("CPF/CNPJ"));
+        posicoes.put("tr", findColumnByName("TR Vend."));
+        posicoes.put("partnerShip", findColumnByName("Parceira"));
         posicoes.put("custormes", findColumnByName("Cliente"));
         posicoes.put("contact", findColumnByName("Contato"));
         posicoes.put("package", findColumnByName("Pacote"));
@@ -666,6 +713,7 @@ public class CurrentSales extends javax.swing.JFrame {
         posicoes.put("situation", findColumnByName("Situação"));
         posicoes.put("obs", findColumnByName("Observação"));
         posicoes.put("prioriti", findColumnByName("Priorizar"));
+
         return posicoes;
     }
 
@@ -682,10 +730,12 @@ public class CurrentSales extends javax.swing.JFrame {
         cbSituatiom.setSelectedIndex(0);
         cpf = null;
         contacts = null;
+        cliente = null;
         ldTSaleMarked = null;
         ldTSaleMade = null;
         packgeSelected = null;
         originSell = null;
+        trSell = null;
         periodInstalation = null;
         priotize = null;
         observation = null;
@@ -698,6 +748,8 @@ public class CurrentSales extends javax.swing.JFrame {
         dataBeforeUpdate.clear();
         dataafterUpdate.clear();
         cboxUpdateDateMade.setVisible(false);
+
+        txtDateMadeUpdate.setVisible(false);
     }
 
     private String fielWithoutFielling() {
@@ -708,9 +760,9 @@ public class CurrentSales extends javax.swing.JFrame {
         if (txtCliente.getText().equals("")) {
             fwf += "\"Cliente\" ";
         }
-        if (txtTrVendida.getText().equals("")) {
-            fwf += "\" TR \" ";
-        }
+//        if (txtTrVendida.getText().equals("")) {
+//            fwf += "\" TR \" ";
+//        }
         if (txtContato.getText().equals("")) {
             fwf += "\"Contato\" ";
         }
@@ -722,6 +774,9 @@ public class CurrentSales extends javax.swing.JFrame {
         }
         if (cbPeriodo.getSelectedIndex() == 0) {
             fwf += "\"Periodo\" ";
+        }
+        if (cbPartnerShip.getSelectedIndex() == 0) {
+            fwf += "\"Parceira\" ";
         }
         if (type == TypeOperation.UPDATE) {
             if (cbSituatiom.getSelectedIndex() == 0) {
@@ -799,7 +854,12 @@ public class CurrentSales extends javax.swing.JFrame {
         } else {
             packgeSelected = (Packages) cbPacote.getSelectedItem();
             Packages[] pack = {Packages.ALL};
-            valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm', LocalDateTime.now()), packgeSelected);
+            if (partnerShip.equals(PartnerShip.OI)) {
+                valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm', partnerShip, LocalDateTime.now()), packgeSelected);
+
+            } else {
+                valuePackage = SaleService.ValuePerSaleSKY(packgeSelected);
+            }
             lblValuePlan.setText(format.formatMoneyNumber(valuePackage + "", 'M'));
             paneValue.setVisible(true);
             txtDataInstalacao.requestFocus();
@@ -808,16 +868,17 @@ public class CurrentSales extends javax.swing.JFrame {
     }
 //conta as que vao instalar no dia
 
-    public int countPackgeInstalled(JTable tbl, int columnData, int columnPeriod, int columnSituation, char period) {
+    public int countPackgeInstalled(JTable tbl, Map<String, Integer> values, char period) {
         int countPack = 0;
+
         for (int i = 0; i < tbl.getRowCount(); i++) {
-            LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, columnData) + "");
+            LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, values.get("dateInstalation")) + "");
             int dayPego = dateFormated.getDayOfMonth();
             int dayToday = LocalDate.now().getDayOfMonth();
 
             if (dayPego == dayToday) {
-                if ((tbl.getValueAt(i, columnPeriod)).toString().charAt(0) == period
-                        && (tbl.getValueAt(i, columnSituation)).toString().charAt(0) == 'A') {
+                if ((tbl.getValueAt(i, values.get("period"))).toString().charAt(0) == period
+                        && (tbl.getValueAt(i, values.get("situation"))).toString().charAt(0) == 'A') {
                     countPack += 1;
                 }
             }
@@ -828,8 +889,9 @@ public class CurrentSales extends javax.swing.JFrame {
     //conta as instaladas do dia
     public int countPackgeInstalled(JTable tbl, int columnData, int columnSituation) {
         int countPack = 0;
+
         for (int i = 0; i < tbl.getRowCount(); i++) {
-            LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, columnData) + "");
+            LocalDate dateFormated = format.dateFormaterBank(tbl.getValueAt(i, returnPositionTable().get("dateInstalation")) + "");
             int dayPego = dateFormated.getDayOfMonth();
             int dayToday = LocalDate.now().getDayOfMonth();
             if (dayPego == dayToday) {
@@ -842,9 +904,89 @@ public class CurrentSales extends javax.swing.JFrame {
         return countPack;
     }
 
+    public void insertWidthsRecords() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\src\\arquivosTxT\\widthsColumns.txt"))) {
+            Map<String, Integer> position = returnPositionTable();
+            Map<String, Integer> widths = new HashMap<>();
+            position.forEach((k, v) -> {
+                try {
+                    //widths.put(k, tblVendasRes.getColumnModel().getColumn(v).getWidth());
+                    bw.write(k + " : " + tblVendasRes.getColumnModel().getColumn(v).getWidth() + "\n");
+                } catch (IOException ex) {
+                    Logger.getLogger(CurrentSales.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            });
+        } catch (IOException ex) {
+            Logger.getLogger(CurrentSales.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public Map<String, Integer> configureWidthsTableRecorded() {
+        Map<String, Integer> widths = new HashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\src\\arquivosTxT\\widthsColumns.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" : ");
+                if (parts.length == 2) {
+                    String columnName = parts[0];
+                    Integer columnWidth = Integer.parseInt(parts[1]);
+                    widths.put(columnName, columnWidth);
+                }
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CurrentSales.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(CurrentSales.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return widths;
+    }
+
+    public void applyWidthsFromFile() {
+        Map<String, Integer> widths = configureWidthsTableRecorded();
+        Map<String, Integer> position = returnPositionTable();
+
+        position.forEach((columnName, index) -> {
+            Integer width = widths.get(columnName);
+            if (width != null) {
+                tblVendasRes.getColumnModel().getColumn(index).setPreferredWidth(width);
+                System.out.println("Aplicada largura: " + width + " para a coluna: " + columnName);
+            }
+        });
+    }
+    int qtsss = -14;
+
+    public void applyInsertWidths() {
+        tblVendasRes.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
+            @Override
+            public void columnMarginChanged(ChangeEvent e) {
+                insertWidthsRecords();
+                qtsss++;
+                System.out.println("Você alterou " + qtsss + " vezes");
+            }
+
+            @Override
+            public void columnAdded(TableColumnModelEvent e) {
+            }
+
+            @Override
+            public void columnRemoved(TableColumnModelEvent e) {
+            }
+
+            @Override
+            public void columnMoved(TableColumnModelEvent e) {
+            }
+
+            @Override
+            public void columnSelectionChanged(ListSelectionEvent e) {
+            }
+        });
+    }
+
     private int fillingPacksValuesWillIntalationToday(Map<String, Integer> values) {
-        int instMorning = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"), 'M');
-        int instAfternoon = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("period"), values.get("situation"), 'T');
+        int instMorning = countPackgeInstalled(tblVendasRes, values, 'M');
+        int instAfternoon = countPackgeInstalled(tblVendasRes, values, 'T');
         int instTot = countPackgeInstalled(tblVendasRes, values.get("dateInstalation"), values.get("situation"));
 
         int tot = instAfternoon + instMorning;
@@ -876,48 +1018,138 @@ public class CurrentSales extends javax.swing.JFrame {
         tblVendasRes.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isRightMouseButton(e)) {
-
+                    Map<String, Integer> values = returnPositionTable();
+                    tblVendasRes.setComponentPopupMenu(null);
+                    severelSales.clear();
+                    periodInstalation = null;
 // Obter a linha e a coluna na qual o usuário clicou
                     row = tblVendasRes.rowAtPoint(e.getPoint());
                     int column = tblVendasRes.columnAtPoint(e.getPoint());
 
-                    // Selecionar a célula como se o botão esquerdo tivesse sido pressionado
-                    tblVendasRes.changeSelection(row, column, false, false);
-
-                    Map<String, Integer> values = returnPositionTable();
-// Exibir uma caixa de diálogo
-                    int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja alterar a venda: "
-                            + "\n Feita em: " + tblVendasRes.getValueAt(row, values.get("dateMade")) + "\n "
-                            + "Instalação marcada para " + tblVendasRes.getValueAt(row, values.get("dateInstalation"))
-                            + " De " + tblVendasRes.getValueAt(row, values.get("period")), "Venda " + (row + 1) + " CPF: " + tblVendasRes.getValueAt(row, values.get("cpf")), JOptionPane.YES_NO_OPTION);
-                    if (dialogResult == JOptionPane.YES_OPTION) {
-
-                        type = TypeOperation.UPDATE;
-                        isToUpdateOrInsert(type);
-                        txtCPF.setText(tblVendasRes.getValueAt(row, values.get("cpf")) + "");
-                        txtCliente.setText(tblVendasRes.getValueAt(row, values.get("custormes")) + "");
-                        txtContato.setText(tblVendasRes.getValueAt(row, values.get("contact")) + "");
-                        cbPacote.setSelectedItem(Packages.fromString(tblVendasRes.getValueAt(row, values.get("package")) + ""));
-                        txtDataInstalacao.setText(tblVendasRes.getValueAt(row, values.get("dateInstalation")) + "");
-                        cbPeriodo.setSelectedItem(Period.fromString(tblVendasRes.getValueAt(row, values.get("period")) + ""));
-                        // txtTrVendida.setText(tblVendasRes.getValueAt(row, 7)+"");
-                        cbOrigem.setSelectedItem((Origin.fromString(tblVendasRes.getValueAt(row, values.get("origin")) + "")));
-                        cbSituatiom.setSelectedItem((tblVendasRes.getValueAt(row, values.get("situation"))));
-                        txaObs.setText(tblVendasRes.getValueAt(row, values.get("obs")) + "");
-                        id = Integer.parseInt(tblVendasRes.getValueAt(row, 0).toString());
-                        ldTSaleMade = format.dateTimeFormaterBank(tblVendasRes.getValueAt(row, values.get("dateMade")) + "");
-                        lblDateMade.setText("Data Feita: " + tblVendasRes.getValueAt(row, values.get("dateMade")) + "");
-                        priotize = priotize.fromString(tblVendasRes.getValueAt(row, values.get("prioriti")) + "");
-                        if (priotize == priotize.YES) {
-                            cboxPriorizar.setSelected(true);
+//                    // Selecionar a célula como se o botão esquerdo tivesse sido pressionado
+//                    tblVendasRes.changeSelection(row, column, false, false);
+                    if (JTablesFormatting.allLinesSelected > 1) {
+                        String nums = "";
+                        for (int i = 0; i < JTablesFormatting.positionss.length; i++) {
+                            nums += "CPF: " + tblVendasRes.getValueAt(JTablesFormatting.positionss[i], values.get("cpf")) + " ";
                         }
-                        setDatasUpdateBeforeOrAfter(dataBeforeUpdate);
-                        cboxUpdateDateMade.setVisible(true);
+                        optionSituationMouseRight(nums);
+
+                    } else {
+
+                        functionMouseRightJustOneLine();
                     }
+
                 }
             }
+
         });
 
+    }
+
+    public void fillingToSeveralUpdates(String situ) {
+        Map<String, Integer> values = returnPositionTable();
+        for (int i = 0; i < JTablesFormatting.positionss.length; i++) {
+            int id = Integer.parseInt(tblVendasRes.getValueAt(JTablesFormatting.positionss[i], 0) + "");
+
+            periodInstalation = Period.fromString(tblVendasRes.getValueAt(row, values.get("period")) + "");
+            if (periodInstalation == Period.MORNING) {
+                ldTSaleMarked = format.dateTimeFormaterBank(tblVendasRes.getValueAt(row, values.get("dateInstalation")) + " 08:00");
+            }
+            if (periodInstalation == Period.AFTERNOON) {
+                ldTSaleMarked = format.dateTimeFormaterBank(tblVendasRes.getValueAt(row, values.get("dateInstalation")) + " 13:00");
+
+            }
+            System.out.println("Datas timmmes: " + ldTSaleMarked);
+            severelSales.add(new Sales(id,
+                    Situation.fromString(situ),
+                    tblVendasRes.getValueAt(row, values.get("obs")) + "",
+                    ldTSaleMarked
+            ));
+            System.out.println("Tamanho do negoci: " + severelSales.size());
+        }
+    }
+
+    public void optionSituationMouseRight(String nums) {
+        JMenu menu = new JMenu("Mudar para");
+        JPopupMenu pop = new JPopupMenu();
+        JMenuItem aprovisionamentoItem = new JMenuItem("Aprovisionamento");
+        JMenuItem instaladaItem = new JMenuItem("Instalada");
+        JMenuItem canceladaItem = new JMenuItem("Cancelada");
+
+        aprovisionamentoItem.addActionListener(functionMenusMouseRight(aprovisionamentoItem.getText(), nums));
+        instaladaItem.addActionListener(functionMenusMouseRight(instaladaItem.getText(), nums));
+        canceladaItem.addActionListener(functionMenusMouseRight(canceladaItem.getText(), nums));
+        menu.add(aprovisionamentoItem);
+        menu.add(instaladaItem);
+        menu.add(canceladaItem);
+        pop.add(menu);
+
+        tblVendasRes.setComponentPopupMenu(pop);
+
+//                        int dialogResult = JOptionPane.showConfirmDialog(null, "LINHASselecionadas : " + JTablesFormatting.allLinesSelected
+//                                + "\nLinhas: " + nums, "Venda " + (row + 1) + " Linhas: ", JOptionPane.YES_NO_OPTION);
+    }
+
+    public ActionListener functionMenusMouseRight(String value, String nums) {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int dialogResult = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja alterar as vendas "
+                        + nums + " para  " + value, "Alterar Vendas ", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    fillingToSeveralUpdates(e.getActionCommand());
+                    sc.updateSeveralSales(severelSales);
+                    sc.fillingsPacksges('m', ldTSaleMarked);
+
+                    lblQtSellsTable.setText((tblVendasRes.getRowCount() > 9 ? tblVendasRes.getRowCount() : "0" + tblVendasRes.getRowCount()) + " Registros de Vendas");
+
+                    txtCPF.requestFocus();
+                    typePossibilitySellins();
+                    fillingPacksValuesIntaledToday(returnPositionTable());
+                    sc.returnData('m', (DefaultTableModel) tblVendasRes.getModel(), LocalDate.now(), LocalDate.now());
+
+                }
+            }
+        };
+
+    }
+
+    public void functionMouseRightJustOneLine() throws NumberFormatException {
+        Map<String, Integer> values = returnPositionTable();
+        int dialogResult = JOptionPane.showConfirmDialog(null, "Deseja alterar a venda: "
+                + "\n Feita em: " + tblVendasRes.getValueAt(row, values.get("dateMade")) + "\n "
+                + "Instalação marcada para " + tblVendasRes.getValueAt(row, values.get("dateInstalation"))
+                + " De " + tblVendasRes.getValueAt(row, values.get("period")), "Venda " + (row + 1) + " CPF: " + tblVendasRes.getValueAt(row, values.get("cpf")), JOptionPane.YES_NO_OPTION);
+        if (dialogResult == JOptionPane.YES_OPTION) {
+
+            type = TypeOperation.UPDATE;
+            isToUpdateOrInsert(type);
+            partnerShip = PartnerShip.fromString(tblVendasRes.getValueAt(row, values.get("partnerShip")) + "");
+            txtCPF.setText(tblVendasRes.getValueAt(row, values.get("cpf")) + "");
+            txtCliente.setText(tblVendasRes.getValueAt(row, values.get("custormes")) + "");
+            txtContato.setText(tblVendasRes.getValueAt(row, values.get("contact")) + "");
+            cbPacote.setSelectedItem(Packages.fromString(tblVendasRes.getValueAt(row, values.get("package")) + ""));
+            txtDataInstalacao.setText(tblVendasRes.getValueAt(row, values.get("dateInstalation")) + "");
+            cbPeriodo.setSelectedItem(Period.fromString(tblVendasRes.getValueAt(row, values.get("period")) + ""));
+            // txtTrVendida.setText(tblVendasRes.getValueAt(row, 7)+"");
+            cbOrigem.setSelectedItem((Origin.fromString(tblVendasRes.getValueAt(row, values.get("origin")) + "")));
+            cbSituatiom.setSelectedItem((tblVendasRes.getValueAt(row, values.get("situation"))));
+            txaObs.setText(tblVendasRes.getValueAt(row, values.get("obs")) + "");
+            id = Integer.parseInt(tblVendasRes.getValueAt(row, 0).toString());
+            ldTSaleMade = format.dateTimeFormaterBank(tblVendasRes.getValueAt(row, values.get("dateMade")) + "");
+            lblDateMade.setText(tblVendasRes.getValueAt(row, values.get("dateMade")) + "");
+            priotize = priotize.fromString(tblVendasRes.getValueAt(row, values.get("prioriti")) + "");
+            txtDateMadeUpdate.setText(lblDateMade.getText());
+            cbTR.setSelectedItem(tblVendasRes.getValueAt(row, values.get("tr")) + "");
+            cbPartnerShip.setSelectedItem(partnerShip);
+            if (priotize == priotize.YES) {
+                cboxPriorizar.setSelected(true);
+            }
+            setDatasUpdateBeforeOrAfter(dataBeforeUpdate);
+            cboxUpdateDateMade.setVisible(true);
+            txtDateMadeUpdate.setVisible(false);
+        }
     }
 
     private void searchInstation() {
@@ -977,7 +1209,8 @@ public class CurrentSales extends javax.swing.JFrame {
         cbPartnerShip = new javax.swing.JComboBox<>();
         btnCancell = new javax.swing.JButton();
         cboxUpdateDateMade = new javax.swing.JCheckBox();
-        txtTrVendida = new javax.swing.JTextField();
+        txtDateMadeUpdate = new javax.swing.JTextField();
+        cbTR = new javax.swing.JComboBox<>();
         jPanel10 = new javax.swing.JPanel();
         jPanel15 = new javax.swing.JPanel();
         panelCanceled4 = new javax.swing.JPanel();
@@ -1029,7 +1262,6 @@ public class CurrentSales extends javax.swing.JFrame {
         paneValue = new javax.swing.JPanel();
         lblValuePlan = new javax.swing.JLabel();
         cbSeachSelingsBy = new javax.swing.JComboBox<>();
-        brnRestartSystem = new javax.swing.JButton();
         lblSalesWithoutInstalation = new javax.swing.JLabel();
         lblSalesWithoutInstalationTimeUpdate = new javax.swing.JLabel();
         lblAccessQtd = new javax.swing.JLabel();
@@ -1099,7 +1331,7 @@ public class CurrentSales extends javax.swing.JFrame {
         lblCanceladaTot.setFont(new java.awt.Font("Serif", 1, 24)); // NOI18N
         lblCanceladaTot.setForeground(java.awt.Color.decode("#9C0006"));
         lblCanceladaTot.setText("Cancelada");
-        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, -1, -1));
+        panelCanceled13.add(lblCanceladaTot, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 10, -1, -1));
 
         javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
         jPanel13.setLayout(jPanel13Layout);
@@ -1323,14 +1555,28 @@ public class CurrentSales extends javax.swing.JFrame {
         });
         jPanel6.add(cboxUpdateDateMade, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 15, -1, 20));
 
-        txtTrVendida.setBackground(new java.awt.Color(255, 255, 255));
-        txtTrVendida.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "TR vendida", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
-        txtTrVendida.addKeyListener(new java.awt.event.KeyAdapter() {
+        txtDateMadeUpdate.setBackground(new java.awt.Color(255, 255, 255));
+        txtDateMadeUpdate.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153), new java.awt.Color(153, 153, 153)), "Data de Instalação", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        txtDateMadeUpdate.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                txtTrVendidaKeyPressed(evt);
+                txtDateMadeUpdateKeyPressed(evt);
             }
         });
-        jPanel6.add(txtTrVendida, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 40, 110, 40));
+        jPanel6.add(txtDateMadeUpdate, new org.netbeans.lib.awtextra.AbsoluteConstraints(540, 0, 140, 40));
+
+        cbTR.setBackground(new java.awt.Color(255, 255, 255));
+        cbTR.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(41, 43, 45)), "TR Vendida", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(0, 0, 0))); // NOI18N
+        cbTR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbTRActionPerformed(evt);
+            }
+        });
+        cbTR.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cbTRKeyPressed(evt);
+            }
+        });
+        jPanel6.add(cbTR, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 40, 110, 40));
 
         jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 310, 1270, 150));
 
@@ -1340,6 +1586,7 @@ public class CurrentSales extends javax.swing.JFrame {
 
         jPanel15.setBackground(new java.awt.Color(255, 255, 255));
         jPanel15.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "700MB / 1Gb", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
+        jPanel15.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelCanceled4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -1348,12 +1595,16 @@ public class CurrentSales extends javax.swing.JFrame {
         lblCancelada700.setText("Cancelada");
         panelCanceled4.add(lblCancelada700, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
+        jPanel15.add(panelCanceled4, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 105, 210, 50));
+
         panelCanceled5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblInstalada700.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblInstalada700.setForeground(java.awt.Color.decode("#006100"));
         lblInstalada700.setText("Instaladas");
-        panelCanceled5.add(lblInstalada700, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
+        panelCanceled5.add(lblInstalada700, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+
+        jPanel15.add(panelCanceled5, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 60, 210, 50));
 
         panelCanceled10.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled10.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -1364,28 +1615,13 @@ public class CurrentSales extends javax.swing.JFrame {
         lblAprovisionamento700.setText("Aprovisionamento");
         panelCanceled10.add(lblAprovisionamento700, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
 
-        javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
-        jPanel15.setLayout(jPanel15Layout);
-        jPanel15Layout.setHorizontalGroup(
-            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCanceled10, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-            .addComponent(panelCanceled5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(panelCanceled4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel15Layout.setVerticalGroup(
-            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel15Layout.createSequentialGroup()
-                .addComponent(panelCanceled10, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled5, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled4, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE))
-        );
+        jPanel15.add(panelCanceled10, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 18, 210, 50));
 
         jPanel10.add(jPanel15, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 20, 220, 160));
 
         jPanel16.setBackground(new java.awt.Color(255, 255, 255));
         jPanel16.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(51, 51, 0), new java.awt.Color(255, 0, 0), java.awt.Color.red, java.awt.Color.lightGray), "400MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
+        jPanel16.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelCanceled1.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -1393,7 +1629,9 @@ public class CurrentSales extends javax.swing.JFrame {
         lblCancelada400.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblCancelada400.setForeground(java.awt.Color.decode("#9C0006"));
         lblCancelada400.setText("Cancelada");
-        panelCanceled1.add(lblCancelada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
+        panelCanceled1.add(lblCancelada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+
+        jPanel16.add(panelCanceled1, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 105, 206, 50));
 
         panelCanceled7.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled7.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -1402,7 +1640,9 @@ public class CurrentSales extends javax.swing.JFrame {
         lblInstalada400.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblInstalada400.setForeground(java.awt.Color.decode("#006100"));
         lblInstalada400.setText("Instaladas");
-        panelCanceled7.add(lblInstalada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
+        panelCanceled7.add(lblInstalada400, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
+
+        jPanel16.add(panelCanceled7, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 60, 206, 50));
 
         panelCanceled9.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled9.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -1411,31 +1651,15 @@ public class CurrentSales extends javax.swing.JFrame {
         lblAprovisionamento400.setFont(new java.awt.Font("Footlight MT Light", 1, 16)); // NOI18N
         lblAprovisionamento400.setForeground(java.awt.Color.decode("#9C5700"));
         lblAprovisionamento400.setText("Aprovisionamento");
-        panelCanceled9.add(lblAprovisionamento400, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 10, -1, -1));
+        panelCanceled9.add(lblAprovisionamento400, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, -1, -1));
 
-        javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
-        jPanel16.setLayout(jPanel16Layout);
-        jPanel16Layout.setHorizontalGroup(
-            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCanceled1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(panelCanceled7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(panelCanceled9, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-        );
-        jPanel16Layout.setVerticalGroup(
-            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel16Layout.createSequentialGroup()
-                .addComponent(panelCanceled9, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled7, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled1, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 3, Short.MAX_VALUE))
-        );
+        jPanel16.add(panelCanceled9, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 18, 206, 45));
 
         jPanel10.add(jPanel16, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 220, 160));
 
         jPanel17.setBackground(new java.awt.Color(255, 255, 255));
         jPanel17.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255), new java.awt.Color(204, 0, 255)), "500MB / 600MB", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", 0, 12), new java.awt.Color(102, 0, 102))); // NOI18N
+        jPanel17.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         panelCanceled3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -1444,12 +1668,16 @@ public class CurrentSales extends javax.swing.JFrame {
         lblCancelada600.setText("Cancelada");
         panelCanceled3.add(lblCancelada600, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
 
+        jPanel17.add(panelCanceled3, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 113, 216, 40));
+
         panelCanceled6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lblInstalada600.setFont(new java.awt.Font("Footlight MT Light", 1, 18)); // NOI18N
         lblInstalada600.setForeground(java.awt.Color.decode("#006100"));
         lblInstalada600.setText("Instaladas");
         panelCanceled6.add(lblInstalada600, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 10, -1, -1));
+
+        jPanel17.add(panelCanceled6, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 64, 216, 50));
 
         panelCanceled11.setMaximumSize(new java.awt.Dimension(34, 34));
         panelCanceled11.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -1460,23 +1688,7 @@ public class CurrentSales extends javax.swing.JFrame {
         lblAprovisionamento600.setText("Aprovisionamento");
         panelCanceled11.add(lblAprovisionamento600, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, -1, -1));
 
-        javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
-        jPanel17.setLayout(jPanel17Layout);
-        jPanel17Layout.setHorizontalGroup(
-            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(panelCanceled6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(panelCanceled11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 216, Short.MAX_VALUE)
-            .addComponent(panelCanceled3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel17Layout.setVerticalGroup(
-            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel17Layout.createSequentialGroup()
-                .addComponent(panelCanceled11, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled6, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelCanceled3, javax.swing.GroupLayout.DEFAULT_SIZE, 43, Short.MAX_VALUE))
-        );
+        jPanel17.add(panelCanceled11, new org.netbeans.lib.awtextra.AbsoluteConstraints(7, 18, 216, 50));
 
         jPanel10.add(jPanel17, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 20, 230, 160));
 
@@ -1602,11 +1814,11 @@ public class CurrentSales extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação", "Priorizar"
+                "ID", "TR Vend.", "Parceira", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação", "Priorizar"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, true, true, false, false, false, false, false, false, true, false
+                true, true, true, false, true, true, true, false, false, false, false, false, false, true, true
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -1631,18 +1843,10 @@ public class CurrentSales extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(tblVendasRes);
         if (tblVendasRes.getColumnModel().getColumnCount() > 0) {
-            tblVendasRes.getColumnModel().getColumn(0).setMinWidth(0);
             tblVendasRes.getColumnModel().getColumn(0).setPreferredWidth(10);
-            tblVendasRes.getColumnModel().getColumn(0).setMaxWidth(20);
-            tblVendasRes.getColumnModel().getColumn(5).setResizable(false);
-            tblVendasRes.getColumnModel().getColumn(6).setMinWidth(0);
-            tblVendasRes.getColumnModel().getColumn(6).setPreferredWidth(80);
-            tblVendasRes.getColumnModel().getColumn(6).setMaxWidth(80);
-            tblVendasRes.getColumnModel().getColumn(8).setResizable(false);
-            tblVendasRes.getColumnModel().getColumn(9).setResizable(false);
-            tblVendasRes.getColumnModel().getColumn(10).setResizable(false);
-            tblVendasRes.getColumnModel().getColumn(12).setMinWidth(0);
-            tblVendasRes.getColumnModel().getColumn(12).setPreferredWidth(30);
+            tblVendasRes.getColumnModel().getColumn(8).setMinWidth(0);
+            tblVendasRes.getColumnModel().getColumn(8).setPreferredWidth(80);
+            tblVendasRes.getColumnModel().getColumn(8).setMaxWidth(80);
         }
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 500, 1280, 160));
@@ -1692,18 +1896,6 @@ public class CurrentSales extends javax.swing.JFrame {
             }
         });
         jPanel1.add(cbSeachSelingsBy, new org.netbeans.lib.awtextra.AbsoluteConstraints(1110, 460, 110, 40));
-
-        brnRestartSystem.setBackground(new java.awt.Color(255, 51, 51));
-        brnRestartSystem.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 18)); // NOI18N
-        brnRestartSystem.setForeground(new java.awt.Color(255, 255, 255));
-        brnRestartSystem.setText("Reiniciar SO");
-        brnRestartSystem.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, null, new java.awt.Color(255, 0, 0), null, null));
-        brnRestartSystem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                brnRestartSystemActionPerformed(evt);
-            }
-        });
-        jPanel1.add(brnRestartSystem, new org.netbeans.lib.awtextra.AbsoluteConstraints(1000, 260, 120, 40));
 
         lblSalesWithoutInstalation.setFont(new java.awt.Font("Serif", 1, 18)); // NOI18N
         lblSalesWithoutInstalation.setForeground(java.awt.Color.decode("#9C0006"));
@@ -1799,8 +1991,9 @@ public class CurrentSales extends javax.swing.JFrame {
         });
         jMenuBar1.add(jMenu1);
 
-        jMenu4.setText("Config");
+        jMenu4.setText("Usuarios");
 
+        jMenuItem4.setText("Cadastrar TR");
         jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem4ActionPerformed(evt);
@@ -1877,12 +2070,6 @@ public class CurrentSales extends javax.swing.JFrame {
     }//GEN-LAST:event_cbPeriodoKeyPressed
 
 
-    private void txtTrVendidaKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTrVendidaKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
-            cbOrigem.requestFocus();
-        }
-    }//GEN-LAST:event_txtTrVendidaKeyPressed
-
     private void cbOrigemKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbOrigemKeyPressed
         if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
             insertOrigin();
@@ -1915,7 +2102,7 @@ public class CurrentSales extends javax.swing.JFrame {
                 System.out.println("Passou aqui");
                 fillingsAllComponentsUpdated();
             } catch (InterruptedException ex) {
-                Logger.getLogger(CurrentSales.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Erro: " + ex);
             }
 
         });
@@ -1970,10 +2157,10 @@ public class CurrentSales extends javax.swing.JFrame {
 
     private void cbSituatiomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSituatiomActionPerformed
         situation = (Situation) cbSituatiom.getSelectedItem();
-        if (situation == Situation.CANCELED) {
-            Thread t = playSound("nossa.mp3");
-            t.start();
-        }
+//        if (situation == Situation.CANCELED) {
+//            Thread t = playSound("nossa.mp3");
+//            t.start();
+//        }
 
     }//GEN-LAST:event_cbSituatiomActionPerformed
 
@@ -2148,7 +2335,9 @@ public class CurrentSales extends javax.swing.JFrame {
     }//GEN-LAST:event_cboxPriorizarActionPerformed
 
     private void cbPartnerShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPartnerShipActionPerformed
-        // TODO add your handling code here:
+        partnerShip = PartnerShip.fromString(cbPartnerShip.getSelectedItem() + "");
+
+        fillingPackage();
     }//GEN-LAST:event_cbPartnerShipActionPerformed
 
     private void cbPartnerShipKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPartnerShipKeyPressed
@@ -2172,17 +2361,6 @@ public class CurrentSales extends javax.swing.JFrame {
         asc.returnData((DefaultTableModel) tblVendasRes.getModel(), LocalDate.now());
     }//GEN-LAST:event_jPanel9MouseClicked
 
-    private void brnRestartSystemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_brnRestartSystemActionPerformed
-        int dialogResult = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja Reinicao o PC??", "ALERTA!", JOptionPane.YES_NO_OPTION);
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            try {
-                Runtime.getRuntime().exec("shutdown -s -t 0");
-            } catch (IOException ex) {
-                Logger.getLogger(CurrentSales.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }//GEN-LAST:event_brnRestartSystemActionPerformed
-
     private void lblSalesWithoutInstalationMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lblSalesWithoutInstalationMouseClicked
         sc.returnDataByDelayedInstalations((DefaultTableModel) tblVendasRes.getModel());
     }//GEN-LAST:event_lblSalesWithoutInstalationMouseClicked
@@ -2200,11 +2378,17 @@ public class CurrentSales extends javax.swing.JFrame {
     }//GEN-LAST:event_jPanel9MouseEntered
 
     private void cboxUpdateDateMadeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboxUpdateDateMadeActionPerformed
-        // TODO add your handling code here:
+        if (cboxUpdateDateMade.isSelected()) {
+            txtDateMadeUpdate.setVisible(true);
+            txtDateMadeUpdate.requestFocus();
+        } else {
+            txtDateMadeUpdate.setVisible(false);
+
+        }
     }//GEN-LAST:event_cboxUpdateDateMadeActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        // TODO add your handling code here:
+        new Sellers().setVisible(true);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void tblVendasResMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblVendasResMouseDragged
@@ -2228,6 +2412,21 @@ public class CurrentSales extends javax.swing.JFrame {
         sc.insertAllorManySellExcel();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void txtDateMadeUpdateKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtDateMadeUpdateKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDateMadeUpdateKeyPressed
+
+    private void cbTRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbTRActionPerformed
+        trSell = cbTR.getSelectedItem() + "";
+    }//GEN-LAST:event_cbTRActionPerformed
+
+    private void cbTRKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbTRKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+            trSell = cbTR.getSelectedItem() + "";
+            cbOrigem.requestFocus();
+        }
+    }//GEN-LAST:event_cbTRKeyPressed
+
     public static void main(String args[]) {
 
 
@@ -2241,7 +2440,6 @@ public class CurrentSales extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton brnRestartSystem;
     private javax.swing.JButton btnCancell;
     private javax.swing.JButton btnSale;
     private javax.swing.JToggleButton btnSearchIntaltion;
@@ -2253,6 +2451,7 @@ public class CurrentSales extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cbPeriodo;
     private javax.swing.JComboBox<String> cbSeachSelingsBy;
     private javax.swing.JComboBox<String> cbSituatiom;
+    private javax.swing.JComboBox<String> cbTR;
     private javax.swing.JCheckBox cboxPriorizar;
     private javax.swing.JCheckBox cboxUpdateDateMade;
     private javax.swing.JButton jButton1;
@@ -2330,7 +2529,7 @@ public class CurrentSales extends javax.swing.JFrame {
     private javax.swing.JPanel panelCanceled5;
     private javax.swing.JPanel panelCanceled6;
     private javax.swing.JPanel panelCanceled7;
-    private javax.swing.JPanel panelCanceled8;
+    public static javax.swing.JPanel panelCanceled8;
     private javax.swing.JPanel panelCanceled9;
     public static javax.swing.JTable tblVendasRes;
     private javax.swing.JTextArea txaObs;
@@ -2338,7 +2537,7 @@ public class CurrentSales extends javax.swing.JFrame {
     private javax.swing.JTextField txtCliente;
     private javax.swing.JTextField txtContato;
     private javax.swing.JTextField txtDataInstalacao;
-    private javax.swing.JTextField txtTrVendida;
+    private javax.swing.JTextField txtDateMadeUpdate;
     // End of variables declaration//GEN-END:variables
 
 }

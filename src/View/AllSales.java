@@ -5,6 +5,7 @@ import Controller.Formatting;
 import Controller.SalesController;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
+import Model.Enums.PartnerShip;
 import Model.Enums.Period;
 import Model.Enums.Situation;
 import Services.JTablesFormatting;
@@ -157,6 +158,7 @@ public static AllSales allSalesWindow = new AllSales();
         posicoes.put("situation", findColumnByName("Situação"));
         posicoes.put("obs", findColumnByName("Observação"));
         posicoes.put("tr", findColumnByName("Tr Vendida"));
+        posicoes.put("partnerShip", findColumnByName("Parceira"));
         return posicoes;
     }
 
@@ -206,6 +208,8 @@ public static AllSales allSalesWindow = new AllSales();
                         AlterData.ldTSaleMade = format.dateTimeFormaterBank(tblRelatorioVendas.getValueAt(row, values.get("dateMade")) + "");
                         AlterData.txtValue.setText(tblRelatorioVendas.getValueAt(row, values.get("value")) + "");
                         AlterData.cbPacote.setSelectedItem(Packages.fromString(tblRelatorioVendas.getValueAt(row, values.get("package")) + ""));
+                        
+                        AlterData.cbPartnerShip.setSelectedItem(PartnerShip.fromString(tblRelatorioVendas.getValueAt(row, values.get("partnerShip")) + ""));
                         
                          setDatasUpdateBeforeOrAfter(dataBeforeUpdate);
                     }
@@ -318,11 +322,11 @@ public static AllSales allSalesWindow = new AllSales();
 
             },
             new String [] {
-                "ID", "Tr Vendida", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação", "Priorizar"
+                "ID", "Tr Vendida", "Parceira", "Data Criação", "CPF/CNPJ", "Cliente", "Contato", "Pacote", "Valor", "Data Instalação", "Periodo", "Origem", "Situação", "Observação", "Priorizar"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, true, false, true, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -346,30 +350,27 @@ public static AllSales allSalesWindow = new AllSales();
             tblRelatorioVendas.getColumnModel().getColumn(1).setMinWidth(0);
             tblRelatorioVendas.getColumnModel().getColumn(1).setPreferredWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(1).setMaxWidth(80);
-            tblRelatorioVendas.getColumnModel().getColumn(2).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(2).setPreferredWidth(150);
-            tblRelatorioVendas.getColumnModel().getColumn(2).setMaxWidth(150);
             tblRelatorioVendas.getColumnModel().getColumn(3).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(3).setPreferredWidth(80);
-            tblRelatorioVendas.getColumnModel().getColumn(3).setMaxWidth(120);
+            tblRelatorioVendas.getColumnModel().getColumn(3).setPreferredWidth(150);
+            tblRelatorioVendas.getColumnModel().getColumn(3).setMaxWidth(150);
             tblRelatorioVendas.getColumnModel().getColumn(4).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(4).setPreferredWidth(200);
-            tblRelatorioVendas.getColumnModel().getColumn(4).setMaxWidth(200);
+            tblRelatorioVendas.getColumnModel().getColumn(4).setPreferredWidth(80);
+            tblRelatorioVendas.getColumnModel().getColumn(4).setMaxWidth(120);
             tblRelatorioVendas.getColumnModel().getColumn(5).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(5).setPreferredWidth(100);
-            tblRelatorioVendas.getColumnModel().getColumn(5).setMaxWidth(100);
+            tblRelatorioVendas.getColumnModel().getColumn(5).setPreferredWidth(200);
+            tblRelatorioVendas.getColumnModel().getColumn(5).setMaxWidth(200);
             tblRelatorioVendas.getColumnModel().getColumn(6).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(6).setPreferredWidth(80);
-            tblRelatorioVendas.getColumnModel().getColumn(6).setMaxWidth(80);
+            tblRelatorioVendas.getColumnModel().getColumn(6).setPreferredWidth(100);
+            tblRelatorioVendas.getColumnModel().getColumn(6).setMaxWidth(100);
             tblRelatorioVendas.getColumnModel().getColumn(7).setMinWidth(0);
             tblRelatorioVendas.getColumnModel().getColumn(7).setPreferredWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(7).setMaxWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(8).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(8).setPreferredWidth(150);
-            tblRelatorioVendas.getColumnModel().getColumn(8).setMaxWidth(150);
+            tblRelatorioVendas.getColumnModel().getColumn(8).setPreferredWidth(80);
+            tblRelatorioVendas.getColumnModel().getColumn(8).setMaxWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(9).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(9).setPreferredWidth(80);
-            tblRelatorioVendas.getColumnModel().getColumn(9).setMaxWidth(80);
+            tblRelatorioVendas.getColumnModel().getColumn(9).setPreferredWidth(150);
+            tblRelatorioVendas.getColumnModel().getColumn(9).setMaxWidth(150);
             tblRelatorioVendas.getColumnModel().getColumn(10).setMinWidth(0);
             tblRelatorioVendas.getColumnModel().getColumn(10).setPreferredWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(10).setMaxWidth(80);
@@ -377,11 +378,14 @@ public static AllSales allSalesWindow = new AllSales();
             tblRelatorioVendas.getColumnModel().getColumn(11).setPreferredWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(11).setMaxWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(12).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(12).setPreferredWidth(200);
-            tblRelatorioVendas.getColumnModel().getColumn(12).setMaxWidth(200);
+            tblRelatorioVendas.getColumnModel().getColumn(12).setPreferredWidth(80);
+            tblRelatorioVendas.getColumnModel().getColumn(12).setMaxWidth(80);
             tblRelatorioVendas.getColumnModel().getColumn(13).setMinWidth(0);
-            tblRelatorioVendas.getColumnModel().getColumn(13).setPreferredWidth(50);
-            tblRelatorioVendas.getColumnModel().getColumn(13).setMaxWidth(70);
+            tblRelatorioVendas.getColumnModel().getColumn(13).setPreferredWidth(200);
+            tblRelatorioVendas.getColumnModel().getColumn(13).setMaxWidth(200);
+            tblRelatorioVendas.getColumnModel().getColumn(14).setMinWidth(0);
+            tblRelatorioVendas.getColumnModel().getColumn(14).setPreferredWidth(50);
+            tblRelatorioVendas.getColumnModel().getColumn(14).setMaxWidth(70);
         }
 
         jPanel1.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 230, 1220, 430));

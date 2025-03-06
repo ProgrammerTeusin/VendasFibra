@@ -1,6 +1,6 @@
 package Dao;
 
-import DAO.ConnectionFactory;
+import DAO.ConnectFactory;
 import Model.Enums.MonthsYear;
 import Model.Enums.Packages;
 import Model.Enums.Situation;
@@ -23,7 +23,7 @@ public class AllSalesDao {
 
     public static int returnQtdPackgeInstalled(Situation situation, LocalDate data, char time) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas - c  de choose de  escolha   de  mes
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
@@ -65,7 +65,7 @@ public class AllSalesDao {
 
     public static int returnQtdPackgeInstalledByPeriod(Situation situation, LocalDate ldIntial, LocalDate ldFinal) {//time se divide em mes 'm' e todos 'a de all'  onde buscara dados do mes ou de todas as vendas - c  de choose de  escolha   de  mes
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
@@ -98,7 +98,7 @@ public class AllSalesDao {
 
     public static float returnValuesPackage(Situation situation, LocalDate data, char time) {
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
@@ -137,7 +137,7 @@ public class AllSalesDao {
 
     public static float returnValuesPackageByPeriod(Situation situation, LocalDate ldIntial, LocalDate ldFinal) {
         PreparedStatement ps = null;
-        Connection conection = ConnectionFactory.getConnection();
+        Connection conection = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
@@ -166,23 +166,22 @@ public class AllSalesDao {
         return 0;
     }
 
-  
-
     public static List<Sales> returnSalesMadeToday(LocalDate dateInitial) {
         PreparedStatement ps = null;
-        Connection con = ConnectionFactory.getConnection();
+        Connection con = ConnectFactory.getConnection();
         ResultSet rs = null;
 
         try {
             Timestamp dateTimeInitial = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(0, 0)));
             Timestamp dateTimeFinal = Timestamp.valueOf(dateInitial.atTime(LocalTime.of(23, 59)));
 
-            String sql = "SELECT s.id,s.priotize,v.tr,v.id,situa.situation,s.customers,s.origin,s.observation,"
+            String sql = "SELECT s.id,par.partnerShip,s.priotize,v.tr,v.id,situa.situation,s.customers,s.origin,s.observation,"
                     + "s.contacts,s.DateMade, s.cpf, s.package, s.valueSale,"
-                    + "d.dateIntalation from tbSales s join tbDateInstalation d on "
-                    + "s.idDateInstalation = d.id join tbSeller v on "
-                    + "s.idSeller = v.id join tbSituation situa on "
-                    + "s.idSituation = situa.id "
+                    + "d.dateIntalation from tbSales s "
+                    + "join tbDateInstalation d on s.idDateInstalation = d.id "
+                    + "join tbSeller v on s.idSeller = v.id "
+                    + "join tbSituation situa on s.idSituation = situa.id "
+                    + "join tbPartnerShip par on par.id = s.idPartnerShip "
                     + "where dateMade >= ? AND dateMade <= ? order by s.id desc";
 
             ps = con.prepareCall(sql);
@@ -193,7 +192,7 @@ public class AllSalesDao {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
 
-        }catch (ExceptionInInitializerError e) {
+        } catch (ExceptionInInitializerError e) {
             JOptionPane.showMessageDialog(null, "Erro ao buscar vendas" + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
 
         }

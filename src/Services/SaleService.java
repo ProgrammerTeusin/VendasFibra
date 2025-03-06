@@ -2,15 +2,16 @@ package Services;
 
 import Controller.Formatting;
 import Controller.SalesController;
-import DAO.ConnectionFactory;
+import DAO.ConnectFactory;
 import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
+import Model.Enums.PartnerShip;
 import Model.Enums.Period;
 import Model.Enums.ToPrioritize;
 import Model.Enums.Situation;
 import Model.Sales;
-import Model.Vendedor;
+import Model.Seller;
 import View.Loading;
 import java.awt.Component;
 import java.io.File;
@@ -41,7 +42,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SaleService {
 
-    String sheet = ConnectionFactory.URL == "jdbc:mysql://localhost:3306/vendasFibraTest" ? "vendasFibra2024Test" : "vendasFibra2024";
+    String sheet = ConnectFactory.URL == "jdbc:mysql://localhost:3306/vendasFibraTest" ? "VendasFibra2024Test" : "VendasFibra2024";
+    //String pathInsertUpdateAndSearch = "C:\\Users\\mathe\\Downloads\\" + sheet + ".xlsx";
     String pathInsertUpdateAndSearch = "D:\\Meus Arquivos\\Minhas Vendas\\Oi Fibra\\Programas Venndas\\VendasFibra\\" + sheet + ".xlsx";
 
     Formatting format = new Formatting();
@@ -85,6 +87,15 @@ public class SaleService {
             }
         } else {
             JOptionPane.showMessageDialog(null, "Escolha um pacote para retornar o valor", "Dados incorretos", JOptionPane.ERROR_MESSAGE);
+        }
+        return value;
+    }
+    public static float ValuePerSaleSKY(Packages packages) {
+        float value = 0;
+        if (packages.equals(Packages.I_400MB)) {
+            value = 30;
+        }else{
+            value = 35;
         }
         return value;
     }
@@ -211,16 +222,24 @@ public class SaleService {
                         //JOptionPane.showMessageDialog(null, "Sucesso " + e, "Sucesso depois do erro", JOptionPane.INFORMATION_MESSAGE);
 
                     }
-                    Situation situ;
-                    if (next.getCell(8) == null) {
-                        situ = Situation.PROVISIONING;  //situation;
-
-                    } else {
-                        situ = Situation.fromString(next.getCell(8) + "");
-                    }
+//                    Situation situ;
+//                    PartnerShip partn;
+//                    if (next.getCell(8) == null) {
+//                        situ = Situation.PROVISIONING;  //situation;
+//
+//                    } else {
+//                        situ = Situation.fromString(next.getCell(8) + "");
+//                    }
+//                    if (next.getCell(13) == null) {
+//                        partn = PartnerShip.OI;  //situation;
+//
+//                    } else {
+//                        partn = PartnerShip.fromString(next.getCell(13) + "");  
+//                    }
+                    
                     Iterator<Cell> cellIterato = next.cellIterator();
 
-                    sales.add(new Sales(new Vendedor(seller),
+                    sales.add(new Sales(new Seller(seller),
                             ldt,
                             next.getCell(0) + "", //cpf
                             next.getCell(1) + "", //customers
@@ -230,7 +249,8 @@ public class SaleService {
                             dtInstalation.atTime(time), //installationMarked
                             period, //period
                             Origin.fromString(next.getCell(10) == null ? "Chat" : next.getCell(10) + ""),//origin
-                            situ, //situation;
+                            Situation.fromString(next.getCell(8) + ""), //situation;
+                            PartnerShip.fromString(next.getCell(13) + ""),
                             next.getCell(9) + "", //observation
                             ToPrioritize.fromString(next.getCell(11) + "") //ToPrioritize
                     ));
@@ -246,6 +266,7 @@ public class SaleService {
                             + "observation: " + next.getCell(9) + "\n"
                             + "cpf: " + next.getCell(0) + "\n"
                             + "valuePackage: " + next.getCell(4) + "\n"
+                            + "Parceira: " + next.getCell(13) + "\n"
                             + "observation: " + next.getCell(9) + "\n"
                             + "Priotize: " + next.getCell(11) + "\n"
                     );
@@ -297,8 +318,9 @@ public class SaleService {
             newRow.createCell(10).setCellValue(sale.getOrigin().toString());
             newRow.createCell(11).setCellValue(sale.getPrioritize().toString());
             newRow.createCell(12).setCellValue(sale.getSeller().getIdentificador());
+            newRow.createCell(13).setCellValue(sale.getPartnetship().name());
 //CPF	Cliente	Contato	Pacote	Comissão	Data 	Data Instalação	Periodo	Situação	Obersavação	Origem
-
+System.out.println("aeqEXCEKL salvo");
             // Escreva as alterações de volta para o arquivo
             FileOutputStream outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
@@ -326,7 +348,7 @@ public class SaleService {
             XSSFSheet sheet = workbook.getSheetAt(0);
 
            // int lastRowNum = sheet.getLastRowNum();
-             int lastRowNum = 1;
+             int lastRowNum = 0;
 
             for (Sales sale : sales) {
                 XSSFRow newRow = sheet.createRow(++lastRowNum);
@@ -348,7 +370,7 @@ String contact = sale.getContact().replaceAll("[^\\d/\\s]", "");
                 newRow.createCell(10).setCellValue(sale.getOrigin().toString());
                 newRow.createCell(11).setCellValue(sale.getPrioritize().toString());
                 newRow.createCell(12).setCellValue(sale.getSeller().getIdentificador());
-
+                newRow.createCell(13).setCellValue(sale.getPartnetship().name());
                 System.out.println("Inserindo dados " + o + ":  na linha: " + newRow.getRowNum() + "\n    # "
                         + sale.getCpf() + "  "
                         + sale.getCustomers() + "  "
@@ -370,6 +392,8 @@ String contact = sale.getContact().replaceAll("[^\\d/\\s]", "");
             // Escreva as alterações de volta para o arquivo
             outputStream = new FileOutputStream(file);
             workbook.write(outputStream);
+            
+            JOptionPane.showMessageDialog(null, "Todos arquivivos salvos com sycesso", "Aviso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(null, "Arquivo excel não encontrado\nFavor cole o PATH do arquivo!", "Aviso", JOptionPane.INFORMATION_MESSAGE);
@@ -432,8 +456,9 @@ String contact = sale.getContact().replaceAll("[^\\d/\\s]", "");
                         next.getCell(10).setCellValue(sale.getOrigin().toString()); //Origem
                         next.getCell(11).setCellValue(sale.getPrioritize().toString()); //Priorizar
                         next.getCell(12).setCellValue(sale.getSeller().getIdentificador()); //id tr
+                        next.getCell(13).setCellValue(sale.getPartnetship().name()); 
                         //   System.out.println("Dados Inseridos " + sale.getCustomers() + " " + sale.getContact() + " " + sale.getValuePackage() + " " + next.getCell(7) + " " + sale.getSituation().toString());
-
+System.out.println("aeqEXCEKL salvo");
                     }
                 }
                 i++;
@@ -493,6 +518,52 @@ String contact = sale.getContact().replaceAll("[^\\d/\\s]", "");
                 if (i > 0) {
                     if (idPosition < ids.size() && i == ids.get(idPosition)) {
                         next.getCell(4).setCellValue(value); // Comissão
+                        idPosition++;
+
+                    }
+                    try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                        workbook.write(fileOut);
+
+                        fileOut.close();
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (IOException ex) {
+                        Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                i++;
+
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SaleService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void updateSeveralSalesExcel(List<Sales> sales) {
+        File file = new File(pathInsertUpdateAndSearch);
+        FileInputStream filePlani;
+
+        try {
+            filePlani = new FileInputStream(file);
+            XSSFWorkbook workbook;
+
+            ///cria um workboo que e o mesmo que plailha com todas as abas
+            workbook = new XSSFWorkbook(filePlani);
+            ///recupernado uma aba da planilha
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rowIterator = sheet.iterator();
+            int i = 0;
+            int idPosition = 0;
+
+
+            while (rowIterator.hasNext()) {
+                Row next = rowIterator.next();
+                if (i > 0) {
+                    if (idPosition < sales.size() && i == sales.get(idPosition).getId()) {
+                        next.getCell(8).setCellValue(sales.get(idPosition).getSituation().toString()); // situacao
+                        next.getCell(9).setCellValue(sales.get(idPosition).getObservation()); // obs
                         idPosition++;
 
                     }

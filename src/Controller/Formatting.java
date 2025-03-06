@@ -59,6 +59,13 @@ public class Formatting {
                 return null;
         }
     }
+    public String returnQtdSpaces(int qtd) {
+        String spaces = "";
+        for (int i = 0; i < qtd; i++) {
+            spaces += " ";
+        }
+        return spaces;
+    }
 }
 
     

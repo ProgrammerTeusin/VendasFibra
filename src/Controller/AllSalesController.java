@@ -5,6 +5,7 @@ import Dao.SalesDAO;
 import Model.Enums.MonthsYear;
 import Model.Enums.Situation;
 import Model.Sales;
+import Services.FormsTables;
 import Services.ToPDF;
 import View.AllSales;
 import View.CurrentSales;
@@ -23,6 +24,8 @@ public class AllSalesController {
     Formatting format = new Formatting();
 
     ToPDF pdf = new ToPDF();
+
+    FormsTables table = new FormsTables();
 
     public void qtdSituationMonth() {
         AllSales.lblCancelada.setText(AllSalesDao.returnQtdPackgeInstalled(Situation.CANCELED, LocalDate.now().minusMonths(1), 'm') + " Linhas Canceladas");
@@ -69,25 +72,25 @@ public class AllSalesController {
         switch (type) {
             case 'a'://a de all - todos
                 sales = (SalesDAO.returnData('a', LocalDate.MIN, LocalDate.MIN));
-        qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'a');
-        value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now(),'a');
-                
+                qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'a');
+                value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now(), 'a');
+
                 break;
 
             case 'm'://m de this month - esse mes
                 sales = (SalesDAO.returnData('m', LocalDate.MIN, LocalDate.MIN));
-        qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'm');
-        value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now(),'m');
+                qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now(), 'm');
+                value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now(), 'm');
                 break;
             case 'l'://l de last month - mes passado
                 sales = (SalesDAO.returnData('l', LocalDate.MIN, LocalDate.MIN));
-        qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now().minusMonths(1), 'm');
-        value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now().minusMonths(1),'m');
+                qtd = AllSalesDao.returnQtdPackgeInstalled(Situation.INSTALLED, LocalDate.now().minusMonths(1), 'm');
+                value = AllSalesDao.returnValuesPackage(Situation.INSTALLED, LocalDate.now().minusMonths(1), 'm');
                 break;
             case 'c'://c de choose - escolja de periodos
                 sales = (SalesDAO.returnData('c', dateInitial, dateFinal));
-        qtd = AllSalesDao.returnQtdPackgeInstalledByPeriod(Situation.INSTALLED, dateInitial, dateFinal);
-        value = AllSalesDao.returnValuesPackageByPeriod(Situation.INSTALLED, dateInitial, dateFinal);
+                qtd = AllSalesDao.returnQtdPackgeInstalledByPeriod(Situation.INSTALLED, dateInitial, dateFinal);
+                value = AllSalesDao.returnValuesPackageByPeriod(Situation.INSTALLED, dateInitial, dateFinal);
                 break;
             default:
                 JOptionPane.showMessageDialog(null, "Opção Invalida! \n"
@@ -107,66 +110,24 @@ public class AllSalesController {
         }
         pdf.toExportPDFService(sales, monthsYear, monthsYear.toString(), qtd, value);
     }
-    
-        public void returnData(DefaultTableModel dtm, LocalDate dateTimeInicial) {
-        List<Sales> data = AllSalesDao.returnSalesMadeToday(dateTimeInicial);
-        
-            if (data.size() > 0) {
-                
-            
-        dtm.setRowCount(0);
 
-        if (dtm == CurrentSales.tblVendasRes.getModel()) {
+    public void returnData(DefaultTableModel dtm, LocalDate dateTimeInicial) {
+        List<Sales> data = AllSalesDao.returnSalesMadeToday(dateTimeInicial);
+
+        if (data.size() > 0) {
+
+            dtm.setRowCount(0);
+
             for (Sales sales : data) {
 
-                Object[] dados = {
-                    sales.getId(),
-                    format.dateTimeFormaterField(sales.getSellDateHour()),
-                    sales.getCpf(),
-                    sales.getCustomers(),
-                    sales.getContact(),
-                    sales.getPackages(),
-                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
-                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                    sales.getPeriod().toString(),
-                    sales.getOrigin().toString(),
-                    sales.getSituation(),
-                    sales.getObservation(),
-                    sales.getPrioritize()
-                };
+                Object[] dados = table.tableAllSales(sales);
                 dtm.addRow(dados);
             }
-            CurrentSales.lblQtSellsTable.setText((CurrentSales.tblVendasRes.getRowCount() > 9 ? CurrentSales.tblVendasRes.getRowCount() : "0" + CurrentSales.tblVendasRes.getRowCount()) + " Registros de Vendas");
 
         } else {
-            for (Sales sales : data) {
+            JOptionPane.showMessageDialog(null, "Você não fez nenhuma Venda hoje MANO!!!!\nTRATE DE FAZER CARA!! VIAJA NAS CONTAS", "ALERTA", JOptionPane.INFORMATION_MESSAGE);
 
-                Object[] dados = {
-                    sales.getId(),
-                    sales.getSeller().getTr(),
-                    format.dateTimeFormaterField(sales.getSellDateHour()),
-                    sales.getCpf(),
-                    sales.getCustomers(),
-                    sales.getContact(),
-                    sales.getPackages(),
-                    format.formatMoneyNumber(sales.getValuePackage() + "", 'M'),
-                    format.dateFormaterField((sales.getInstallationMarked()).toLocalDate()),
-                    sales.getPeriod().toString(),
-                    sales.getOrigin().toString(),
-                    sales.getSituation(),
-                    sales.getObservation(),
-                    sales.getPrioritize()
-                };
-                dtm.addRow(dados);
-            }
-            
         }
-            }else{
-                 JOptionPane.showMessageDialog(null, "Você não fez nenhuma Venda hoje MANO!!!!\nTRATE DE FAZER CARA!! VIAJA NAS CONTAS" , "ALERTA", JOptionPane.INFORMATION_MESSAGE);
-
-            }
     }
-
-    
 
 }

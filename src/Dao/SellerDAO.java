@@ -1,8 +1,12 @@
 package Dao;
 
-import DAO.ConnectionFactory;
+import Controller.Formatting;
+import DAO.ConnectFactory;
+import static Dao.SalesDAO.returnSearch;
 import Model.Enums.Origin;
-import Model.Vendedor;
+import Model.Enums.ToPrioritize;
+import Model.Sales;
+import Model.Seller;
 import com.mysql.cj.protocol.Resultset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +16,9 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -20,7 +27,7 @@ public class SellerDAO {
 
     
      public int returnIdSeller(String tr) {
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -55,8 +62,8 @@ public class SellerDAO {
         return 0;  // A data não foi encontrada
     }
     
-    public static int returnAccessQtdDAO(Vendedor seller) {
-        Connection conn = ConnectionFactory.getConnection();
+    public static int returnAccessQtdDAO(Seller seller) {
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         ResultSet rs = null;
 
@@ -80,9 +87,9 @@ public class SellerDAO {
         return 0;
     }
 
-    public  void insertAccessQtd(Vendedor seller){
+    public  void insertAccessQtd(Seller seller){
      
-        Connection conn = ConnectionFactory.getConnection();
+        Connection conn = ConnectFactory.getConnection();
         PreparedStatement ps = null;
         Resultset rs = null;
 
@@ -113,5 +120,68 @@ public class SellerDAO {
         }
     }
    
+    public  void insertSeller(Seller seller){
+     
+        Connection conn = ConnectFactory.getConnection();
+        PreparedStatement ps = null;
+        Resultset rs = null;
+
+        String sqlInjection = "INSERT INTO tbSeller(nome, tr,registrationDate ) values (?,?,?)";
+
+        try {
+            ps = conn.prepareStatement(sqlInjection);
+     
+            ps.setString(1,seller.getNome());
+            ps.setString(2,seller.getTr());
+            ps.setTimestamp(3,Timestamp.from(Instant.now()));
+        
+            //ps.executeUpdate();
+            ps.execute();
+            JOptionPane.showMessageDialog(null, "TR cadastrada com sucesso \n" , "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao cadastrar TR\n" + ex, "Erro", JOptionPane.ERROR_MESSAGE);
+            System.out.println("erro ao consultar logins: "+ex);
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+   
+public List<Seller> returnSellers() {
+    List<Seller> sellers = new ArrayList<>();
+
+    String sql = "SELECT registrationDate,nome, tr, id FROM tbSeller";
+
+    try (Connection con = ConnectFactory.getConnection();
+         PreparedStatement ps = con.prepareStatement(sql);
+         ResultSet rs = ps.executeQuery()) {
+
+        while (rs.next()) {
+            Seller vendedor = new Seller(
+                rs.getInt("id"),
+                rs.getTimestamp("registrationDate").toLocalDateTime(),
+                rs.getString("nome"),
+                rs.getString("tr")
+            );
+            sellers.add(vendedor);
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Erro ao buscar vendedores: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        System.out.println(ex.getMessage());
+    }
+
+    return sellers;
+}
+
 
 }

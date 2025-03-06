@@ -32,9 +32,7 @@ public class OptionsWindow {
                 );
 
                 if (response == JOptionPane.YES_OPTION) {
-                    System.out.println("Antes: "+openWindows.toString());
                     openWindows.remove(frame);
-                        System.out.println("Depos: "+openWindows.toString());
                     
                     if (openWindows.size() > 1) {
                         

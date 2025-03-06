@@ -6,11 +6,12 @@ import Controller.SalesController;
 import Dao.SalesDAO;
 import Model.Enums.Origin;
 import Model.Enums.Packages;
+import Model.Enums.PartnerShip;
 import Model.Enums.Period;
 import Model.Enums.Situation;
 import Model.Enums.ToPrioritize;
 import Model.Sales;
-import Model.Vendedor;
+import Model.Seller;
 import Services.JTablesFormatting;
 import Services.SaleService;
 import java.awt.HeadlessException;
@@ -46,8 +47,9 @@ public class AlterData extends javax.swing.JFrame {
     Formatting format = new Formatting();
     SaleService ss = new SaleService();
     AllSalesController asc = new AllSalesController();
+    PartnerShip partnership;
+    Map<String, Object> dataAfterUpdate = new HashMap<>();
 
-     Map<String, Object> dataAfterUpdate = new HashMap<>();
     public AlterData() {
 
         initComponents();
@@ -59,11 +61,13 @@ public class AlterData extends javax.swing.JFrame {
         cbOrigem.setModel(new DefaultComboBoxModel(Origin.values()));
         //cbOrigem.removeItem(Origin.SELECT);
         cbSituatiom.setModel(new DefaultComboBoxModel(Situation.values()));
+        cbPartnerShip.setModel(new DefaultComboBoxModel(PartnerShip.values()));
         cbSituatiom.removeItem(Situation.ALL);
         //cbSituatiom.removeItem(Situation.SELECT);
         setResizable(false);
         setTitle("Atualizar Venda");
-
+ partnership = PartnerShip.fromString(cbPartnerShip.getSelectedItem()+"");
+                       
     }
 
     private void fillingPackage() {
@@ -75,10 +79,14 @@ public class AlterData extends javax.swing.JFrame {
 
         }
         Packages[] pack = {Packages.ALL};
-     
-     
-        valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm',ldTSaleMarked), packgeSelected);
-        txtDataInstalacao.requestFocus();
+        if (partnership.equals(PartnerShip.OI)) {
+            valuePackage = SaleService.ValuePerSale(SalesDAO.returnQtdPackgeInstalled(pack, situation.INSTALLED, 'm', partnership, LocalDateTime.now()), packgeSelected);
+
+        } else {
+            valuePackage = SaleService.ValuePerSaleSKY(packgeSelected);
+        }
+txtValue.setText(format.formatMoneyNumber(valuePackage+"", 'M'));
+       txtDataInstalacao.requestFocus();
     }
 
     private String fielWithoutFielling() {
@@ -117,9 +125,9 @@ public class AlterData extends javax.swing.JFrame {
             cpf = txtCPF.getText();
             trSell = txtTrVendida.getText();
             contacts = txtContato.getText();
-            
+            partnership = PartnerShip.fromString(cbPartnerShip.getSelectedItem() + "");
             AllSales.setDatasUpdateBeforeOrAfter(AllSales.dataAfterUpdate);
-           observation = txaObs.getText()+"   "+new AllSales().uptadesObservation();
+            observation = txaObs.getText() + "   " + new AllSales().uptadesObservation();
 
             InsertPeriod();
 
@@ -159,17 +167,17 @@ public class AlterData extends javax.swing.JFrame {
     }
 
     private void update() {
-        
+
         SalesController sc = new SalesController();
-        sc.updateSales(new Sales(idUpdate, new Vendedor(trSell),
+        sc.updateSales(new Sales(idUpdate, new Seller(trSell),
                 ldTSaleMade, cpf, cliente,
                 contacts, packgeSelected.toString(),
                 valuePackage, ldTSaleMarked, periodInstalation,
-                originSell, situation, observation,ToPrioritize.NO));
+                originSell, situation, partnership,observation, ToPrioritize.NO));
 
         JTablesFormatting.tableFormatColors(AllSales.tblRelatorioVendas);
 
-        sc.fillingsPacksges('m',ldTSaleMarked);
+        sc.fillingsPacksges('m', ldTSaleMarked);
         sc.returnData('a', (DefaultTableModel) AllSales.tblRelatorioVendas.getModel(), LocalDate.MIN, LocalDate.MIN);
         dispose();
     }
@@ -193,6 +201,7 @@ public class AlterData extends javax.swing.JFrame {
         btnSale = new javax.swing.JButton();
         btnCancell = new javax.swing.JButton();
         txtValue = new javax.swing.JTextField();
+        cbPartnerShip = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -350,7 +359,21 @@ public class AlterData extends javax.swing.JFrame {
                 txtValueKeyPressed(evt);
             }
         });
-        jPanel1.add(txtValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(173, 284, 130, 40));
+        jPanel1.add(txtValue, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 280, 130, 40));
+
+        cbPartnerShip.setBackground(new java.awt.Color(255, 255, 255));
+        cbPartnerShip.setBorder(javax.swing.BorderFactory.createTitledBorder("Parceira"));
+        cbPartnerShip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbPartnerShipActionPerformed(evt);
+            }
+        });
+        cbPartnerShip.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cbPartnerShipKeyPressed(evt);
+            }
+        });
+        jPanel1.add(cbPartnerShip, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 280, 110, 40));
 
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 570, 540));
 
@@ -482,6 +505,19 @@ public class AlterData extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtValueKeyPressed
 
+    private void cbPartnerShipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbPartnerShipActionPerformed
+        partnership = PartnerShip.fromString(cbPartnerShip.getSelectedItem() + "");
+
+        fillingPackage();
+    }//GEN-LAST:event_cbPartnerShipActionPerformed
+
+    private void cbPartnerShipKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cbPartnerShipKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER || evt.getKeyCode() == KeyEvent.VK_TAB) {
+           
+
+        }
+    }//GEN-LAST:event_cbPartnerShipKeyPressed
+
     /**
      * @param args the command line arguments
      */
@@ -522,6 +558,7 @@ public class AlterData extends javax.swing.JFrame {
     private javax.swing.JButton btnSale;
     public static javax.swing.JComboBox<String> cbOrigem;
     public static javax.swing.JComboBox<String> cbPacote;
+    public static javax.swing.JComboBox<String> cbPartnerShip;
     public static javax.swing.JComboBox<String> cbPeriodo;
     public static javax.swing.JComboBox<String> cbSituatiom;
     private javax.swing.JPanel jPanel1;

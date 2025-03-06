@@ -9,7 +9,7 @@ import Model.Enums.Packages;
 import Model.Enums.Period;
 import Model.Enums.Situation;
 import Model.Sales;
-import Model.Vendedor;
+import Model.Seller;
 import com.lowagie.text.Anchor;
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -44,7 +44,7 @@ public class ToPDF {
 
     public void head(Sales sale, List<MonthsYear> monthYear, String nameFile, float valueTot, int qtdTot) {
 
-        path = "C:/Users/mathe/Downloads/" + nameFile + ".pdf";
+        path = "C:\\Users\\Carlos Matheus\\Downloads/" + nameFile + ".pdf";
         int num = 0;
         try {
             FileOutputStream filepdf = new FileOutputStream(path);
@@ -246,16 +246,18 @@ public class ToPDF {
         return cell;
     }
 
-        private Anchor downloadCPFs(List<Sales> sale, String msg) {
+     private Anchor downloadCPFs(List<Sales> sale, String msg) {
     FileWriter writer = null;
-    String reference = System.getProperty("user.home") + "\\Downloads\\CPFs.txt";
-            System.out.println("REFE: "+reference);
+    String reference = System.getProperty("user.home") + "\\Download\\CPFs.txt";
+    System.out.println("REFE: " + reference);
     File file = new File(reference);
     try {
+        file.getParentFile().mkdirs(); // Cria o diretório se ele não existir
         writer = new FileWriter(file);
         int i = 1;
         for (Sales values : sale) {
-            writer.write(values.getCpf() + "\n");
+            //writer.write(i + ": "+values.getCpf() + " "+values.getPartnetship()+"\n");
+            writer.write(values.getCpf()+"\n");
             i++;
         }
     } catch (IOException ex) {
@@ -269,7 +271,7 @@ public class ToPDF {
             }
         }
     }
-    Anchor anchorTarget = new Anchor("                " + msg + "      Clique aqui para Baixar o arquivo TXT com todos os cpf");
+    Anchor anchorTarget = new Anchor(" " + msg + " Clique aqui para Baixar o arquivo TXT com todos os cpf");
     anchorTarget.setReference(reference);
     return anchorTarget;
 }
@@ -311,7 +313,7 @@ public class ToPDF {
 
     public static void main(String[] args) {
         ToPDF t = new ToPDF();
-//        Sales sale = new Sales(new Vendedor("799469"), LocalDateTime.now(),
+//        Sales sale = new Sales(new Seller("799469"), LocalDateTime.now(),
 //                "75465356", "Eu", "65465465", Packages.I_400MB.toString(),
 //                0, LocalDateTime.now(), Period.SELECT,
 //                Origin.SELECT, Situation.SELECT, "Ai pai para");
@@ -326,7 +328,7 @@ public class ToPDF {
 //        // t.head(sale, mon, mon.toString() + ".pdf");
 //        t.toExportPDFService(sales, mon, "C:/Users/mathe/Downloads/abr", 0, 0);
 //        t.body(SalesDAO.returnData('c', LocalDate.of(2024, Month.MARCH, 13), LocalDate.now()));
-//        t.head(new Sales(new Vendedor("799469"), LocalDateTime.now(), "75465356",
+//        t.head(new Sales(new Seller("799469"), LocalDateTime.now(), "75465356",
 //                "Eu", "65465465", packages, 0, LocalDateTime.MIN, Period.SELECT, Origin.SELECT, Situation.SELECT, observation), 5,LocalDateTime.now() , Period.SELECT, Origin.SELECT, Situation.SELECT, "Era yna vez"));
     }
 }
