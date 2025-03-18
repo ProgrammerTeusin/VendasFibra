@@ -1,0 +1,14 @@
+obs : 91
+dateInstalation : 91
+period : 90
+package : 91
+origin : 91
+dateMade : 91
+custormes : 91
+contact : 91
+cpf : 91
+partnerShip : 91
+prioriti : 91
+value : 80
+tr : 91
+situation : 90

@@ -36,7 +36,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -109,6 +108,8 @@ public class CurrentSales extends javax.swing.JFrame {
 
     public CurrentSales() {
         initComponents();
+        toEnableXampp();
+        System.out.println("pass e aaaa ");
         setExtendedState(MAXIMIZED_BOTH);
         ColorInPainel();
         jPanel1.setSize(getMaximumSize());
@@ -146,9 +147,22 @@ public class CurrentSales extends javax.swing.JFrame {
         mouseAndCloseOption();
         applyWidthsFromFile();
         applyInsertWidths();
-        
+
         cbTR.setSelectedIndex(2);
 
+    }
+
+    private void toEnableXampp() {
+        try {
+            // Substitua o caminho pelo local correto do mysql_start.bat
+            Process process = Runtime.getRuntime().exec("C:\\xampp\\mysql_start.bat");
+
+            Thread.sleep(500);
+            System.out.println("passou aqui ");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void mouseAndCloseOption() {

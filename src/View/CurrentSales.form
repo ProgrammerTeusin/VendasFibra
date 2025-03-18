@@ -454,9 +454,6 @@
           <SubComponents>
             <Component class="javax.swing.JTextField" name="txtCliente">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder title="Cliente">
@@ -468,7 +465,6 @@
                           <Color PropertyName="shadowInner" blue="99" green="99" red="99" type="rgb"/>
                         </BevelBorder>
                       </Border>
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
                     </TitledBorder>
                   </Border>
                 </Property>
@@ -484,9 +480,6 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtCPF">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder title="CPF/CNPJ">
@@ -498,7 +491,6 @@
                           <Color PropertyName="shadowInner" blue="99" green="99" red="99" type="rgb"/>
                         </BevelBorder>
                       </Border>
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
                     </TitledBorder>
                   </Border>
                 </Property>
@@ -514,9 +506,6 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbPeriodo">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
@@ -541,9 +530,6 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtContato">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder title="Contato">
@@ -555,7 +541,6 @@
                           <Color PropertyName="shadowInner" blue="99" green="99" red="99" type="rgb"/>
                         </BevelBorder>
                       </Border>
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
                     </TitledBorder>
                   </Border>
                 </Property>
@@ -571,17 +556,12 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbOrigem">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Origem">
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-                    </TitledBorder>
+                    <TitledBorder title="Origem"/>
                   </Border>
                 </Property>
               </Properties>
@@ -600,9 +580,6 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtDataInstalacao">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder title="Data de Instala&#xe7;&#xe3;o">
@@ -614,7 +591,6 @@
                           <Color PropertyName="shadowInner" blue="99" green="99" red="99" type="rgb"/>
                         </BevelBorder>
                       </Border>
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
                     </TitledBorder>
                   </Border>
                 </Property>
@@ -630,9 +606,6 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbPacote">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
@@ -669,9 +642,6 @@
               <SubComponents>
                 <Component class="javax.swing.JTextArea" name="txaObs">
                   <Properties>
-                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                    </Property>
                     <Property name="columns" type="int" value="20"/>
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="0" green="0" red="ff" type="rgb"/>
@@ -679,9 +649,7 @@
                     <Property name="rows" type="int" value="5"/>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                        <TitledBorder title="Observa&#xe7;&#xe3;o">
-                          <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-                        </TitledBorder>
+                        <TitledBorder title="Observa&#xe7;&#xe3;o"/>
                       </Border>
                     </Property>
                   </Properties>
@@ -716,17 +684,12 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbSituatiom">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Situa&#xe7;&#xe3;o">
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-                    </TitledBorder>
+                    <TitledBorder title="Situa&#xe7;&#xe3;o"/>
                   </Border>
                 </Property>
               </Properties>
@@ -774,9 +737,6 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbPartnerShip">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
@@ -843,9 +803,6 @@
             </Component>
             <Component class="javax.swing.JTextField" name="txtDateMadeUpdate">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
                     <TitledBorder title="Data de Instala&#xe7;&#xe3;o">
@@ -857,7 +814,6 @@
                           <Color PropertyName="shadowInner" blue="99" green="99" red="99" type="rgb"/>
                         </BevelBorder>
                       </Border>
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
                     </TitledBorder>
                   </Border>
                 </Property>
@@ -873,17 +829,12 @@
             </Component>
             <Component class="javax.swing.JComboBox" name="cbTR">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="0"/>
                 </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="TR Vendida">
-                      <Color PropertyName="color" blue="0" green="0" red="0" type="rgb"/>
-                    </TitledBorder>
+                    <TitledBorder title="TR Vendida"/>
                   </Border>
                 </Property>
               </Properties>
@@ -1418,9 +1369,6 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Tw Cen MT Condensed Extra Bold" size="18" style="1"/>
                     </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="a"/>
                   </Properties>
                   <Constraints>
@@ -1462,9 +1410,6 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Tw Cen MT Condensed Extra Bold" size="18" style="1"/>
                     </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="Manh&#xe3;"/>
                   </Properties>
                   <Constraints>
@@ -1475,9 +1420,6 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel7">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="Instalar Hoje"/>
                   </Properties>
                   <Constraints>
@@ -1490,9 +1432,6 @@
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Tw Cen MT Condensed Extra Bold" size="18" style="1"/>
-                    </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Tarde"/>
                   </Properties>
@@ -1528,9 +1467,6 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Tw Cen MT Condensed Extra Bold" size="18" style="1"/>
                     </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="Manh&#xe3;"/>
                   </Properties>
                   <Constraints>
@@ -1543,9 +1479,6 @@
                   <Properties>
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Tw Cen MT Condensed Extra Bold" size="18" style="1"/>
-                    </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
                     </Property>
                     <Property name="text" type="java.lang.String" value="Tarde"/>
                   </Properties>
@@ -1671,9 +1604,6 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Tw Cen MT Condensed Extra Bold" size="18" style="1"/>
                     </Property>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="0" green="0" red="0" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="a"/>
                   </Properties>
                   <Constraints>
@@ -1700,9 +1630,6 @@
           <SubComponents>
             <Component class="javax.swing.JTable" name="tblVendasRes">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                </Property>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Times New Roman" size="18" style="0"/>
                 </Property>
@@ -1848,9 +1775,6 @@
         </Component>
         <Component class="javax.swing.JButton" name="btnSetVisible">
           <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/IconsImages/eyeOpen.png"/>
             </Property>
@@ -1909,9 +1833,6 @@
         </Container>
         <Component class="javax.swing.JComboBox" name="cbSeachSelingsBy">
           <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
             </Property>
